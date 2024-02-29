@@ -4,7 +4,7 @@ By defining a *configuration baseline* (YAML) that contains all the desired conf
 
 Any *configuration baseline* is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
 
-Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK]([https://github.com/pnp/PnP-Provisioning-Schema](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview)). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
+Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
 
 Give it a try – We're sure you will like it! 💪
 
@@ -14,7 +14,7 @@ Give it a try – We're sure you will like it! 💪
 
 ## Dependencies
 ![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.3.0-green.svg) 
-![Microsoft.Graph](https://img.shields.io/badge/PnP.Powershell-2.15.0-green.svg) 
+![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-green.svg) 
 
 
 ## Applies to
