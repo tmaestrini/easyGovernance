@@ -6,7 +6,7 @@ Any *configuration baseline* is considered to reference the baseline suggestions
 
 Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK]([https://github.com/pnp/PnP-Provisioning-Schema](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview)). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
 
-Give it a try – I'm sure you will like it! 💪
+Give it a try – We're sure you will like it! 💪
 
 > [!NOTE]
 > 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported  – but other services will follow asap. Any contributors are welcome! 🙌
@@ -24,11 +24,10 @@ Give it a try – I'm sure you will like it! 💪
 > Get your own free development tenant by subscribing to [Microsoft 365 developer program](http://aka.ms/o365devprogram)
 
 
-## Solution
+## Contributors
 
-| Solution         | Author(s)                                                                                   |
-| ---------------- | ------------------------------------------------------------------------------------------- |
-| easyGovernane    | Tobias Maestrini [@tmaestrini](https://twitter.com/tmaestrini) |
+* Tobias Maestrini [@tmaestrini](https://github.com/tmaestrini)
+* Daniel Kordes [@dako365](https://github.com/dako365)
 
 
 ## Version history
