@@ -1,6 +1,6 @@
 Topic: SharePoint Online
 Type: Baseline
-Id: 5.2
+Id: M365.SPO-5.2
 Configuration:
   ExternalSharing:
     - SharingCapability: ExistingExternalUserSharingOnly
@@ -16,11 +16,11 @@ Configuration:
     - EmailAttestationReAuthDays: 30
     - PreventExternalUsersFromResharing: true
     - SharingDomainRestrictionMode: AllowList
-    - SharingAllowedDomainList: "{{customerTenantDomain}}"
+    - SharingAllowedDomainList: ""
     - ShowEveryoneClaim: false
     - ShowEveryoneExceptExternalUsersClaim: false
   ApplicationsAndWebparts:
-    - DisabledWebPartIds: "{{disabledWebPartIds}}"
+    - DisabledWebPartIds: ""
   AccessControl:
     - ConditionalAccessPolicy: AllowFullAccess
     - BrowserIdleSignout: true
