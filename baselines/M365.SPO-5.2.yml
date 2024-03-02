@@ -1,0 +1,32 @@
+Topic: SharePoint Online
+Type: Baseline
+Id: 5.2
+Configuration:
+  ExternalSharing:
+    - SharingCapability: ExistingExternalUserSharingOnly
+    - DefaultSharingLinkType: Internal
+    - DefaultLinkPermission: View
+    - RequireAcceptingAccountMatchInvitedAccount: true
+    - RequireAnonymousLinksExpireInDays: 30
+    - FileAnonymousLinkType: View
+    - FolderAnonymousLinkType: View
+    - CoreRequestFilesLinkEnabled: true
+    - ExternalUserExpireInDays: 30
+    - EmailAttestationRequired: true
+    - EmailAttestationReAuthDays: 30
+    - PreventExternalUsersFromResharing: true
+    - SharingDomainRestrictionMode: AllowList
+    - SharingAllowedDomainList: "{{customerTenantDomain}}"
+    - ShowEveryoneClaim: false
+    - ShowEveryoneExceptExternalUsersClaim: false
+  ApplicationsAndWebparts:
+    - DisabledWebPartIds: "{{disabledWebPartIds}}"
+  AccessControl:
+    - ConditionalAccessPolicy: AllowFullAccess
+    - BrowserIdleSignout: true
+    - BrowserIdleSignoutMinutes: 60
+    - BrowserIdleSignoutWarningMinutes: 5
+    - LegacyAuthProtocolsEnabled: false
+  SiteCreationAndStorageLimits:
+    - NotificationsInSharePointEnabled: true
+    - DenyAddAndCustomizePages: true
