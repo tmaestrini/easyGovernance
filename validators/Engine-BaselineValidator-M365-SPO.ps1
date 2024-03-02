@@ -4,7 +4,6 @@ Connect-PnPOnline -Url $AdminCenterURL -Interactive
 
 $fileContent = Get-Content "./baselines/M365.SPO-5.2.yml" -Raw
 $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
-# ConvertTo-Yaml -JsonCompatible $baseline
 
 if ($baseline.Topic -eq "SharePoint Online") {
     $tenantSettings = Get-PnPTenant | Select ($baseline.Configuration.ExternalSharing.Keys)
