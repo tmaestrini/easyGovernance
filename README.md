@@ -57,12 +57,14 @@ Get rid of all the local dependencies: in case you're working in Visual Studio C
 1. Make sure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on your local machine. 
 2. After that, reopen the project and select `Reopen in Container`. <br>This will span up a virtual environment that contains all the required dependencies, based on the `Dockerfile` and the `devcontainer.json` definition in [`.devcontainer`](.devcontainer) – and all PowerShell modules installed on your local machine will remain unaffected. 😃
 
+> [!NOTE]
+> The remote container is based on PowerShell 7.2 (differs from the version mentioned in the dependencies); this is not a problem.
 You're good to go!
 
 ### Local installation
 
 > [!NOTE]
-> 👉 Make sure you're at least on PowerShell >7; dependencies suggest version `7.4.1`.
+> 👉 Make sure you're at least on PowerShell >7 – see dependencies section for best reference.
 
 There are tow
 Before using any fragement, either install all dependencies on your local machine:
