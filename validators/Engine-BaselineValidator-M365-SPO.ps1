@@ -6,7 +6,7 @@ $fileContent = Get-Content "./baselines/M365.SPO-5.2.yml" -Raw
 $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
 
 if ($baseline.Topic -eq "SharePoint Online") {
-    $tenantSettings = Get-PnPTenant | Select ($baseline.Configuration.ExternalSharing.Keys)
+    $tenantSettings = Get-PnPTenant | Select-Object ($baseline.Configuration.ExternalSharing.Keys)
     $baselineSettings = $baseline.Configuration.ExternalSharing
 
     $output = [System.Collections.SortedList]::new()
