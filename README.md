@@ -29,6 +29,7 @@ Give it a try – We're sure you will like it! 💪
 
 * Tobias Maestrini [@tmaestrini](https://github.com/tmaestrini)
 * Daniel Kordes [@dako365](https://github.com/dako365)
+* Marc D. Anderson [@sympmarc](https://github.com/sympmarc)
 
 
 ## Version history
