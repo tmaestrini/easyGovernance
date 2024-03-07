@@ -1,2 +1,2 @@
 # exclude tenant settings file
-.settings.json
+.settings.yml
