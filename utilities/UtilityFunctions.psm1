@@ -16,7 +16,7 @@ function Add-TenantVariables {
     Begin {
  
         $root = ".\"
-        $settings = Get-Content -Path "$($root)\.settings.json" | ConvertFrom-Json
+        $settings = Get-Content -Path "$($root)\.settings.yml" | ConvertFrom-Yaml
  
     }
     Process {
