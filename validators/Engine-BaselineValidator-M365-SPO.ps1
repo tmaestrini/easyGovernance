@@ -1,5 +1,5 @@
 #Parameters
-$AdminCenterURL = "https://tmaestrini-admin.sharepoint.com"
+$AdminCenterURL = "https://[tenant]-admin.sharepoint.com"
 Connect-PnPOnline -Url $AdminCenterURL -Interactive
 
 $fileContent = Get-Content "./baselines/M365.SPO-5.2.yml" -Raw
