@@ -72,7 +72,7 @@ Before using any fragement, either install all dependencies on your local machin
 
 ```powershell
 Install-Module -Name powershell-yaml -Scope CurrentUser
-Install-Module -Name PnP.PowerShell -RequiredVersion 2.3.0 -Scope CurrentUser
+Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 ```
 
