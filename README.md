@@ -82,6 +82,50 @@ Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 There are two approaches to get «in contact» with your M365 tenant or the M365 services.<br>
 👉 Basically, every approach focusses the **configuration baselines**.
 
+### Configuration baselines
+Every configuration baseline is a YAML file that contains an initial setup of configuration parameters for a specific service or a tenant:
+```yaml
+Topic: SharePoint Online
+Type: Baseline
+Id: M365.SPO-5.2
+
+References:
+  - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings	
+
+Configuration:
+  ExternalSharing:
+    - SharingCapability: ExistingExternalUserSharingOnly # Specifies what the sharing capabilities are for the site
+    - DefaultSharingLinkType: Internal # Specifies the default sharing link type
+    - DefaultLinkPermission: View
+    - RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
+    - RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
+    - FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+    - FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+    - CoreRequestFilesLinkEnabled: true # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
+    - ExternalUserExpireInDays: 30 # When a value is set, it means that the access of the external user will expire in those many number of days.
+    - EmailAttestationRequired: true # Sets email attestation to required.
+    - EmailAttestationReAuthDays: 30 # Sets the number of days for email attestation re-authentication. Value can be from 1 to 365 days.
+    - PreventExternalUsersFromResharing: true # Prevents external users from resharing files, folders, and sites that they do not own.
+    - SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
+    - SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
+    - ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
+    - ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
+  ApplicationsAndWebparts:
+    - DisabledWebPartIds: ""
+  AccessControl:
+    - ConditionalAccessPolicy: AllowFullAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
+    - BrowserIdleSignout: true
+    - BrowserIdleSignoutMinutes: 60
+    - BrowserIdleSignoutWarningMinutes: 5
+    - LegacyAuthProtocolsEnabled: false # Setting this parameter prevents Office clients using non-modern authentication protocols from accessing SharePoint Online resources
+  SiteCreationAndStorageLimits:
+    - NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
+    - DenyAddAndCustomizePages: true
+```
+
 ### Provision of services
 > [!IMPORTANT]
 > TODO
@@ -92,5 +136,5 @@ To run a validation for a tenant according to the defined baselines:
 ```powershell
 # Validate a given tenant from settings file
 Import-Module .\src\Validation.psm1 -Force
-Start-Validation -TemplateName "[tenantname].yml"
+Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
 ```
