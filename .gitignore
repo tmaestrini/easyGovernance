@@ -1,2 +1,3 @@
-# exclude tenant settings file
-.settings.yml
+# exclude tenant settings
+tenants/*
+!tenants/settings_template.yml
