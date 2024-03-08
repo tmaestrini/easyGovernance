@@ -14,7 +14,7 @@ Give it a try – We're sure you will like it! 💪
 
 ## Dependencies
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg) 
-![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.3.0-blue.svg) 
+![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg) 
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg) 
 ![Microsoft.Graph](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg) 
 
