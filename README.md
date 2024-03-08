@@ -87,5 +87,10 @@ There are two approaches to get «in contact» with your M365 tenant or the M365
 > TODO
 
 ### Validation of services 
-> [!IMPORTANT]
-> TODO
+To run a validation for a tenant according to the defined baselines:
+
+```powershell
+# Validate a given tenant from settings file
+Import-Module .\src\Validation.psm1 -Force
+Start-Validation -TemplateName "[tenantname].yml"
+```
