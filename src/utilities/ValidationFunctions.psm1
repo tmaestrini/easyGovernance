@@ -40,7 +40,7 @@ function Test-Settings {
           $output += [PSCustomObject]@{
             Group   = $baselineSettingsGroup
             Setting = $key
-            Result  = "---"
+            Result  = "--- [Should be '$($setting.$key)']"
             Status  = "CHECK NEEDED"
           }
         } 

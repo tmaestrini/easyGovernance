@@ -15,7 +15,7 @@ Function Start-Validation {
     # Set things up
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     Clear-Host
-    Write-Host "`n----------------------------------------`n⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant) `n-----------------------------------------"
+    Write-Host "`n-----------------------------------------`n⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant) `n-----------------------------------------"
     
     $baselines = $tenantConfig.Baselines
     foreach ($baseline in $baselines) {
