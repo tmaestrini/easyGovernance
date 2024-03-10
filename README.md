@@ -67,7 +67,6 @@ You're good to go!
 > [!NOTE]
 > 👉 Make sure you're at least on PowerShell >7 – see dependencies section for best reference.
 
-There are tow
 Before using any fragement, either install all dependencies on your local machine:
 
 ```powershell
