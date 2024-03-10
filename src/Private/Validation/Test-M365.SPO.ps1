@@ -32,14 +32,13 @@ Function Test-M365.SPO {
 
       $fileContent = Get-Content "baselines/$($baselineId.Trim()).yml" -Raw
       $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
-      $adminSiteUrl
+
       if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
   
       if ($baseline.Topic -eq "SharePoint Online") {
         $tenantSettings = Get-PnPTenant 
-        Clear-Host
-        Write-Host "`n------------------------------`n⭐︎ Baseline Validation Results`n------------------------------"
-        Write-Host "Baseline: $baselineId`n"
+        Write-Host "`nBaseline Validation Results`n----------------------------"
+        Write-Host "◉ Baseline: $baselineId`n"
 
         Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Key `
       | Format-Table -GroupBy Group -Wrap -Property Setting, Result
