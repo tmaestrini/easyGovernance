@@ -33,6 +33,7 @@ function Test-Settings {
             Group   = $baselineSettingsGroup
             Setting = $key
             Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key)' but is '$($tenantSettings.$key)']"
+            Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
           }
         }
         else { 
@@ -40,6 +41,7 @@ function Test-Settings {
             Group   = $baselineSettingsGroup
             Setting = $key
             Result  = "---"
+            Status  = "CHECK NEEDED"
           }
         } 
       }
