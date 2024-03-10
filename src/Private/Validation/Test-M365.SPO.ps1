@@ -39,10 +39,11 @@ Function Test-M365.SPO {
         $tenantSettings = Get-PnPTenant 
         Write-Host "`nBaseline Validation Results`n----------------------------"
         Write-Host "◉ Baseline: $baselineId`n"
-
-        Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Key `
-      | Format-Table -GroupBy Group -Wrap -Property Setting, Result
-            
+        
+        $test = Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Key
+        $test | Format-Table -GroupBy Group -Wrap -Property Setting, Result
+        
+        $stats = Get-TestStatistics $test
       }
     }
     catch {

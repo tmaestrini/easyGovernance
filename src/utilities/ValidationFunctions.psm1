@@ -52,3 +52,33 @@ function Test-Settings {
     return $output
   }
 }
+
+function Get-TestStatistics {
+  [CmdletBinding()]
+  [Alias()]
+  [OutputType([int])]
+  Param
+  (
+    [Parameter(
+      Mandatory = $true
+    )][PSCustomObject] 
+    $testResult
+  )
+
+  Process {
+    $stats = @{
+      Total  = $testResult.Count
+      Passed = $testResult | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
+      Failed = $testResult | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
+      Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
+    }
+    
+    Write-Host "----------------------------"
+    Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
+    Write-Host $("{0,-21} {1,5}" -f "Checks passed:", $stats.Passed)
+    Write-Host $("{0,-21} {1,5}" -f "Checks failed:", $stats.Failed)
+    Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
+    Write-Host "----------------------------"        
+    return $stats
+  }
+}
