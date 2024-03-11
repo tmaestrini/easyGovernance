@@ -83,8 +83,8 @@ function Test-Settings {
     
       Write-Host "----------------------------"
       Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
-      Write-Host $("{0,-21} {1,5}" -f "Checks passed:", $stats.Passed)
-      Write-Host $("{0,-21} {1,5}" -f "Checks failed:", $stats.Failed)
+      Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
+      Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
       Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
       Write-Host "----------------------------"        
       return $stats
