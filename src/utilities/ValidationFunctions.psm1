@@ -35,7 +35,7 @@ function Test-Settings {
             $output.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
                 Group   = $baselineSettingsGroup
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key)' but is '$($tenantSettings.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
@@ -43,7 +43,7 @@ function Test-Settings {
             $output.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
                 Group   = $baselineSettingsGroup
                 Setting = $key
-                Result  = "--- [Should be '$($setting.$key -join ' | ')']"
+                Result  = "--- [Should be '$($setting.$key -join ''' or ''')']"
                 Status  = "CHECK NEEDED"
               })
             }
