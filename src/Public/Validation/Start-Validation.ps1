@@ -8,7 +8,11 @@ Function Start-Validation {
     )][string]$TemplateName,
     [Parameter(
       Mandatory = $false
-    )][switch]$KeepConnectionsAlive
+    )][switch]$KeepConnectionsAlive,
+    [Parameter(
+      Mandatory = $false,
+      HelpMessage = "Returns the results as an object"
+    )][switch]$ReturnAsObject
   )
     
   try {
@@ -16,11 +20,16 @@ Function Start-Validation {
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     Clear-Host
     Write-Host "`n-----------------------------------------`n⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant) `n-----------------------------------------"
+    Write-Host "`nBaseline Validation Results"
     
+    $returnedBaselines = @();
     $baselines = $tenantConfig.Baselines
     foreach ($baseline in $baselines) {
-      if ($baseline -eq 'M365.SPO-5.2') { Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant }
+      if ($baseline -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
+      if ($baseline -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
     }
+    if (!$ReturnAsObject) { $returnedBaselines }
+    if ($ReturnAsObject) { return $returnedBaselines }
   }
   catch {
     $_
