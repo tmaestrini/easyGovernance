@@ -12,7 +12,7 @@ function Test-Settings {
   (
     # Tenant settings
     [PSCustomObject]
-    $tenantSettings,
+    $settingsToCompare,
  
     # Baseline
     [PSCustomObject]
@@ -27,7 +27,7 @@ function Test-Settings {
     foreach ($baselineSettingsGroup in $baseline.Configuration.Keys) {
       foreach ($key in $baseline.Configuration[$baselineSettingsGroup].Keys) {
         $setting = $baseline.Configuration[$baselineSettingsGroup]
-        $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $setting.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
+        $test = $null -ne $settingsToCompare.$key ? (Compare-Object -ReferenceObject $setting.$key -DifferenceObject $settingsToCompare.$key -IncludeEqual) : $null
         
         try {
           $baselineResult
@@ -35,7 +35,7 @@ function Test-Settings {
             $output.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
                 Group   = $baselineSettingsGroup
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($settingsToCompare.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($settingsToCompare.$key)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
@@ -83,10 +83,12 @@ function Test-Settings {
     
       Write-Host "----------------------------"
       Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
+      Write-Host "----------------------------"
       Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
       Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
       Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
       Write-Host "----------------------------"        
+      
       return $stats
     }
   }
