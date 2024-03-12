@@ -27,35 +27,54 @@ Function Test-M365.SPO {
  
   Begin {
     $adminSiteUrl = "https://${tenantId}-admin.sharepoint.com"
+
+    function Connect() {
+      Connect-PnPOnline -Url $adminSiteUrl -Interactive
+      if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
+    }
+
+    function Extract() {      
+      return Get-PnPTenant 
+    }
+
+    function Transform([PSCustomObject] $extractedSettings) {
+      return $extractedSettings
+    }
+
+    function Validate([PSCustomObject] $tenantSettings, [PSCustomObject] $baseline) {
+      $testResult = Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Setting
+      return $testResult
+    }    
   }
   Process {
-    try {   
-      Connect-PnPOnline -Url $adminSiteUrl -Interactive
-
+    try {
+      Write-Host "`n-----------------------------------------"
+      Write-Host "◉ Baseline: $baselineId`n"
+      
       $fileContent = Get-Content "baselines/$($baselineId.Trim()).yml" -Raw
       $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
+      
+      # Establish connection to tenant & services
+      Connect
 
-      if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
-  
-      if ($baseline.Topic -eq "SharePoint Online") {
-        $tenantSettings = Get-PnPTenant 
-        Write-Host "`n-----------------------------------------"
-        Write-Host "◉ Baseline: $baselineId`n"
-        
-        $test = Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Setting
-        $testGrouped = ($test | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
-        
-        if (!$ReturnAsObject) { $testGrouped | Out-Host }
-        $stats = Get-TestStatistics $test
+      # Validate tenant settings
+      $settingsToValidate = Extract
+      $tenantSettings = Transform $settingsToValidate
+      $result = Validate $tenantSettings -baseline $baseline
 
-        if ($returnAsObject) {
-          return @{
-            Baseline          = $baselineId; 
-            Result            = $test; 
-            ResultGroupedText = $testGrouped;
-            Statistics        = $stats 
-          } 
-        }
+      # Output
+      $resultGrouped = ($result | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
+      if (!$ReturnAsObject) { $resultGrouped | Out-Host }
+      $resultStats = Get-TestStatistics $result
+
+      # Return data
+      if ($returnAsObject) {
+        return @{
+          Baseline          = $baselineId; 
+          Result            = $result; 
+          ResultGroupedText = $resultGrouped;
+          Statistics        = $resultStats 
+        } 
       }
     }
     catch {

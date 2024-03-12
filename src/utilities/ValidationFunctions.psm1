@@ -12,7 +12,7 @@ function Test-Settings {
   (
     # Tenant settings
     [PSCustomObject]
-    $settingsToCompare,
+    $tenantSettings,
  
     # Baseline
     [PSCustomObject]
@@ -20,27 +20,26 @@ function Test-Settings {
   )
 
   Begin {
-    $output = @{};
+    $testResult = @{};
   }
 
   Process {
     foreach ($baselineSettingsGroup in $baseline.Configuration.Keys) {
       foreach ($key in $baseline.Configuration[$baselineSettingsGroup].Keys) {
         $setting = $baseline.Configuration[$baselineSettingsGroup]
-        $test = $null -ne $settingsToCompare.$key ? (Compare-Object -ReferenceObject $setting.$key -DifferenceObject $settingsToCompare.$key -IncludeEqual) : $null
+        $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $setting.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
         
         try {
-          $baselineResult
           if ($test) { 
-            $output.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
+            $testResult.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
                 Group   = $baselineSettingsGroup
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($settingsToCompare.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($settingsToCompare.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
           else { 
-            $output.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
+            $testResult.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
                 Group   = $baselineSettingsGroup
                 Setting = $key
                 Result  = "--- [Should be '$($setting.$key -join ''' or ''')']"
@@ -56,39 +55,39 @@ function Test-Settings {
     }
   
     End {
-      $output = $output | Sort-Object -Property Key -Unique
-      return $output.Values
+      $testResult = $testResult | Sort-Object -Property Key -Unique
+      return $testResult.Values
     }
   }
 
-  function Get-TestStatistics {
-    [CmdletBinding()]
-    [Alias()]
-    [OutputType([int])]
-    Param
-    (
-      [Parameter(
-        Mandatory = $true
-      )][PSCustomObject] 
-      $testResult
-    )
+function Get-TestStatistics {
+  [CmdletBinding()]
+  [Alias()]
+  [OutputType([hashtable])]
+  Param
+  (
+    [Parameter(
+      Mandatory = $true
+    )][PSCustomObject] 
+    $testResult
+  )
 
-    Process {
-      $stats = @{
-        Total  = $testResult.Count
-        Passed = $testResult | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
-        Failed = $testResult | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
-        Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
-      }
+  Process {
+    $stats = @{
+      Total  = $testResult.Count
+      Passed = $testResult | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
+      Failed = $testResult | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
+      Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
+    }
     
-      Write-Host "----------------------------"
-      Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
-      Write-Host "----------------------------"
-      Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
-      Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
-      Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
-      Write-Host "----------------------------"        
+    Write-Host "----------------------------"
+    Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
+    Write-Host "----------------------------"
+    Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
+    Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
+    Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
+    Write-Host "----------------------------"        
       
-      return $stats
-    }
+    return $stats
   }
+}
