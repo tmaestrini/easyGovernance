@@ -130,10 +130,25 @@ Configuration:
 > TODO
 
 ### Validation of services 
-To run a validation for a tenant according to the defined baselines:
+To run a validation for a tenant according to the defined baselines, simply call the `Start-Validation` cmdlet.
+This will compare the existing setup from the settings file (`[tenantname.yml]`) with the configured baseline and print
+the result to the std output.
 
 ```powershell
 # Validate a given tenant from settings file
 Import-Module .\src\Validation.psm1 -Force
 Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
 ```
+If you would like to store the validation results in a variable – for example to process the results in a further way.
+Simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+
+```powershell
+# Validate a given tenant from settings file and store the result in a variable
+Import-Module .\src\Validation.psm1 -Force
+$validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
+```
+The returned object contains following attributes:
+* `Baseline`: The Baseline Id 
+* `Result`: The test result (aka validation results)
+* `ResultGroupedText`: The test results as text (grouped)
+* `Statistics`: The statistics of the validation
