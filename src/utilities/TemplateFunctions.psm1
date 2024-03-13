@@ -19,14 +19,12 @@ function Get-TenantTemplate {
   Begin {
     $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ../../tenants/$TemplateName
   }
-
   Process {
     if (-not(Test-Path -Path $ConfigPath -PathType Leaf)) {
       Write-Error "No template found for '$Tenant'" -ErrorAction Stop
     }
     $settings = (Get-Content -Path $ConfigPath) -join "`n" | ConvertFrom-Yaml
   }
-  
   End {
     return $settings
   }
@@ -46,21 +44,17 @@ function Get-BaselineTemplate {
   (
     [Parameter(
       Mandatory = $true
-    )][string]$BaselineId,
-    [Parameter(Mandatory = $true)]
-    [string]$BaselinesFolder
+    )][string]$BaselineId
   )
  
   Begin {
-    $ConfigPath = Join-Path -Path $BaselinesFolder -ChildPath "$($BaselineId.Trim()).yml"
-    
+    $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath "../../baselines/$($BaselineId.Trim()).yml"
   }
   Process {
     if (-not(Test-Path -Path $ConfigPath -PathType Leaf)) {
-      Write-Error "No template found for '$BaselineId'" -ErrorAction Stop
+      Write-Error "No baseline found with id '$BaselineId'" -ErrorAction Stop
     }
-    $fileContent = Get-Content $ConfigPath -Raw -ErrorAction Stop
-    $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
+    $baseline = (Get-Content $ConfigPath -Raw) -join "`n" | ConvertFrom-Yaml -AllDocuments
   }
   End {
     return $baseline
