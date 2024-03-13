@@ -16,15 +16,17 @@ Function Start-Validation {
   )
     
   try {
-    # Set things up
-    $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     Clear-Host
     Write-Host "========================================="
     Write-Host "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Host "========================================="
     Write-Host "`nBaseline Validation Results"
     
+    # Set things up
+    $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     $returnedBaselines = @();
+
+    # Run baselines
     $baselines = $tenantConfig.Baselines
     foreach ($baseline in $baselines) {
       if ($baseline -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
