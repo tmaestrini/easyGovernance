@@ -126,8 +126,30 @@ Configuration:
 ```
 
 ### Provision of services
-> [!IMPORTANT]
-> TODO
+To configure a tenant or service according to the settings defined in baselines, simply call the `Start-Provisioning` cmdlet.
+This process will apply all baselines for a tenant (`[tenantname.yml]`) with the respective settings and print
+the result to the std output.
+
+To configure a tenant or service according to the settings defined in the baselines, simply call the `Start-Provisioning` cmdlet.
+This process applies all associated baseline settings to a tenant (`[Tenantname.yml]`) and prints the result to the standard output.
+
+```powershell
+# Provisiong a given tenant and its services from settings file
+Import-Module .\src\Provisioning.psm1 -Force
+Start-Provisioning -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
+```
+If you would like to store the provisioning results in a variable – for example to process the results in a further way,
+simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+
+```powershell
+# Provision a given tenant and its services from settings file and store the result in a variable
+Import-Module .\src\Provisioning.psm1 -Force
+$provisioningResults = Start-Provisioning -TemplateName "[tenantname].yml" -ReturnAsObject
+```
+The returned object contains following attributes:
+* `Baseline`: The Baseline Id 
+* `Result`: The test result (aka provisioning results)
+* `Statistics`: The statistics of the provisioning
 
 ### Validation of services 
 To run a validation for a tenant according to the defined baselines, simply call the `Start-Validation` cmdlet.
@@ -139,8 +161,8 @@ the result to the std output.
 Import-Module .\src\Validation.psm1 -Force
 Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
 ```
-If you would like to store the validation results in a variable – for example to process the results in a further way.
-Simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+If you would like to store the validation results in a variable – for example to process the results in a further way,
+simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
 
 ```powershell
 # Validate a given tenant from settings file and store the result in a variable
