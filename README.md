@@ -125,7 +125,7 @@ Configuration:
     - DenyAddAndCustomizePages: true
 ```
 
-### Provision of services
+### Provisioning of tenant and services
 To configure a tenant or service according to the settings defined in baselines, simply call the `Start-Provisioning` cmdlet.
 This process will apply all baselines for a tenant (`[tenantname.yml]`) with the respective settings and print
 the result to the std output.
