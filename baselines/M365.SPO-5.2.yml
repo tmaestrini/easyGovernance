@@ -29,7 +29,7 @@ Configuration:
   ApplicationsAndWebparts:
     - DisabledWebPartIds: ""
   AccessControl:
-    - ConditionalAccessPolicy: AllowFullAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
+    - ConditionalAccessPolicy: AllowLimitedAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
     - BrowserIdleSignout: true
     - BrowserIdleSignoutMinutes: 60
     - BrowserIdleSignoutWarningMinutes: 5
@@ -37,3 +37,4 @@ Configuration:
   SiteCreationAndStorageLimits:
     - NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
     - DenyAddAndCustomizePages: true
+    - DenySiteCreationByUsers: true
