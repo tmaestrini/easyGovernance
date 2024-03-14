@@ -37,3 +37,4 @@ Configuration:
   SiteCreationAndStorageLimits:
     - NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
     - DenyAddAndCustomizePages: true
+    - DenySiteCreationByUsers: true
