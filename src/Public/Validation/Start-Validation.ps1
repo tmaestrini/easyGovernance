@@ -18,12 +18,14 @@ Function Start-Validation {
   try {
     # Set things up
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
+
     Clear-Host
     Write-Host "========================================="
     Write-Host "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Host "========================================="
     Write-Host "`nBaseline Validation Results"
-    
+        
+    # Run baselines
     $returnedBaselines = @();
     $baselines = $tenantConfig.Baselines
     foreach ($baseline in $baselines) {
