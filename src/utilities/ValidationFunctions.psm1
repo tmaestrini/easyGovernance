@@ -24,25 +24,26 @@ function Test-Settings {
   }
 
   Process {
-    foreach ($baselineSettingsGroup in $baseline.Configuration.Keys) {
-      foreach ($key in $baseline.Configuration[$baselineSettingsGroup].Keys) {
-        $setting = $baseline.Configuration[$baselineSettingsGroup]
-        $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $setting.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
+    foreach ($baselineSettingsGroup in $baseline.Configuration) {
+      $settings = $baselineSettingsGroup.with
+      $groupName = $baselineSettingsGroup.enforces
+      foreach ($key in $settings.Keys) {
+        $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
         
         try {
           if ($test) { 
-            $testResult.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
-                Group   = $baselineSettingsGroup
+            $testResult.Add("$groupName-$key", [PSCustomObject] @{
+                Group   = $groupName
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($setting.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($settings.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
           else { 
-            $testResult.Add("$baselineSettingsGroup$key", [PSCustomObject] @{
-                Group   = $baselineSettingsGroup
+            $testResult.Add("$groupName-$key", [PSCustomObject] @{
+                Group   = $groupName
                 Setting = $key
-                Result  = "--- [Should be '$($setting.$key -join ''' or ''')']"
+                Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
                 Status  = "CHECK NEEDED"
               })
             }
