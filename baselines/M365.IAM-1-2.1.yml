@@ -1,59 +1,68 @@
 Topic: Identity & Access Management
 Type: Baseline
 Id: M365.IAM-1-2.1 
+Version: 1.0
 
 References:
 
 
 Configuration:
-  MicrosoftEntraID:
-    - AllowUsersRegisterApplications: false # Specifies whether users can register applications.
-    - RestrictUserToCreateTenants: false # Specifies whether users can create tenants.
-    - CanUsersCreateSecurityGroups: false # Specifies whether users can create security groups.
-    - AccessRestrictionsForGuest: tbd # Specifies the access restrictions for guest users.
-    - RestrictAccessToEntraIDPortal: true # Specifies whether users access to the EntraID portal is restricted.
-    - AllowLinkedinConnections: false # Specifies whether users can connect their LinkedIn account to their EntraID account.
-    - KeepMeSignedIn: false # Specifies whether the Keep me signed in option is enabled.
-    - ExternalCollaboration: configured # Specifies whether external collaboration is configured.
-    - ManageUserFeature: false # Specifies whether the manage user feature is configured.
-    - GroupManagement: configured # Specifies whether group management with naming policy and expiration is configured.
-    - EntraIDRBAC: configured # Specifies whether EntraID Roles are only configured via PIM.
-    - EnterpriseApplications: not configured # Specifies whether enterprise applications are detected.
-    - DeviceRegistration: not configured # Specifies whether device registration is set to default
-    - IdentityGovernance: not configured # Specifies whether identity governance is set to default
-    - Licenses: true # Specifies whether licenses are only assigend to groups.
-    - CustomDomainNames: configured # Specifies whether custom domain names are configured.
-    - Mobility: not configured # Specifies whether mobility is set to default.
-    - CompanyBranding: configured # Specifies whether company branding is configured.
+  - enforces: MicrosoftEntraID
+    with:
+      AllowUsersRegisterApplications: false # Specifies whether users can register applications.
+      RestrictUserToCreateTenants: false # Specifies whether users can create tenants.
+      CanUsersCreateSecurityGroups: false # Specifies whether users can create security groups.
+      AccessRestrictionsForGuest: tbd # Specifies the access restrictions for guest users.
+      RestrictAccessToEntraIDPortal: true # Specifies whether users access to the EntraID portal is restricted.
+      AllowLinkedinConnections: false # Specifies whether users can connect their LinkedIn account to their EntraID account.
+      KeepMeSignedIn: false # Specifies whether the Keep me signed in option is enabled.
+      ExternalCollaboration: configured # Specifies whether external collaboration is configured.
+      ManageUserFeature: false # Specifies whether the manage user feature is configured.
+      GroupManagement: configured # Specifies whether group management with naming policy and expiration is configured.
+      EntraIDRBAC: configured # Specifies whether EntraID Roles are only configured via PIM.
+      EnterpriseApplications: not configured # Specifies whether enterprise applications are detected.
+      DeviceRegistration: not configured # Specifies whether device registration is set to default
+      IdentityGovernance: not configured # Specifies whether identity governance is set to default
+      Licenses: true # Specifies whether licenses are only assigend to groups.
+      CustomDomainNames: configured # Specifies whether custom domain names are configured.
+      Mobility: not configured # Specifies whether mobility is set to default.
+      CompanyBranding: configured # Specifies whether company branding is configured.
 
-  Microsoft365Groups:
-    - M365GroupCreation: false # Specifies whether group creation is enabled.
-    - M365GroupNamingPolicy: "" # Specifies the group naming policy.
-    - M365GroupExpiration: annualy # Specifies the group expiration policy.
+  - enforces: Microsoft365Groups
+    with:
+      M365GroupCreation: false # Specifies whether group creation is enabled.
+      M365GroupNamingPolicy: "" # Specifies the group naming policy.
+      M365GroupExpiration: annualy # Specifies the group expiration policy.
 
-  BreakGlassAccounts:
-    - BreakGlassAccountEnabled: true # Specifies whether the break glass account is enabled.
-    - BreakGlassAccountGroupName: "" # Specifies the break glass account group name.
+  - enforces: BreakGlassAccounts
+    with:
+      BreakGlassAccountEnabled: true # Specifies whether the break glass account is enabled.
+      BreakGlassAccountGroupName: "" # Specifies the break glass account group name.
 
-  Lockout:
-    - LockoutThreshold: 5 # Specifies the number of failed sign-in attempts allowed before the account is locked out.
-    - LockoutDuration: 30 # Specifies the duration in minutes that an account is locked out after the account is locked out.
+  - enforces: Lockout
+    with:
+      LockoutThreshold: 5 # Specifies the number of failed sign-in attempts allowed before the account is locked out.
+      LockoutDuration: 30 # Specifies the duration in minutes that an account is locked out after the account is locked out.
 
-  IdentityProtection:
-    - IdentityProtectionEnabled: true # Specifies whether the identity protection is enabled.
-    - IPUserRiskPolicy: true # Specifies the identity protection user risk policy is enabled.
-    - IPSignInRiskPolicy: true # Specifies the identity protection sign-in risk policy is enabled.
+  - enforces: IdentityProtection
+    with:
+      IdentityProtectionEnabled: true # Specifies whether the identity protection is enabled.
+      IPUserRiskPolicy: true # Specifies the identity protection user risk policy is enabled.
+      IPSignInRiskPolicy: true # Specifies the identity protection sign-in risk policy is enabled.
 
-  MultiFactorAuthentication:
-    - MultiFactorAuthenticationEnabled: configured # Specifies whether the multi-factor authentication is enabled.
-    - MFAHardwareTokenSupport: true # Specifies whether the multi-factor authentication hardware token support is enabled.
-    - MFATrustedIPs: "" # Specifies the multi-factor authentication trusted IPs.
+  - enforces: MultiFactorAuthentication
+    with:
+      MultiFactorAuthenticationEnabled: configured # Specifies whether the multi-factor authentication is enabled.
+      MFAHardwareTokenSupport: true # Specifies whether the multi-factor authentication hardware token support is enabled.
+      MFATrustedIPs: "" # Specifies the multi-factor authentication trusted IPs.
 
-  MicrosoftAuthenticator:
-    - MicrosoftAuthenticatorAuthenticationMode: push # Specifies whether the Microsoft Authenticator is enabled without enabling the passwordless sign-in.
-    - MicrosoftAuthenticatorNumberMatching: true # Specifies whether the Microsoft Authenticator number matching is enabled.
-    - MicrosoftAuthenticatorAdditionalContext: true # Specifies whether the Microsoft Authenticator additional context is enabled.
+  - enforces: MicrosoftAuthenticator
+    with:
+      MicrosoftAuthenticatorAuthenticationMode: push # Specifies whether the Microsoft Authenticator is enabled without enabling the passwordless sign-in.
+      MicrosoftAuthenticatorNumberMatching: true # Specifies whether the Microsoft Authenticator number matching is enabled.
+      MicrosoftAuthenticatorAdditionalContext: true # Specifies whether the Microsoft Authenticator additional context is enabled.
 
-  ConditionalAccess:
-    - ConditionalAccessEnabled: true # Specifies whether the conditional access is enabled.
-    - ConditionalAccessPolicy: "" # Specifies the conditional access policy.  
+  - enforces: ConditionalAccess
+    with:
+      ConditionalAccessEnabled: true # Specifies whether the conditional access is enabled.
+      ConditionalAccessPolicy: "" # Specifies the conditional access policy.  
