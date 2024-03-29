@@ -87,6 +87,7 @@ Every configuration baseline is a YAML file that contains an initial setup of co
 Topic: SharePoint Online
 Type: Baseline
 Id: M365.SPO-5.2
+Version: 1.0
 
 References:
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
@@ -95,34 +96,44 @@ References:
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings	
 
 Configuration:
-  ExternalSharing:
-    - SharingCapability: ExistingExternalUserSharingOnly # Specifies what the sharing capabilities are for the site
-    - DefaultSharingLinkType: Internal # Specifies the default sharing link type
-    - DefaultLinkPermission: View
-    - RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
-    - RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
-    - FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
-    - FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
-    - CoreRequestFilesLinkEnabled: true # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
-    - ExternalUserExpireInDays: 30 # When a value is set, it means that the access of the external user will expire in those many number of days.
-    - EmailAttestationRequired: true # Sets email attestation to required.
-    - EmailAttestationReAuthDays: 30 # Sets the number of days for email attestation re-authentication. Value can be from 1 to 365 days.
-    - PreventExternalUsersFromResharing: true # Prevents external users from resharing files, folders, and sites that they do not own.
-    - SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
-    - SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
-    - ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
-    - ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
-  ApplicationsAndWebparts:
-    - DisabledWebPartIds: ""
-  AccessControl:
-    - ConditionalAccessPolicy: AllowFullAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
-    - BrowserIdleSignout: true
-    - BrowserIdleSignoutMinutes: 60
-    - BrowserIdleSignoutWarningMinutes: 5
-    - LegacyAuthProtocolsEnabled: false # Setting this parameter prevents Office clients using non-modern authentication protocols from accessing SharePoint Online resources
-  SiteCreationAndStorageLimits:
-    - NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
-    - DenyAddAndCustomizePages: true
+  - enforces: ExternalSharing
+    with:
+      SharingCapability: ExistingExternalUserSharingOnly # Specifies what the sharing capabilities are for the site
+      DefaultSharingLinkType: Internal # Specifies the default sharing link type
+      DefaultLinkPermission: View
+      RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
+      RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
+      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+      CoreRequestFilesLinkEnabled: true # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
+      ExternalUserExpireInDays: 30 # When a value is set, it means that the access of the external user will expire in those many number of days.
+      EmailAttestationRequired: true # Sets email attestation to required.
+      EmailAttestationReAuthDays: 30 # Sets the number of days for email attestation re-authentication. Value can be from 1 to 365 days.
+      PreventExternalUsersFromResharing: true # Prevents external users from resharing files, folders, and sites that they do not own.
+      SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
+      SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
+      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
+      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
+
+  - enforces: ApplicationsAndWebparts
+    with: 
+      DisabledWebPartIds: ""
+
+  - enforces: AccessControl
+    with: 
+      ConditionalAccessPolicy: AllowLimitedAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
+      BrowserIdleSignout: true
+      BrowserIdleSignoutMinutes: 60
+      BrowserIdleSignoutWarningMinutes: 5
+      LegacyAuthProtocolsEnabled: false # Setting this parameter prevents Office clients using non-modern authentication protocols from accessing SharePoint Online resources
+    references:
+      - BrowserIdleSignout: ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/accessControl/IdleSession
+
+  - enforces: SiteCreationAndStorageLimits
+    with:
+      NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
+      DenyAddAndCustomizePages: true
+      DenySiteCreationByUsers: true
 ```
 
 ### Provisioning of tenant and services
@@ -170,7 +181,18 @@ Import-Module .\src\Validation.psm1 -Force
 $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
 ```
 The returned object contains following attributes:
-* `Baseline`: The Baseline Id 
-* `Result`: The test result (aka validation results)
+* `Baseline`: The Baseline Id and the version
+* `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for better readability):
+  ```typescript
+  [
+    {
+      Group: string, // The configuration group from the baseline, e.g. 'AccessControl'
+      Setting: string, // The policy setting within the according baseline group, e.g. 'BrowserIdleSignout'
+      Result: string, // The test result, e.g. '--- [Should be 'True']' or '✔︎ [...]' or '✘ [Should be 'False' but is 'True']'
+      Status: 'CHECK NEEDED' | 'PASS' | 'FAIL' // The status of the test result
+      Reference?: string, // Reference to documentation or whatever; only set if defined in baseline and in case of status = 'CHECK NEEDED' or 'FAIL'
+    }
+  ]
+  ```
 * `ResultGroupedText`: The test results as text (grouped)
-* `Statistics`: The statistics of the validation
+* `Statistics`: The statistics of the validation; shows total amount of checks, passed and failed checks and how many "manual work" that still has to be done
