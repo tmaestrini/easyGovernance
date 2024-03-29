@@ -25,8 +25,8 @@ function Test-Settings {
 
   Process {
     foreach ($baselineSettingsGroup in $baseline.Configuration) {
-      $settings = $baselineSettingsGroup.with
       $groupName = $baselineSettingsGroup.enforces
+      $settings = $baselineSettingsGroup.with
       foreach ($key in $settings.Keys) {
         $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
         
@@ -40,26 +40,29 @@ function Test-Settings {
               })
           }
           else { 
-            $testResult.Add("$groupName-$key", [PSCustomObject] @{
-                Group   = $groupName
-                Setting = $key
-                Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
-                Status  = "CHECK NEEDED"
-              })
+            $referenceHint = $baselineSettingsGroup.references.$key ? $baselineSettingsGroup.references.$key : $null
+            $outputObject = [PSCustomObject] @{
+              Group   = $groupName
+              Setting = $key
+              Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
+              Status  = "CHECK NEEDED"
             }
+            if ($null -ne $hint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
+            $testResult.Add("$groupName-$key", $outputObject);
           }
-          catch {
-            <#Do this if a terminating exception happens#>
-          }
+        }
+        catch {
+          <#Do this if a terminating exception happens#>
         }
       }
     }
-  
-    End {
-      $testResult = $testResult | Sort-Object -Property Key -Unique
-      return $testResult.Values
-    }
   }
+  
+  End {
+    $testResult = $testResult | Sort-Object -Property Key -Unique
+    return $testResult.Values
+  }
+}
 
 function Get-TestStatistics {
   [CmdletBinding()]
