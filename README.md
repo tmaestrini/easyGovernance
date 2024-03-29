@@ -160,7 +160,7 @@ $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAs
 ```
 The returned object contains following attributes:
 * `Baseline`: The Baseline Id and the version
-* `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for the sake of documentation):
+* `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for better readability):
   ```typescript
   [
     {
