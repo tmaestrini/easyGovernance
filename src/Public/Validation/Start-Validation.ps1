@@ -36,12 +36,13 @@ Function Start-Validation {
         Write-Log "◉ Baseline: $($baseline.Id)"
         
         if ($baseline.Id -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baseline $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
-        Write-Log -Message "✔︎ Baseline validated successfully"
+        Write-Log -Message "Baseline validation terminated"
       }
       catch {
-        Write-Log -Level ERROR -Message "✖︎ $($_)"
+        Write-Log -Level ERROR -Message "$($_)"
       }
     }
+    Write-Log "========================================="
     if (!$ReturnAsObject) { $returnedBaselines }
     if ($ReturnAsObject) { return $returnedBaselines }
   }

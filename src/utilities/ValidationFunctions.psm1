@@ -52,7 +52,7 @@ function Test-Settings {
           }
         }
         catch {
-          <#Do this if a terminating exception happens#>
+          throw $_
         }
       }
     }

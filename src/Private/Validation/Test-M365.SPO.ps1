@@ -34,7 +34,14 @@ Function Test-M365.SPO {
     }
 
     function Extract() {      
-      return Get-PnPTenant 
+      function Extract() {
+        try {
+          return Get-PnPTenant 
+        }
+        catch {
+          Write-Log -Level ERROR -Message $_
+        } 
+      }
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
@@ -73,7 +80,7 @@ Function Test-M365.SPO {
     }
     catch {
       Disconnect-PnPOnline
-      $_
+      throw $_
     }
   }
 }
