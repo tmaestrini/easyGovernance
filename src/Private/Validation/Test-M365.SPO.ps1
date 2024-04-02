@@ -14,8 +14,8 @@ Function Test-M365.SPO {
   (
     [Parameter(
       Mandatory = $true,
-      HelpMessage = "The id of the baseline (see filename for reference)"
-    )][string] $baselineId,
+      HelpMessage = "The baseline itself"
+    )][PSCustomObject]$Baseline,
     [Parameter(
       Mandatory = $true,
       HelpMessage = "The id of the tenant (https://[tenantId].sharepoint.com)"
@@ -48,12 +48,6 @@ Function Test-M365.SPO {
   }
   Process {
     try {
-      Write-Host "`n-----------------------------------------"
-      Write-Host "◉ Baseline: $baselineId`n"
-      
-      $fileContent = Get-Content "baselines/$($baselineId.Trim()).yml" -Raw
-      $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
-      
       # Establish connection to tenant & services
       Connect
 

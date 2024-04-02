@@ -56,7 +56,7 @@ function Get-BaselineTemplate {
   Process {
     if (-not(Test-Path -Path $ConfigPath -PathType Leaf)) {
       Write-Log -Level WARNING "$($BaselineId): No baseline found at $ConfigPath" -ErrorAction Stop
-      throw "Baseline Error"
+      throw "Baseline Error (see above)"
     }
     $fileContent = Get-Content $ConfigPath -Raw -ErrorAction Stop
     $baseline = ConvertFrom-Yaml $fileContent -AllDocuments

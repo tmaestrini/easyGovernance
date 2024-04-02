@@ -22,7 +22,7 @@ Function Start-Validation {
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
     Clear-Host
-    Write-Log "========================================="
+    Write-Log "`========================================="
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Log "========================================="
     Write-Log "Baseline Validation Results"
@@ -35,8 +35,8 @@ Function Start-Validation {
         Write-Log "-----------------------------------------"
         Write-Log "◉ Baseline: $($baseline.Id)"
         
-        if ($baseline.Id -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
-        Write-Log -Message "✔︎ successful"
+        if ($baseline.Id -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baseline $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
+        Write-Log -Message "✔︎ Baseline validated successfully"
       }
       catch {
         Write-Log -Level ERROR -Message "✖︎ $($_)"
