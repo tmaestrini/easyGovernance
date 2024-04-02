@@ -1,3 +1,4 @@
+Import-Module ./src/utilities/CommonFunctions.psm1 -Force
 Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
 
 Function Start-Validation {
@@ -17,19 +18,29 @@ Function Start-Validation {
     
   try {
     # Set things up
+    Initialize-Logging
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
     Clear-Host
-    Write-Host "========================================="
-    Write-Host "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
-    Write-Host "========================================="
-    Write-Host "`nBaseline Validation Results"
+    Write-Log "========================================="
+    Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
+    Write-Log "========================================="
+    Write-Log "Baseline Validation Results"
         
     # Run baselines
     $returnedBaselines = @();
-    $baselines = $tenantConfig.Baselines
-    foreach ($baseline in $baselines) {
-      if ($baseline -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
+    foreach ($selectedBaseline in $tenantConfig.Baselines) {      
+      try {
+        $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline
+        Write-Log "-----------------------------------------"
+        Write-Log "◉ Baseline: $($baseline.Id)"
+        
+        if ($baseline.Id -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
+        Write-Log -Message "✔︎ successful"
+      }
+      catch {
+        Write-Log -Level ERROR -Message "✖︎ $($_)"
+      }
     }
     if (!$ReturnAsObject) { $returnedBaselines }
     if ($ReturnAsObject) { return $returnedBaselines }

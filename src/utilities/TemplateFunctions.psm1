@@ -31,3 +31,37 @@ function Get-TenantTemplate {
     return $settings
   }
 }
+
+<#
+.Synopsis
+.DESCRIPTION
+.EXAMPLE
+   Get-BaselineTemplate
+#>
+function Get-BaselineTemplate {
+  [CmdletBinding()]
+  [Alias()]
+  [OutputType([int])]
+  Param
+  (
+    [Parameter(
+      Mandatory = $true
+    )][string]$BaselineId
+  )
+ 
+  Begin {
+    $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ../../baselines/$($BaselineId.Trim()).yml
+    
+  }
+  Process {
+    if (-not(Test-Path -Path $ConfigPath -PathType Leaf)) {
+      Write-Log -Level WARNING "$($BaselineId): No baseline found at $ConfigPath" -ErrorAction Stop
+      throw "Baseline Error"
+    }
+    $fileContent = Get-Content $ConfigPath -Raw -ErrorAction Stop
+    $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
+  }
+  End {
+    return $baseline
+  }
+}
