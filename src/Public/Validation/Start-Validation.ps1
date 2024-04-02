@@ -26,8 +26,8 @@ Function Start-Validation {
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Log "*****************************************"
     Write-Log "Baseline Validation Results"
-        
-    # Run baselines
+
+    # Prepare baselines
     $returnedBaselines = @();
     foreach ($selectedBaseline in $tenantConfig.Baselines) {      
       try {
@@ -35,7 +35,10 @@ Function Start-Validation {
         Write-Log "-----------------------------------------"
         Write-Log "◉ Baseline: $($baseline.Id)"
         
-        if ($baseline.Id -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baseline $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
+        # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
+        $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }
+        $returnedBaselines += Invoke-Expression "Test-$selectedBaseline @arguments"
+
         Write-Log -Message "Baseline validation terminated"
       }
       catch {
