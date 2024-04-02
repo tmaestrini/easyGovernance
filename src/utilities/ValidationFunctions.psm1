@@ -47,7 +47,7 @@ function Test-Settings {
               Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
-            if ($null -ne $hint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
+            if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
             $testResult.Add("$groupName-$key", $outputObject);
           }
         }
