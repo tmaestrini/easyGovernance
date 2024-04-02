@@ -34,9 +34,10 @@ Function Start-Provisioning {
         Write-Log "-----------------------------------------"
         Write-Log "◉ Baseline: $($Baseline.Id)"
         if ($baseline.Id -eq 'M365.SPO-5.2') { $provisioningResult += Set-M365.SPO -TenantId $tenantConfig.Tenant -Baseline $baseline }
+        Write-Log -Message "✔︎ successful"
       }
       catch {
-        Write-Log -Level ERROR "✖︎ $($_)" -ForegroundColor DarkYellow
+        Write-Log -Level ERROR -Message "✖︎ $($_)"
       }
     }
     if (!$ReturnAsObject) { $provisioningResult }
