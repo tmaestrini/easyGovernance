@@ -4,3 +4,6 @@ tenants/*
 
 # exclude logs
 logs/*
+
+# exclude any output in root
+/*.md
