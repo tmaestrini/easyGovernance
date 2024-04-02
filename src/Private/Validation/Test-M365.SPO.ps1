@@ -5,7 +5,7 @@ Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 .EXAMPLE
    Test-M365.SPO
 #>
-Function Test-M365.SPO {
+Function Test-M365.SPO-5.2 {
   [CmdletBinding()]
   [Alias()]
   [OutputType([hashtable])]
@@ -33,15 +33,13 @@ Function Test-M365.SPO {
       if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
     }
 
-    function Extract() {      
-      function Extract() {
-        try {
-          return Get-PnPTenant 
-        }
-        catch {
-          Write-Log -Level ERROR -Message $_
-        } 
+    function Extract() {
+      try {
+        return Get-PnPTenant 
       }
+      catch {
+        Write-Log -Level ERROR -Message $_
+      } 
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
@@ -71,7 +69,7 @@ Function Test-M365.SPO {
       # Return data
       if ($returnAsObject) {
         return @{
-          Baseline          = "$($baselineId), Version: $($baseline.Version)"; 
+          Baseline          = "$($baseline.Id), Version: $($baseline.Version)"; 
           Result            = $result; 
           ResultGroupedText = $resultGrouped;
           Statistics        = $resultStats 
