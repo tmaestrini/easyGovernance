@@ -1,25 +1,27 @@
 # easyGovernance – governance and validation for configuration baselines in M365 made as easy as possible
-*easyGovernance* offers a quick and easy way to validate several configurations and resources along predefined configuration baselines for an entire Microsoft 365 tenant or dedicated services. 
-By defining a *configuration baseline* (YAML) that contains all the desired configuration parameters, this tool is a straightforward approach to govern and validate any given environment in M365. It does NOT offer a DSC setup and related mechanisms. 
 
-Any *configuration baseline* is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
+_easyGovernance_ offers a quick and easy way to validate several configurations and resources along predefined configuration baselines for an entire Microsoft 365 tenant or dedicated services.
+By defining a _configuration baseline_ (YAML) that contains all the desired configuration parameters, this tool is a straightforward approach to govern and validate any given environment in M365. It does NOT offer a DSC setup and related mechanisms.
+
+Any _configuration baseline_ is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
 
 Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
 
 Give it a try – We're sure you will like it! 💪
 
 > [!NOTE]
-> 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported  – but other services will follow asap. Any contributors are welcome! 🙌
-
+> 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported – but other services will follow asap. Any contributors are welcome! 🙌
 
 ## Dependencies
-![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg) 
-![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg) 
-![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg) 
-![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg) 
-![Logging](https://img.shields.io/badge/Logging-4.8.5-blue.svg) 
+
+![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
+![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
+![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
+![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
+![Logging](https://img.shields.io/badge/Logging-4.8.5-blue.svg)
 
 ## Applies to
+
 - [Microsoft 365 tenant](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant)
 - [SharePoint Online](https://learn.microsoft.com/en-us/office365/servicedescriptions/sharepoint-online-service-description/sharepoint-online-service-description)
 
@@ -59,7 +61,7 @@ Get rid of all the local dependencies: in case you're working in Visual Studio C
 
 > [!NOTE]
 > The remote container is based on PowerShell 7.2 (differs from the version mentioned in the dependencies); this is not a problem.
-You're good to go!
+> You're good to go!
 
 ### Local installation
 
@@ -72,6 +74,7 @@ Before using, install all dependencies on your local machine:
 Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
+Install-Module -Name Logging -RequiredVersion 4.8.5 -Scope CurrentUser
 ```
 
 ## Usage
@@ -113,6 +116,10 @@ The returned object contains following attributes:
 - `Result`: The test result (aka validation results)
 - `ResultGroupedText`: The test results as text (grouped)
 - `Statistics`: The statistics of the validation
+  - `Total`: amount of processed checks in total
+  - `Passed`: amount of checks passed (no difference to the baseline)
+  - `Failed`: amount of checks failed (with difference to the baseline)
+  - `Manual`: amount of checks that need to be examined by an administrator
 
 ### Configuration baselines
 
@@ -128,7 +135,7 @@ References:
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings	
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings
 
 Configuration:
   - enforces: ExternalSharing
@@ -138,8 +145,8 @@ Configuration:
       DefaultLinkPermission: View
       RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
       RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
-      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
-      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
+      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
       CoreRequestFilesLinkEnabled: true # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
       ExternalUserExpireInDays: 30 # When a value is set, it means that the access of the external user will expire in those many number of days.
       EmailAttestationRequired: true # Sets email attestation to required.
@@ -147,15 +154,15 @@ Configuration:
       PreventExternalUsersFromResharing: true # Prevents external users from resharing files, folders, and sites that they do not own.
       SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
       SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
-      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
-      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
+      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker.
+      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker.
 
   - enforces: ApplicationsAndWebparts
-    with: 
+    with:
       DisabledWebPartIds: ""
 
   - enforces: AccessControl
-    with: 
+    with:
       ConditionalAccessPolicy: AllowLimitedAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
       BrowserIdleSignout: true
       BrowserIdleSignoutMinutes: 60
@@ -172,5 +179,6 @@ Configuration:
 ```
 
 ### Provision of services
+
 > [!IMPORTANT]
 > TODO
