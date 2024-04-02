@@ -67,7 +67,7 @@ Function Test-M365.SPO {
       # Return data
       if ($returnAsObject) {
         return @{
-          Baseline          = $baselineId; 
+          Baseline          = "$($baselineId), Version: $($baseline.Version)"; 
           Result            = $result; 
           ResultGroupedText = $resultGrouped;
           Statistics        = $resultStats 
