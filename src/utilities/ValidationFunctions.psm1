@@ -84,13 +84,15 @@ function Get-TestStatistics {
       Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
     }
     
-    Write-Host "----------------------------"
-    Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
-    Write-Host "----------------------------"
-    Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
-    Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
-    Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
-    Write-Host "----------------------------"        
+    $output = [System.Text.StringBuilder]::new()
+    $output.AppendLine("----------------------------")
+    $output.AppendLine($("{0,-21} {1,5}" -f "Total Checks:", $stats.Total))
+    $output.AppendLine("----------------------------")
+    $output.AppendLine($("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed))
+    $output.AppendLine($("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed))
+    $output.AppendLine($("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual))
+    $output.AppendLine("----------------------------")
+    $output | Write-Host
       
     return $stats
   }
