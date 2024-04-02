@@ -10,6 +10,7 @@ RUN apt-get install xdg-utils -y
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name powershell-yaml"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name PnP.Powershell -RequiredVersion 2.4.0"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Microsoft.Graph -RequiredVersion 2.15.0"
+RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Logging -RequiredVersion 4.8.5"
 
 # Overwrites Default Shell to PowerShell
 SHELL [ "pwsh", "-c" ]
