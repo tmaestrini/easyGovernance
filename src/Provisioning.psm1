@@ -7,7 +7,7 @@ Foreach ($import in @($Public + $Private)) {
     . $import.fullname
   }
   Catch {
-    Write-Error -Message "[Provisioning] Failed to import function $( $import.fullname ): $_"
+    Write-Log -Level ERROR -Message "[Provisioning] Failed to import function $( $import.fullname ): $_"
   }
 }
 

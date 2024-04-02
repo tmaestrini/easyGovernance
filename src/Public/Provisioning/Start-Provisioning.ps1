@@ -1,3 +1,4 @@
+Import-Module ./src/utilities/CommonFunctions.psm1 -Force
 Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
 
 Function Start-Provisioning {
@@ -17,23 +18,25 @@ Function Start-Provisioning {
     
   try {
     # Set things up
-    $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
+    $tenantConfig = Get-TenantTemplate -TemplateName $Tenantname
 
     Clear-Host
-    Write-Host "========================================="
-    Write-Host "🚀 PROVISIONING TENANT: $($tenantConfig.Tenant)"
-    Write-Host "========================================="
+    Write-Log "========================================="
+    Write-Log"🚀 PROVISIONING TENANT: $($tenantConfig.Tenant)"
+    Write-Log "========================================="
         
     # Prepare baselines
     $provisioningResult = @();
     foreach ($baselineReference in $tenantConfig.Baselines) {
       try {
         # Run baselines
-        $baseline = Get-BaselineTemplate -BaselineId $baselineReference 
+        $baseline = Get-BaselineTemplate -BaselineId $baselineReference
+        Write-Log "-----------------------------------------"
+        Write-Log "◉ Baseline: $($Baseline.Id)"
         if ($baseline.Id -eq 'M365.SPO-5.2') { $provisioningResult += Set-M365.SPO -TenantId $tenantConfig.Tenant -Baseline $baseline }
       }
       catch {
-        Write-Host "✖︎ $($_)" -ForegroundColor DarkYellow
+        Write-Log -Level ERROR "✖︎ $($_)" -ForegroundColor DarkYellow
       }
     }
     if (!$ReturnAsObject) { $provisioningResult }

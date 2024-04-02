@@ -7,7 +7,7 @@ Foreach ($import in @($Public + $Private)) {
     . $import.fullname
   }
   Catch {
-    Write-Error -Message "[Validation] Failed to import function $( $import.fullname ): $_"
+    Write-Log -Level ERROR -Message "[Validation] Failed to import function $( $import.fullname ): $_"
   }
 }
 

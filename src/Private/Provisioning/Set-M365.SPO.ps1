@@ -3,7 +3,7 @@
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Set.SPO
+   Set-M365.SPO
 #>
 Function Set-M365.SPO {
   [CmdletBinding()]
@@ -39,10 +39,7 @@ Function Set-M365.SPO {
     }
   }
   Process {
-    try {
-      Write-Host "`n-----------------------------------------"
-      Write-Host "◉ Baseline: $($Baseline.Id)`n"
-      
+    try {   
       # Establish connection to tenant & services
       Connect
 

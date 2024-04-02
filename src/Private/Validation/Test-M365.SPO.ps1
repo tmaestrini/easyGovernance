@@ -47,10 +47,7 @@ Function Test-M365.SPO {
     }    
   }
   Process {
-    try {
-      Write-Host "`n-----------------------------------------"
-      Write-Host "◉ Baseline: $baselineId`n"
-      
+    try {      
       $fileContent = Get-Content "baselines/$($baselineId.Trim()).yml" -Raw
       $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
       
@@ -79,7 +76,7 @@ Function Test-M365.SPO {
     }
     catch {
       Disconnect-PnPOnline
-      $_
+      Write-Log ERROR -Message $_
     }
   }
 }
