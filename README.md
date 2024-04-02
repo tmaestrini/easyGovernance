@@ -16,7 +16,8 @@ Give it a try – We're sure you will like it! 💪
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg) 
 ![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg) 
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg) 
-![Microsoft.Graph](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg) 
+![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg) 
+![Logging](https://img.shields.io/badge/Logging-4.8.5-blue.svg) 
 
 ## Applies to
 - [Microsoft 365 tenant](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant)
