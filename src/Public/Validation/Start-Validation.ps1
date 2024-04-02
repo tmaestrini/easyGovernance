@@ -22,9 +22,9 @@ Function Start-Validation {
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
     Clear-Host
-    Write-Log "`========================================="
+    Write-Log "*****************************************"
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
-    Write-Log "========================================="
+    Write-Log "*****************************************"
     Write-Log "Baseline Validation Results"
         
     # Run baselines
@@ -42,7 +42,7 @@ Function Start-Validation {
         Write-Log -Level ERROR -Message "$($_)"
       }
     }
-    Write-Log "========================================="
+    Write-Log "*****************************************`n"
     if (!$ReturnAsObject) { $returnedBaselines }
     if ($ReturnAsObject) { return $returnedBaselines }
   }
