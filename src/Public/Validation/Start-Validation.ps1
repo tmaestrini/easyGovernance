@@ -28,7 +28,7 @@ Function Start-Validation {
     Write-Log "Baseline Validation Results"
 
     # Prepare baselines
-    $returnedBaselines = @();
+    $validationResults = @();
     foreach ($selectedBaseline in $tenantConfig.Baselines) {      
       try {
         $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline
@@ -37,7 +37,7 @@ Function Start-Validation {
         
         # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
         $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }
-        $returnedBaselines += Invoke-Expression "Test-$selectedBaseline @arguments"
+        $validationResults += Invoke-Expression "Test-$selectedBaseline @arguments"
 
         Write-Log -Message "Baseline validation terminated"
       }
@@ -46,8 +46,8 @@ Function Start-Validation {
       }
     }
     Write-Log "*****************************************`n"
-    if (!$ReturnAsObject) { $returnedBaselines }
-    if ($ReturnAsObject) { return $returnedBaselines }
+    if (!$ReturnAsObject) { $validationResults }
+    if ($ReturnAsObject) { return $validationResults }
   }
   catch {
     $_
