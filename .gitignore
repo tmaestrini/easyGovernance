@@ -7,3 +7,6 @@ logs/*
 
 # exclude any output in root
 /*.md
+
+# exclude reports
+output/*
