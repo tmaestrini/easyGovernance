@@ -28,6 +28,8 @@ Configuration:
       SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
       ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
       ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
+    references:
+      - SharingAllowedDomainList: "Refer to the section 'More external sharing settings' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
 
   - enforces: ApplicationsAndWebparts
     with: 
@@ -48,3 +50,6 @@ Configuration:
       NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
       DenyAddAndCustomizePages: true
       DenySiteCreationByUsers: true
+    references:
+      - DenyAddAndCustomizePages: "Uncheck the setting 'Allow users to create new modern pages' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
+      - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
