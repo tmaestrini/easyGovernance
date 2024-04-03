@@ -112,14 +112,16 @@ $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAs
 
 The returned object contains following attributes:
 
-- `Baseline`: The Baseline Id
-- `Result`: The test result (aka validation results)
-- `ResultGroupedText`: The test results as text (grouped)
-- `Statistics`: The statistics of the validation
-  - `Total`: amount of processed checks in total
-  - `Passed`: amount of checks passed (no difference to the baseline)
-  - `Failed`: amount of checks failed (with difference to the baseline)
-  - `Manual`: amount of checks that need to be examined by an administrator
+- `Tenant`: The identifier of the tenant
+- `Validation`The validation results
+  - `Baseline`: The Baseline Id
+  - `Result`: The test result (aka validation results)
+  - `ResultGroupedText`: The test results as text (grouped)
+  - `Statistics`: The statistics of the validation
+    - `Total`: amount of processed checks in total
+    - `Passed`: amount of checks passed (no difference to the baseline)
+    - `Failed`: amount of checks failed (with difference to the baseline)
+    - `Manual`: amount of checks that need to be examined by an administrator
 
 ### Configuration baselines
 
