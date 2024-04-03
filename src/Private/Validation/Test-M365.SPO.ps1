@@ -64,7 +64,7 @@ Function Test-M365.SPO-5.2 {
       # Output
       $resultGrouped = ($result | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
       if (!$ReturnAsObject) { $resultGrouped | Out-Host }
-      $resultStats = Get-TestStatistics $result
+      $resultStats.asText | Out-Host
 
       # Return data
       if ($returnAsObject) {
@@ -72,7 +72,8 @@ Function Test-M365.SPO-5.2 {
           Baseline          = "$($baseline.Id), Version: $($baseline.Version)"; 
           Result            = $result; 
           ResultGroupedText = $resultGrouped;
-          Statistics        = $resultStats 
+          Statistics        = $resultStats.stats
+          StatisticsAsText  = $resultStats.asText
         } 
       }
     }

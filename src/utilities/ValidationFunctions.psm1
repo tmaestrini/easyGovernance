@@ -92,8 +92,7 @@ function Get-TestStatistics {
     $output.AppendLine($("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed))
     $output.AppendLine($("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual))
     $output.AppendLine("----------------------------")
-    $output | Write-Host
-      
-    return $stats
+
+    return @{stats = $stats; asText = $output.ToString() } 
   }
 }
