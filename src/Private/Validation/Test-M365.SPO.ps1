@@ -35,21 +35,29 @@ Function Test-M365.SPO-5.2 {
 
     function Extract() {
       try {
-        return Get-PnPTenant 
+        $tenantSettings = Get-PnPTenant
+        $browserIdleSignout = Get-PnPBrowserIdleSignout
+
+        return @{ tenant = $tenantSettings; browserIdleSignout = $browserIdleSignout }
       }
       catch {
-        Write-Log -Level ERROR -Message $_
+        throw "Test-M365.SPO > Exctraction failed: $_" 
       } 
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
-      return $extractedSettings
+      $settings = $extractedSettings.tenant
+      $settings | Add-Member -NotePropertyName BrowserIdleSignout -NotePropertyValue $extractedSettings.browserIdleSignout.Enabled
+      $settings | Add-Member -NotePropertyName BrowserIdleSignoutMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.SignOutAfter.TotalMinutes
+      $settings | Add-Member -NotePropertyName BrowserIdleSignoutWarningMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.WarnAfter.TotalMinutes
+
+      return $settings
     }
 
     function Validate([PSCustomObject] $tenantSettings, [PSCustomObject] $baseline) {
       $testResult = Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Setting
       return $testResult
-    }    
+    }
   }
   Process {
     try {
@@ -78,8 +86,10 @@ Function Test-M365.SPO-5.2 {
       }
     }
     catch {
-      Disconnect-PnPOnline
       throw $_
+    }
+    finally {
+      Disconnect-PnPOnline
     }
   }
 }
