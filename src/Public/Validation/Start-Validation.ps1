@@ -47,7 +47,7 @@ Function Start-Validation {
     }
     Write-Log "*****************************************`n"
     if (!$ReturnAsObject) { $validationResults }
-    if ($ReturnAsObject) { return $validationResults }
+    if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }
   }
   catch {
     $_

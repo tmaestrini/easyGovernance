@@ -72,6 +72,7 @@ Function Test-M365.SPO-5.2 {
       # Output
       $resultGrouped = ($result | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
       if (!$ReturnAsObject) { $resultGrouped | Out-Host }
+      $resultStats = Get-TestStatistics $result
       $resultStats.asText | Out-Host
 
       # Return data
