@@ -44,8 +44,8 @@ function New-Report {
          
          $content += "### Report Details"
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, Setting, Result, Reference | ConvertTo-Html -Fragment
-         $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-✔︎-green.svg?style=flat-square'\>"
-         $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-✘-red.svg?style=flat-square'\>"
+         $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square'\>  "
+         $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square'\>"
          $table = $table -replace "---", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUAL%20CHECK-yellow.svg?style=flat-square'\>"
 
          $content += $table
