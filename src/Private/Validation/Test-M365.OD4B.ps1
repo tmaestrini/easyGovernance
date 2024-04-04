@@ -47,11 +47,13 @@ Function Test-M365.OD4B-5.1 {
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
-      $settings = $extractedSettings.tenant
+      $settings = $extractedSettings.tenant | Select-Object -ExcludeProperty OneDriveStorageQuota
+      $settings | Add-Member -NotePropertyName OneDriveStorageQuota -NotePropertyValue ([int]$extractedSettings.tenant.OneDriveStorageQuota / 1024) # MB --> GB
+      
       $settings | Add-Member -NotePropertyName TenantRestrictionEnabled -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.TenantRestrictionEnabled
       $settings | Add-Member -NotePropertyName AllowedDomainList -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.AllowedDomainList
       $settings | Add-Member -NotePropertyName ExcludedFileExtensions -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.ExcludedFileExtensions
-
+      
       return $settings
     }
 
