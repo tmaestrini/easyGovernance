@@ -3,7 +3,7 @@ Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Test-M365.SPO
+   Test-M365.SPO-5.2
 #>
 Function Test-M365.SPO-5.2 {
   [CmdletBinding()]
