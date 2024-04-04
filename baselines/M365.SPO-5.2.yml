@@ -7,7 +7,7 @@ References:
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings	
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings
 
 Configuration:
   - enforces: ExternalSharing
@@ -17,8 +17,8 @@ Configuration:
       DefaultLinkPermission: View
       RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
       RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
-      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
-      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit. 
+      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
+      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
       CoreRequestFilesLinkEnabled: true # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
       ExternalUserExpireInDays: 30 # When a value is set, it means that the access of the external user will expire in those many number of days.
       EmailAttestationRequired: true # Sets email attestation to required.
@@ -26,17 +26,17 @@ Configuration:
       PreventExternalUsersFromResharing: true # Prevents external users from resharing files, folders, and sites that they do not own.
       SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
       SharingAllowedDomainList: "" # Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
-      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker. 
-      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker. 
+      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker.
+      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker.
     references:
       - SharingAllowedDomainList: "Refer to the section 'More external sharing settings' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
 
   - enforces: ApplicationsAndWebparts
-    with: 
+    with:
       DisabledWebPartIds: ""
 
   - enforces: AccessControl
-    with: 
+    with:
       ConditionalAccessPolicy: AllowLimitedAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
       BrowserIdleSignout: true
       BrowserIdleSignoutMinutes: 60
@@ -48,8 +48,8 @@ Configuration:
   - enforces: SiteCreationAndStorageLimits
     with:
       NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
-      DenyAddAndCustomizePages: true
+      DenyAddAndCustomizePages: false
       DenySiteCreationByUsers: true
     references:
-      - DenyAddAndCustomizePages: "Uncheck the setting 'Allow users to create new modern pages' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
+      - DenyAddAndCustomizePages: "Make sure the setting 'Allow users to create new modern pages' is checked on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
       - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
