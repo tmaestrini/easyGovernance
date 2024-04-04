@@ -1,0 +1,34 @@
+Topic: One Drive For Business
+Type: Baseline
+Id: M365.OD4B-5.1
+Version: 1.0
+
+References:
+  - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#onedrive-settings
+
+Configuration:
+  - enforces: Sharing
+    with:
+      SharingWithExternalUsersDisabled: true # Sharing capabilities to external users
+      DisplayNamesOfFileViewers: true # Let site owners choose to display the names of people who viewed files or pages
+      OneDriveRequestFilesLinkEnabled: false # Let site owners choose to display the names of people who viewed files or pages
+    references:
+      - SharingWithExternalUsersDisabled: "Manually set the slider for OneDrive under 'External Sharing' to 'Only People in your organization' ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
+      - OneDriveRequestFilesLinkEnabled: "This setting depends on the setting in 'SharingWithExternalUsersDisabled'. Setting the value to 'true' has no effect as long as 'SharingWithExternalUsersDisabled' is set to 'true'."
+
+  - enforces: StorageAndSynchronisation
+    with:
+      OrphanedPersonalSitesRetentionPeriod: 365 # Days to retain a deleted user's OneDrive
+      OneDriveStorageQuota: 1024 # Default storage limit in GB
+      TenantRestrictionEnabled: false # Disable the Sync button on the OneDrive website
+      AllowedDomainList: "" # Allow syncing only on computers joined to specific domains
+      ExcludedFileExtensions: "" # Block upload of specific file types
+    references:
+      - AllowedDomainList: "Recommendation: Leave this blank"
+      - ExcludedFileExtensions: "Recommendation: Leave this blank"
+
+  - enforces: Notifications
+    with:
+      NotificationsInOneDriveForBusinessEnabled: true # Allow notifications
+
