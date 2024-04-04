@@ -31,6 +31,7 @@ Function Test-M365.SPO-5.2 {
     function Connect() {
       Connect-PnPOnline -Url $adminSiteUrl -Interactive
       if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
+      Write-Log -Level INFO "Connection established"
     }
 
     function Extract() {
