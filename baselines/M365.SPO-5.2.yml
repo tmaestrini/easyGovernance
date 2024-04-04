@@ -48,8 +48,8 @@ Configuration:
   - enforces: SiteCreationAndStorageLimits
     with:
       NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
-      DenyAddAndCustomizePages: false
+      DenyPagesCreationByUsers: false
       DenySiteCreationByUsers: true
     references:
-      - DenyAddAndCustomizePages: "Make sure the setting 'Allow users to create new modern pages' is checked on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
+      - DenyPagesCreationByUsers: "Make sure the setting 'Allow users to create new modern pages' is checked on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
       - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
