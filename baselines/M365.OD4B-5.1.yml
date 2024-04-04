@@ -14,7 +14,7 @@ Configuration:
       DisplayNamesOfFileViewers: true # Let site owners choose to display the names of people who viewed files or pages
       OneDriveRequestFilesLinkEnabled: false # Let site owners choose to display the names of people who viewed files or pages
     references:
-      - SharingWithExternalUsersDisabled: "Manually set the slider for OneDrive under 'External Sharing' to 'Only People in your organization' ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
+      - SharingWithExternalUsersDisabled: "Manually set the slider for OneDrive under 'External Sharing' to 'Only People in your organization' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
       - OneDriveRequestFilesLinkEnabled: "This setting depends on the setting in 'SharingWithExternalUsersDisabled'. Setting the value to 'true' has no effect as long as 'SharingWithExternalUsersDisabled' is set to 'true'."
 
   - enforces: StorageAndSynchronisation
