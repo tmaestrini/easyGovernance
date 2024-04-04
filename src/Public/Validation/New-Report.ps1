@@ -34,7 +34,7 @@ function New-Report {
       # generate content
       $content = @()
       foreach ($resultSet in $ValidationResults.Validation) {
-         $content += "## ► Baseline ``$($resultSet.Baseline)``"
+         $content += "`n## ► Baseline ``$($resultSet.Baseline)``"
          
          $content += "### Report Validation statistics"
          $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.Total)-blue.svg?style=flat-square) "
