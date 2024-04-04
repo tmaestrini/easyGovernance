@@ -61,11 +61,12 @@ function New-Report {
       [System.IO.Directory]::CreateDirectory($reportPath) # ensure directory exists
       $reportFilePath = "$($reportPath)/$($currentTimeStamp.toString("yyyyMMddHHmm"))-Report.md"
       $reportTemplate > $reportFilePath
+      Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath)"
       
       # convert report to HTML
       if ($AsHTML.IsPresent ) {
-         Convert-MarkdownToHTML $reportFilePath -SiteDirectory $reportPath
+         $htmlOutput = Convert-MarkdownToHTML $reportFilePath -SiteDirectory $reportPath
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
+         Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
       }
-   }
-}
+   }}
