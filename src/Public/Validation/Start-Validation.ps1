@@ -19,6 +19,7 @@ Function Start-Validation {
   try {
     # Set things up
     Initialize-Logging
+    Test-RequiredModules
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
     Clear-Host
@@ -50,6 +51,6 @@ Function Start-Validation {
     if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }
   }
   catch {
-    $_
+    Write-Log -Level ERROR -Message "$($_)"
   }
 }

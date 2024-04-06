@@ -2,7 +2,36 @@
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Get-TenantTemplate
+   Initialize-Logging
+#>
+Function Test-RequiredModules() {
+  $requiredModules = @(
+    @{name = "powershell-yaml"; version = "" }
+    @{name = "PnP.PowerShell"; version = "2.4.0" }
+    @{name = "Microsoft.Graph"; version = "2.15.0" }
+    @{name = "Logging"; version = "4.8.5" }
+    @{name = "MarkdownToHTML"; version = "2.7.1" }
+  )
+  $moduleCheckOk = $true
+  foreach ($module in $requiredModules) {
+    try {
+      $m = Get-Module -ListAvailable | Where-Object { $_.Name -eq $module.name }
+      if ($null -eq $m ) { throw "$($module.name) is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
+      elseif ($module.version -notin @($m.Version.ToString(), "")) { throw "$($module.name) must refer to this version: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
+    }
+    catch {
+      Write-Host "Module $($_)" -ForegroundColor Yellow
+      $moduleCheckOk = $false
+    }
+  }
+  if (!$moduleCheckOk) { throw "Module check failed" }
+}
+
+<#
+.Synopsis
+.DESCRIPTION
+.EXAMPLE
+   Initialize-Logging
 #>
 Function Initialize-Logging() {
   Set-LoggingDefaultLevel -Level 'INFO'
