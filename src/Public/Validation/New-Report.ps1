@@ -6,7 +6,7 @@
    New-Report
 #>
 
-function New-Report {
+Function New-Report {
    [CmdletBinding()]
    [OutputType([void])]
 
@@ -43,11 +43,16 @@ function New-Report {
          $content += "![failed](https://img.shields.io/badge/Manual%20check%20needed-$($resultSet.Statistics.Manual)-yellow.svg?style=flat-square)`n`n"
          
          $content += "### Report Details"
-         $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, Setting, Result, Reference | ConvertTo-Html -Fragment
-         $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square'\>  "
-         $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square'\>"
-         $table = $table -replace "---", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUAL%20CHECK-yellow.svg?style=flat-square'\>"
-
+         $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, Setting, Result, Reference
+         if (!$AsHTML.IsPresent) { 
+            $table = $table | New-MDTable -Shrink
+         }
+         else { 
+            $table = $table | ConvertTo-Html -Fragment 
+            $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square'\>"
+            $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square'\>"
+            $table = $table -replace "---", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUAL%20CHECK-yellow.svg?style=flat-square'\>"
+         }
          $content += $table
       }
 
@@ -69,4 +74,5 @@ function New-Report {
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
          Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
       }
-   }}
+   }
+}
