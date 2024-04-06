@@ -75,6 +75,7 @@ Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 Install-Module -Name Logging -RequiredVersion 4.8.5 -Scope CurrentUser
+Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 ```
 
 ## Usage
@@ -113,7 +114,7 @@ $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAs
 The returned object contains following attributes:
 
 - `Tenant`: The identifier of the tenant
-- `Validation`The validation results
+- `Validation`: The validation results
   - `Baseline`: The Baseline Id
   - `Result`: The test result (aka validation results)
   - `ResultGroupedText`: The test results as text (grouped)
@@ -176,8 +177,11 @@ Configuration:
   - enforces: SiteCreationAndStorageLimits
     with:
       NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
-      DenyAddAndCustomizePages: true
+      DenyPagesCreationByUsers: true
       DenySiteCreationByUsers: true
+    references:
+      - DenyPagesCreationByUsers: "Make sure the setting 'Allow users to create new modern pages' is checked on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
+      - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
 ```
 
 ### Provision of services
