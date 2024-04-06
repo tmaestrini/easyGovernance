@@ -75,6 +75,7 @@ Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 Install-Module -Name Logging -RequiredVersion 4.8.5 -Scope CurrentUser
+Install-Module -Name MarkdownPS	-RequredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 ```
 

@@ -10,6 +10,7 @@ Function Test-RequiredModules() {
     @{name = "PnP.PowerShell"; version = "2.4.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
     @{name = "Logging"; version = "4.8.5" }
+    @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }
   )
   $moduleCheckOk = $true
