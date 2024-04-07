@@ -19,6 +19,8 @@ Give it a try – We're sure you will like it! 💪
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
 ![Logging](https://img.shields.io/badge/Logging-4.8.5-blue.svg)
+![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
+![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
 
 ## Applies to
 
