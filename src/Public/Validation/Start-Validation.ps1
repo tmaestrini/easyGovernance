@@ -16,13 +16,10 @@ Function Start-Validation {
     )][switch]$ReturnAsObject
   )
     
+  Initialize-EasyGovernance
   try {
-    # Set things up
-    Initialize-Logging
-    Test-RequiredModules
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
-    Clear-Host
     Write-Log "*****************************************"
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Log "*****************************************"
