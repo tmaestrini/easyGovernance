@@ -23,7 +23,10 @@ Function Test-RequiredModules() {
       $moduleCheckOk = $false
     }
   }
-  if (!$moduleCheckOk) { throw "Module check failed" }
+  if (!$moduleCheckOk) { 
+    Write-Host "Module check failed. Please install dependencies and try again." -ForegroundColor Red
+    throw "Module check failed" 
+  }
 }
 
 <#

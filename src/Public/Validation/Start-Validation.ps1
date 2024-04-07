@@ -18,8 +18,8 @@ Function Start-Validation {
     
   try {
     # Set things up
-    Initialize-Logging
     Test-RequiredModules
+    Initialize-Logging
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
     Clear-Host
