@@ -14,9 +14,9 @@ Function Test-RequiredModules() {
   $moduleCheckOk = $true
   foreach ($module in $requiredModules) {
     try {
-      $m = Get-Module -ListAvailable | Where-Object { $_.Name -eq $module.name }
+      $m = Get-Module -ListAvailable -Name $module.name | Sort-Object Version -Descending | Select-Object -First 1
       if ($null -eq $m ) { throw "$($module.name) is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
-      elseif ($module.version -notin @($m.Version.ToString(), "")) { throw "$($module.name) must refer to this version: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
+      elseif ($module.version -notin @($m.Version.ToString(), "")) { throw "$($module.name) must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
     }
     catch {
       Write-Host "Module $($_)" -ForegroundColor Yellow
