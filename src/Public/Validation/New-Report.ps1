@@ -104,7 +104,7 @@ Function New-Report {
    End {
       # save report as Markdown
       [System.IO.Directory]::CreateDirectory($reportPath) # ensure directory exists
-      $reportFilePath = "$($reportPath)/$($currentTimeStamp.toString("yyyyMMddHHmm"))-Report.md"
+      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.md"
       $reportTemplate > $reportFilePath
       Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath)"
       
