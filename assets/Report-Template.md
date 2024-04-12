@@ -1,6 +1,6 @@
 easyGovernance
 
-# %{Title}
+# 🚀 %{Title}
 
 <table class="reportHeader">
 <tr>
@@ -16,5 +16,7 @@ easyGovernance
     <td>%{Issuer}</td>
 </tr>
 </table>
+
+%{Summary}
 
 %{Content}
