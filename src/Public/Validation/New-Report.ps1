@@ -50,17 +50,23 @@ Function New-Report {
          $content += "### Report Details"
          # $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, Setting, Result, Reference
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
-                  @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br>👉 $($_.Reference)" : $_.Setting } }, Result
+         @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br>👉 $($_.Reference)" : $_.Setting } }, Result
+
          if (!$AsHTML.IsPresent) { 
             $table = $table | New-MDTable -Shrink
+            $table = $table -replace "✔︎", "![passed](https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square)"
+            $table = $table -replace "✘", "![failed](https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square)"
+            # $table = $table -replace "\?", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUALLY-yellow.svg?style=flat-square'\>"
          }
          else { 
             $table = $table | ConvertTo-Html -Fragment
+            $table = $table -replace "&lt;br&gt;", "<br>"
+            $table = $table -replace "<table>", "<table class='reportDetails'>"
             $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square'\>"
             $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square'\>"
-            $table = $table -replace "---", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUAL%20CHECK-yellow.svg?style=flat-square'\>"
+            $table = $table -replace "---", "<img style='vertical-align: middle' src='https://img.shields.io/badge/CHECK-MANUALLY-yellow.svg?style=flat-square'\>"
          }
-         
+
          $content += $table
          return $content
       }
@@ -74,7 +80,7 @@ Function New-Report {
          $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($reportStatistics.Passed)-green.svg?style=flat-square) "
          $content += "![failed](https://img.shields.io/badge/✘%20Checks%20failed-$($reportStatistics.Failed)-red.svg?style=flat-square) "
          $content += "![failed](https://img.shields.io/badge/Manual%20check%20needed-$($reportStatistics.Manual)-yellow.svg?style=flat-square)`n"
-         $content += "**$($ValidationResults.Validation.Length) baseline(s)** have been run against the tenant.`n"
+         $content += "**$($ValidationResults.Validation.Length) baseline(s)** have been validated against the tenant.`n"
          return $content
       }
    }

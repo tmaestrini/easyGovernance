@@ -47,6 +47,10 @@ table.reportHeader td, table.reportHeader th {
     border: none;
 }
 
+table.reportDetails td:last-child {
+    min-width: 300px;
+}
+
 th {
     background-color: lightgray;
     text-align: left;
