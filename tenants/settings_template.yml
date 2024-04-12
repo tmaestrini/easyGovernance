@@ -1,5 +1,5 @@
 Tenant: MyTenantName
 
 Baselines:
-  - M365.AAD-1.2
+  - M365.IAM-1-2.1
   - M365.SPO-5.2
