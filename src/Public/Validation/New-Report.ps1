@@ -1,3 +1,5 @@
+Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
+
 <#
 .Synopsis
 .DESCRIPTION
@@ -38,14 +40,18 @@ Function New-Report {
          $reportStatistics.Manual += $resultSet.Statistics.Manual
       }
 
-      Function Add-MainContent($resultSet) {
+      Function Add-MainContent([PSCustomObject]$resultSet, [PSCustomObject]$baseline) {
          $content = @()
-         $content += "`n## ► Baseline ``$($resultSet.Baseline)``"
+         $content += "`n## ► $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
          $content += "### Report Validation statistics"
          $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.Total)-blue.svg?style=flat-square)"
          $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($resultSet.Statistics.Passed)-green.svg?style=flat-square)"
          $content += "![failed](https://img.shields.io/badge/✘%20Checks%20failed-$($resultSet.Statistics.Failed)-red.svg?style=flat-square)"
          $content += "![check](https://img.shields.io/badge/Manual%20check%20needed-$($resultSet.Statistics.Manual)-yellow.svg?style=flat-square)`n"
+
+         $content += "### Baseline Reference(s)"
+         $content += $baseline.References | ForEach-Object { "- [$($_)]($($_))" } 
+         $content += "`n"
 
          $content += "### Report Details"
          # $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, Setting, Result, Reference
@@ -74,8 +80,7 @@ Function New-Report {
       Function Add-SummaryContent() {
          $passedQuota = [double] $($reportStatistics.Passed) / $($reportStatistics.Total)
          $content = @()
-         $content += "## Report Summary"
-         $content += "The validation report contains **$([math]::Round($passedQuota * 100, 1))% successful checks**:`n"
+         $content += "This validation report contains **$([math]::Round($passedQuota * 100, 1))% successful checks**:`n"
          $content += "![total](https://img.shields.io/badge/Checks%20total-$($reportStatistics.Total)-blue.svg?style=flat-square) "
          $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($reportStatistics.Passed)-green.svg?style=flat-square) "
          $content += "![failed](https://img.shields.io/badge/✘%20Checks%20failed-$($reportStatistics.Failed)-red.svg?style=flat-square) "
@@ -90,8 +95,9 @@ Function New-Report {
 
       # generate content
       foreach ($resultSet in $ValidationResults.Validation) {
+         $baseline = Get-BaselineTemplate -BaselineId $resultSet.Baseline
          Set-ReportStatistics $resultSet
-         $mainContent += Add-MainContent $resultSet
+         $mainContent += Add-MainContent $resultSet -baseline $baseline
       }
       $summaryContent += Add-SummaryContent
       
