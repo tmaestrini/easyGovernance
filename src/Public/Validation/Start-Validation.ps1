@@ -31,7 +31,7 @@ Function Start-Validation {
       try {
         $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline
         Write-Log "-----------------------------------------"
-        Write-Log "◉ Baseline: $($baseline.Id)"
+        Write-Log "◉ Baseline: $($baseline.Id), Version $($baseline.Version)"
         
         # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
         $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }

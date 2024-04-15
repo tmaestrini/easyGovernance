@@ -81,11 +81,12 @@ Function Test-M365.OD4B-5.1 {
       # Return data
       if ($returnAsObject) {
         return @{
-          Baseline          = "$($baseline.Id), Version: $($baseline.Version)"; 
+          Baseline          = $baseline.Id;
+          Version           = $baseline.Version;
           Result            = $result; 
           ResultGroupedText = $resultGrouped;
-          Statistics        = $resultStats.stats
-          StatisticsAsText  = $resultStats.asText
+          Statistics        = $resultStats.stats;
+          StatisticsAsText  = $resultStats.asText;
         } 
       }
     }
