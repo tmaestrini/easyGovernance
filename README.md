@@ -118,8 +118,20 @@ The returned object contains following attributes:
 
 - `Tenant`: The identifier of the tenant
 - `Validation`: The validation results
-  - `Baseline`: The Baseline Id
-  - `Result`: The test result (aka validation results)
+  - `Baseline`: The baseline Id
+  - `Version`: The selected version of the baseline
+  - `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for better readability):
+  ```typescript
+  [
+    {
+      Group: string, // The configuration group from the baseline, e.g. 'AccessControl'
+      Setting: string, // The policy setting within the according baseline group, e.g. 'BrowserIdleSignout'
+      Result: string, // The test result, e.g. '--- [Should be 'True']' or '✔︎ [...]' or '✘ [Should be 'False' but is 'True']'
+      Status: 'CHECK NEEDED' | 'PASS' | 'FAIL' // The status of the test result
+      Reference?: string, // Reference to documentation or whatever; only set if defined in baseline and in case of status = 'CHECK NEEDED' or 'FAIL'
+    }
+  ]
+  ```
   - `ResultGroupedText`: The test results as text (grouped)
   - `Statistics`: The statistics of the validation
     - `Total`: amount of processed checks in total
@@ -236,38 +248,3 @@ The returned object contains following attributes:
 * `Result`: The test result (aka provisioning results)
 * `Statistics`: The statistics of the provisioning
 
-
-### Validation of services 
-To run a validation for a tenant according to the defined baselines, simply call the `Start-Validation` cmdlet.
-This will compare the existing setup from the settings file (`[tenantname.yml]`) with the configured baseline and print
-the result to the std output.
-
-```powershell
-# Validate a given tenant from settings file
-Import-Module .\src\Validation.psm1 -Force
-Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
-```
-If you would like to store the validation results in a variable – for example to process the results in a further way.
-Simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
-
-```powershell
-# Validate a given tenant from settings file and store the result in a variable
-Import-Module .\src\Validation.psm1 -Force
-$validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
-```
-The returned object contains following attributes:
-* `Baseline`: The Baseline Id and the version
-* `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for better readability):
-  ```typescript
-  [
-    {
-      Group: string, // The configuration group from the baseline, e.g. 'AccessControl'
-      Setting: string, // The policy setting within the according baseline group, e.g. 'BrowserIdleSignout'
-      Result: string, // The test result, e.g. '--- [Should be 'True']' or '✔︎ [...]' or '✘ [Should be 'False' but is 'True']'
-      Status: 'CHECK NEEDED' | 'PASS' | 'FAIL' // The status of the test result
-      Reference?: string, // Reference to documentation or whatever; only set if defined in baseline and in case of status = 'CHECK NEEDED' or 'FAIL'
-    }
-  ]
-  ```
-* `ResultGroupedText`: The test results as text (grouped)
-* `Statistics`: The statistics of the validation; shows total amount of checks, passed and failed checks and how many "manual work" that still has to be done
