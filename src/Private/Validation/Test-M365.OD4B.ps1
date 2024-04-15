@@ -3,9 +3,9 @@ Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Test-M365.SPO-5.2
+   Test-M365.OD4B-5.1
 #>
-Function Test-M365.SPO-5.2 {
+Function Test-M365.OD4B-5.1 {
   [CmdletBinding()]
   [Alias()]
   [OutputType([hashtable])]
@@ -37,21 +37,23 @@ Function Test-M365.SPO-5.2 {
     function Extract() {
       try {
         $tenantSettings = Get-PnPTenant
-        $browserIdleSignout = Get-PnPBrowserIdleSignout
+        $tenantSyncClientRestriction = Get-PnPTenantSyncClientRestriction
 
-        return @{ tenant = $tenantSettings; browserIdleSignout = $browserIdleSignout }
+        return @{ tenant = $tenantSettings; tenantSyncClientRestriction = $tenantSyncClientRestriction }
       }
       catch {
-        throw "Test-M365.SPO > Exctraction failed: $_" 
+        throw "Test-M365.OD4B > Exctraction failed: $_" 
       } 
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
-      $settings = $extractedSettings.tenant
-      $settings | Add-Member -NotePropertyName BrowserIdleSignout -NotePropertyValue $extractedSettings.browserIdleSignout.Enabled
-      $settings | Add-Member -NotePropertyName BrowserIdleSignoutMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.SignOutAfter.TotalMinutes
-      $settings | Add-Member -NotePropertyName BrowserIdleSignoutWarningMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.WarnAfter.TotalMinutes
-
+      $settings = $extractedSettings.tenant | Select-Object -ExcludeProperty OneDriveStorageQuota
+      $settings | Add-Member -NotePropertyName OneDriveStorageQuota -NotePropertyValue ([int]$extractedSettings.tenant.OneDriveStorageQuota / 1024) # MB --> GB
+      
+      $settings | Add-Member -NotePropertyName TenantRestrictionEnabled -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.TenantRestrictionEnabled
+      $settings | Add-Member -NotePropertyName AllowedDomainList -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.AllowedDomainList
+      $settings | Add-Member -NotePropertyName ExcludedFileExtensions -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.ExcludedFileExtensions
+      
       return $settings
     }
 

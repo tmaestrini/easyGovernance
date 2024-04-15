@@ -47,12 +47,12 @@ function Test-Settings {
               Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
-            if ($null -ne $hint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
+            if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
             $testResult.Add("$groupName-$key", $outputObject);
           }
         }
         catch {
-          <#Do this if a terminating exception happens#>
+          throw $_
         }
       }
     }
@@ -84,14 +84,15 @@ function Get-TestStatistics {
       Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
     }
     
-    Write-Host "----------------------------"
-    Write-Host $("{0,-21} {1,5}" -f "Total Checks:", $stats.Total)
-    Write-Host "----------------------------"
-    Write-Host $("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed)
-    Write-Host $("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed)
-    Write-Host $("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual)
-    Write-Host "----------------------------"        
-      
-    return $stats
+    $output = [System.Text.StringBuilder]::new()
+    $output.AppendLine("----------------------------")
+    $output.AppendLine($("{0,-21} {1,5}" -f "Total Checks:", $stats.Total))
+    $output.AppendLine("----------------------------")
+    $output.AppendLine($("{0,-21} {1,5}" -f "✔ Checks passed: ", $stats.Passed))
+    $output.AppendLine($("{0,-21} {1,5}" -f "✘ Checks failed:", $stats.Failed))
+    $output.AppendLine($("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual))
+    $output.AppendLine("----------------------------")
+
+    return @{stats = $stats; asText = $output.ToString() } 
   }
 }

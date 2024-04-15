@@ -1,0 +1,72 @@
+﻿body {
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+h1 {
+    font-size: 16pt;
+    color: black;
+}
+
+h2 {
+    font-size: 12pt;
+    color: firebrick;
+    margin-top: 2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid lightgray;
+}
+
+cite {
+    font-size: 9pt;
+    color: gray;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.reportHeader {
+    border-collapse: collapse;
+    width: fit-content;
+    margin-bottom: 1rem;
+}
+
+table.reportHeader td:first-child {
+    font-weight: 600;
+    padding-right: 1rem;
+}
+
+td, th {
+    border-bottom: 1px solid;
+    border-color: lightgray;
+    padding: 3px;
+    vertical-align: top;
+}
+
+table.reportHeader td, table.reportHeader th {
+    border: none;
+}
+
+table.reportDetails td:last-child {
+    min-width: 300px;
+}
+
+th {
+    background-color: lightgray;
+    text-align: left;
+    padding: 5px 3px;
+}
+
+td img {
+    vertical-align: middle;
+}
+
+pre {
+    border: 1px solid;
+    border-color: lightgray;
+}
+
+blockquote {
+    border: none;
+    text-indent: each-line;
+}

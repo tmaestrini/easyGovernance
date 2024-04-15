@@ -2,5 +2,11 @@
 tenants/*
 !tenants/settings_template.yml
 
-# exlude logs
+# exclude logs
 logs/*
+
+# exclude any output in root
+/*.md
+
+# exclude reports
+output/*

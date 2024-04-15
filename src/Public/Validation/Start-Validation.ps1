@@ -16,36 +16,38 @@ Function Start-Validation {
     )][switch]$ReturnAsObject
   )
     
+  Initialize-EasyGovernance
   try {
-    # Set things up
-    Initialize-Logging
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
 
-    Clear-Host
-    Write-Log "========================================="
+    Write-Log "*****************************************"
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
-    Write-Log "========================================="
+    Write-Log "*****************************************"
     Write-Log "Baseline Validation Results"
-        
-    # Run baselines
-    $returnedBaselines = @();
-    $baselines = $tenantConfig.Baselines
-    foreach ($baseline in $baselines) {
-      Write-Log "-----------------------------------------"
-      Write-Log "◉ Baseline: $($baseline)"
-      
+
+    # Prepare baselines
+    $validationResults = @();
+    foreach ($selectedBaseline in $tenantConfig.Baselines) {      
       try {
-        if ($baseline -eq 'M365.SPO-5.2') { $returnedBaselines += Test-M365.SPO -baselineId $baseline -tenantId $tenantConfig.Tenant -ReturnAsObject:$returnAsObject }
-        Write-Log -Message "✔︎ successful"
+        $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline
+        Write-Log "-----------------------------------------"
+        Write-Log "◉ Baseline: $($baseline.Id), Version $($baseline.Version)"
+        
+        # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
+        $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }
+        $validationResults += Invoke-Expression "Test-$selectedBaseline @arguments"
+
+        Write-Log -Message "Baseline validation terminated"
       }
       catch {
-        Write-Log -Level ERROR -Message "✖︎ $($_)"
+        Write-Log -Level ERROR -Message "$($_)"
       }
     }
-    if (!$ReturnAsObject) { $returnedBaselines }
-    if ($ReturnAsObject) { return $returnedBaselines }
+    Write-Log "*****************************************"
+    if (!$ReturnAsObject) { $validationResults }
+    if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }
   }
   catch {
-    $_
+    Write-Log -Level ERROR -Message "$($_)"
   }
 }
