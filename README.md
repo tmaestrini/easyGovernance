@@ -118,8 +118,20 @@ The returned object contains following attributes:
 
 - `Tenant`: The identifier of the tenant
 - `Validation`: The validation results
-  - `Baseline`: The Baseline Id
-  - `Result`: The test result (aka validation results)
+  - `Baseline`: The baseline Id
+  - `Version`: The selected version of the baseline
+  - `Result`: An array containing all the test results (aka validation results) with the following structure (example formatted as JSON for better readability):
+  ```typescript
+  [
+    {
+      Group: string, // The configuration group from the baseline, e.g. 'AccessControl'
+      Setting: string, // The policy setting within the according baseline group, e.g. 'BrowserIdleSignout'
+      Result: string, // The test result, e.g. '--- [Should be 'True']' or '✔︎ [...]' or '✘ [Should be 'False' but is 'True']'
+      Status: 'CHECK NEEDED' | 'PASS' | 'FAIL' // The status of the test result
+      Reference?: string, // Reference to documentation or whatever; only set if defined in baseline and in case of status = 'CHECK NEEDED' or 'FAIL'
+    }
+  ]
+  ```
   - `ResultGroupedText`: The test results as text (grouped)
   - `Statistics`: The statistics of the validation
     - `Total`: amount of processed checks in total
