@@ -5,14 +5,18 @@ By defining a _configuration baseline_ (YAML) that contains all the desired conf
 
 Any _configuration baseline_ is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
 
-Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
-
-Give it a try – We're sure you will like it! 💪
 
 > [!NOTE]
 > 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported – but other services will follow asap. Any contributors are welcome! 🙌
 
-## Dependencies
+Give it a try – We're sure you will like it! 💪
+
+
+## Architecture and Dependencies
+
+Under the hood, the baseline validation engine is powered by the [PnP.Powershell](https://pnp.github.io/powershell/) module and the [Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview). This provides us with a powerful toolset – driven by the power of PowerShell 😃.
+
+The implementation is based on the following PowerShell modules:
 
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
 ![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
@@ -34,6 +38,8 @@ Give it a try – We're sure you will like it! 💪
 - Tobias Maestrini [@tmaestrini](https://github.com/tmaestrini)
 - Daniel Kordes [@dako365](https://github.com/dako365)
 - Marc D. Anderson [@sympmarc](https://github.com/sympmarc)
+
+Any contribution is welcome. Please read our [contribution guidelines](./Contributing.md) first.
 
 ## Version history
 
@@ -77,7 +83,7 @@ Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 Install-Module -Name Logging -RequiredVersion 4.8.5 -Scope CurrentUser
-Install-Module -Name MarkdownPS	-RequredVersion 1.9 -Scope CurrentUser
+Install-Module -Name MarkdownPS	-RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 ```
 
