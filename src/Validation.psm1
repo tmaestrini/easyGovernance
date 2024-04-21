@@ -12,3 +12,6 @@ Foreach ($import in @($Public + $Private)) {
 }
 
 Export-ModuleMember -Function $Public.Basename
+
+# Check module dependencies before staring the routine
+Test-RequiredModules
