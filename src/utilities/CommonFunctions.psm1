@@ -50,7 +50,8 @@ Function Test-RequiredModules() {
         }
         throw "Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
-      elseif ($module.version -notin @($m.Version.ToString(), "")) { throw "Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
+      elseif ($null -ne $module.version -and $module.version -notin @($m.Version.ToString(), "")) { 
+        throw "Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
     }
     catch {
       Write-Host "$($_)" -ForegroundColor Yellow
