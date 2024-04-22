@@ -33,7 +33,7 @@ Function Initialize-EasyGovernance() {
 #>
 Function Test-RequiredModules() {
   $requiredModules = @(
-    @{name = "powershell-yaml"}
+    @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "2.4.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
     @{name = "Logging"; version = "4.8.5" }
@@ -50,7 +50,9 @@ Function Test-RequiredModules() {
         }
         throw "Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
-      elseif ($module.version -notin @($m.Version.ToString(), "")) { throw "Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" }
+      elseif ($null -ne $module.version -and $module.version -notin @($m.Version.ToString(), "")) { 
+        throw "Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+      }
     }
     catch {
       Write-Host "$($_)" -ForegroundColor Yellow
