@@ -1,0 +1,44 @@
+Topic: Tenant Basic Configuration
+Type: Baseline
+Id: M365.IAM-1-1.1 
+Version: 1.0
+
+References:
+https://blueprint.oobe.com.au/blueprint/office-365/
+https://blueprint.oobe.com.au/blueprint/office-365/#residency
+https://blueprint.oobe.com.au/blueprint/office-365/#themes
+
+Configuration:
+  - enforces: Residency
+    with:
+      Residency: "" # Specifies the residency of the tenant.
+      
+  - enforces: CompanyBranding
+    with:
+      CompanyBranding: configured # Specifies whether company branding is configured.
+      
+
+  - enforces: Office365servicesandaddins
+    with:
+      AzureSpeechServices: true # Enabling the organization-wide language model allows Azure Speech service to gather data from emails and other locations to improve M365 applications that use Azure Speech services.
+      Bookings: false # Exposes a public web page that provides access to user calendars for 3rd parties. 
+      MSVivaBriefing: true # Enabled by default to improve productivity, individual users can unsubscribe if desired.
+      CalendarSharing: false # External sharing is disabled to prevent potential data spills.
+      Cortana: false # To align with ACSC Windows 10 hardening guidance to disable Windows web results and Cortana, to limit the risk of accidental disclosure of sensitive information.
+      MSUserCommunication: false # To prevent communication from Microsoft directly rather than via the organisation's IT team.
+      MSGraphDataConnect: false # disable if not in use
+      MSSearchBing: false # Microsoft Search integrates with bing.com for Search. Office 365 data is indexed to provide bing.com search functionality and is therefore not desirable for this design.
+      MSTeams: true # To enable both internal and external collaboration.
+      MSToDo: false # To reduce the risk of user entering sensitive data into external lists.
+      MSVivaInsights: true # Provides users with details about their usage of Office 365.
+      M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups. 
+      ModernAuth: true # Modern authentication is required for all Office 365 services. Enabling of Modern Authentication provides ability to use Multi Factor Authentication.
+      News: false # To prevent the display of Office 365 content and external news articles together in Edge.
+      OfficeInstallationOpt: true # To manage the update and deployment of Office updates and components.
+      OfficeOTW: 3rdParty disabled # Do not allow users to open files in third-party storage services in Office on the web as this may introduce risk of information disclosure or malicious content.
+      OfficeScripts: false # To prevent the execution of unapproved code.
+      Reports: false # Disable data reporting to Microsoft on Office 365 usage.
+      SharePoint: true # New and Existing guests must sign in or provide a verification code when accessing SharePoint data.
+      Sway: false # External collaboration will be conducted in Teams or SharePoint online.
+      UserAppConsent: false # Require admin consent for all apps.
+      UserOwnedAppsandServices: false # Applications will be delivered via the Business Store, there is no need to have the Official Store enabled.
