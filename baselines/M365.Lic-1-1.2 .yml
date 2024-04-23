@@ -1,0 +1,10 @@
+Topic: Tenant Basic Configuration
+Type: Baseline
+Id: M365.Lic-1-1.2 
+Version: 1.0
+
+References:
+
+Configuration:
+  - enforces: Licensing
+    with:
