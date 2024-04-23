@@ -9,36 +9,54 @@ https://blueprint.oobe.com.au/blueprint/office-365/#residency
 https://blueprint.oobe.com.au/blueprint/office-365/#themes
 
 Configuration:
-  - enforces: Residency
+  - enforces: Office365Services
     with:
-      Residency: "" # Specifies the residency of the tenant.
-      
-  - enforces: CompanyBranding
-    with:
-      CompanyBranding: configured # Specifies whether company branding is configured.
-      
-
-  - enforces: Office365servicesandaddins
-    with:
+      AccountLinking: false # To prevent users from linking their personal accounts to their work accounts.
+      AdoptionScore: configured # Specifies whether the organization's adoption score is configured.
       AzureSpeechServices: true # Enabling the organization-wide language model allows Azure Speech service to gather data from emails and other locations to improve M365 applications that use Azure Speech services.
       Bookings: false # Exposes a public web page that provides access to user calendars for 3rd parties. 
       MSVivaBriefing: true # Enabled by default to improve productivity, individual users can unsubscribe if desired.
       CalendarSharing: false # External sharing is disabled to prevent potential data spills.
+      Copilot4Sales: false # Disable Sales Copilot
       Cortana: false # To align with ACSC Windows 10 hardening guidance to disable Windows web results and Cortana, to limit the risk of accidental disclosure of sensitive information.
-      MSUserCommunication: false # To prevent communication from Microsoft directly rather than via the organisation's IT team.
+      M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups. 
+      M365AppsInstallationOpt: Monthly # To manage the update and deployment of Office updates and components.
+      M365Lighthouse: false # To prevent the use of Lighthouse, which allows MSPs to manage multiple tenants from a single portal.
+      M365OTW: 3rdParty disabled # Do not allow users to open files in third-party storage services in Office on the web as this may introduce risk of information disclosure or malicious content.
+      MSUserCommunication: false # To prevent users from receiving communications from Microsoft.
+      MSForms: configured # Specifies whether Microsoft Forms is configured.
       MSGraphDataConnect: false # disable if not in use
+      MSLoop: configured # Specifies whether Microsoft Loop is configured.
+      MSPlanner: configured # To enable task management and collaboration.
       MSSearchBing: false # Microsoft Search integrates with bing.com for Search. Office 365 data is indexed to provide bing.com search functionality and is therefore not desirable for this design.
       MSTeams: true # To enable both internal and external collaboration.
       MSToDo: false # To reduce the risk of user entering sensitive data into external lists.
       MSVivaInsights: true # Provides users with details about their usage of Office 365.
-      M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups. 
       ModernAuth: true # Modern authentication is required for all Office 365 services. Enabling of Modern Authentication provides ability to use Multi Factor Authentication.
       News: false # To prevent the display of Office 365 content and external news articles together in Edge.
-      OfficeInstallationOpt: true # To manage the update and deployment of Office updates and components.
-      OfficeOTW: 3rdParty disabled # Do not allow users to open files in third-party storage services in Office on the web as this may introduce risk of information disclosure or malicious content.
       OfficeScripts: false # To prevent the execution of unapproved code.
       Reports: false # Disable data reporting to Microsoft on Office 365 usage.
+      SearchIntelligenceAnalytics: configured # Specifies whether Search Intelligence Analytics is configured.
       SharePoint: true # New and Existing guests must sign in or provide a verification code when accessing SharePoint data.
       Sway: false # External collaboration will be conducted in Teams or SharePoint online.
-      UserAppConsent: false # Require admin consent for all apps.
       UserOwnedAppsandServices: false # Applications will be delivered via the Business Store, there is no need to have the Official Store enabled.
+      VivaLearning: configured
+      Whiteboard: configured
+
+
+  - enforces: SecurityAndPrivacy
+    with:    
+      IdleSessionTimeout: configured # Specifies the time of inactivity before a user is automatically signed out.
+      PasswordExpirationPolicy: true # User Passwords never expire
+      PrivacyProfile: configured # Specifies whether the organization's privacy profile is configured.
+      Pronouns: 
+      Sharing: false # Tp prevent users from adding guests to the organization.
+
+
+  - enforces: OrganizationProfile
+    with:
+      CustomThemes: configured # Specifies whether company branding is configured.
+      DataLocation: "" # Specifies the residency of the tenant.
+      HelpDeskInfo: configured # Streamline user support by adding your organization's contact information to the Microsoft 365 help pane.
+      ReleasePreferences: configured
+      EmailNotFromOwnDomain: configured # To prevent phishing attacks.
