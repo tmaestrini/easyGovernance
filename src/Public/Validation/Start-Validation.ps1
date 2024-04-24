@@ -35,7 +35,7 @@ Function Start-Validation {
         
         # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
         $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }
-        $validationResults += Invoke-Expression "Test-$selectedBaseline @arguments"
+        $validationResults += Invoke-Expression "Test-$($baseline.Id) @arguments"
 
         Write-Log -Message "Baseline validation terminated"
       }
