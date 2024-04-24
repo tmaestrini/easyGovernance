@@ -1,10 +1,10 @@
 Topic: Identity & Access Management
 Type: Baseline
-Id: M365.IAM-1-2.1 
+Id: M365.1-2.1
 Version: 1.0
 
 References:
-https://blueprint.oobe.com.au/blueprint/platform/#microsoft-entra-id
+  - https://blueprint.oobe.com.au/blueprint/platform/#microsoft-entra-id
 
 Configuration:
   - enforces: MicrosoftEntraID
