@@ -17,8 +17,11 @@ Function Start-Validation {
   )
     
   Initialize-EasyGovernance
+  if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
+  
   try {
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
+    Connect-Tenant -Tenant $tenantConfig.Tenant
 
     Write-Log "*****************************************"
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
@@ -43,6 +46,8 @@ Function Start-Validation {
         Write-Log -Level ERROR -Message "$($_)"
       }
     }
+
+    Disconnect-Tenant
     Write-Log "*****************************************"
     if (!$ReturnAsObject) { $validationResults }
     if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }

@@ -27,11 +27,14 @@ Function Test-M365.1-5.2 {
  
   Begin {
     $adminSiteUrl = "https://${tenantId}-admin.sharepoint.com"
-
+    
     function Connect() {
-      Connect-PnPOnline -Url $adminSiteUrl -Interactive
-      if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
-      Write-Log -Level INFO "Connection established"
+      try {
+        Connect-TenantPnPOnline -AdminSiteUrl $adminSiteUrl
+      }
+      catch {
+        throw $_
+      }
     }
 
     function Extract() {
@@ -42,7 +45,7 @@ Function Test-M365.1-5.2 {
         return @{ tenant = $tenantSettings; browserIdleSignout = $browserIdleSignout }
       }
       catch {
-        throw "Test-M365.SPO > Exctraction failed: $_" 
+        throw "Test-M365.1-5.2 > Exctraction failed: $_" 
       } 
     }
 
@@ -92,7 +95,9 @@ Function Test-M365.1-5.2 {
       throw $_
     }
     finally {
-      Disconnect-PnPOnline
+      if (!$Script:KeepConnectionsAlive) {
+        Disconnect-PnPOnline
+      }
     }
   }
 }

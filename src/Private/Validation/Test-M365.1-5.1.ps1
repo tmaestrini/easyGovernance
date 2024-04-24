@@ -29,20 +29,23 @@ Function Test-M365.1-5.1 {
     $adminSiteUrl = "https://${tenantId}-admin.sharepoint.com"
 
     function Connect() {
-      Connect-PnPOnline -Url $adminSiteUrl -Interactive
-      if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
-      Write-Log -Level INFO "Connection established"
+      try {
+        Connect-TenantPnPOnline -AdminSiteUrl $adminSiteUrl
+      }
+      catch {
+        throw $_
+      }
     }
 
     function Extract() {
       try {
         $tenantSettings = Get-PnPTenant
-        $tenantSyncClientRestriction = Get-PnPTenantSyncClientRestriction
+        $tenantSyncClientRestriction = Get-PnPTenantSyncClientRestriction 
 
         return @{ tenant = $tenantSettings; tenantSyncClientRestriction = $tenantSyncClientRestriction }
       }
       catch {
-        throw "Test-M365.OD4B > Exctraction failed: $_" 
+        throw "Test-M365.1-5.1 > Exctraction failed: $_" 
       } 
     }
 
@@ -94,7 +97,9 @@ Function Test-M365.1-5.1 {
       throw $_
     }
     finally {
-      Disconnect-PnPOnline
+      if (!$Script:KeepConnectionsAlive) {
+        Disconnect-PnPOnline
+      }
     }
   }
 }
