@@ -17,11 +17,11 @@ Function Initialize-EasyGovernance() {
 
   # Set things up
   try {
-    Initialize-Logging    
+    Initialize-Logging
   }
   catch {
-    Write-Host "✘ Initialization of Logging setup failed." -ForegroundColor Red
-    throw "Terminating during initalization"
+    Write-Host "✘ Initialization failed." -ForegroundColor Red
+    throw "Terminating routine"
   }
 }
 
@@ -61,5 +61,34 @@ Function Test-RequiredModules() {
   }
   if (!$moduleCheckOk) { 
     throw "✘ Module check failed. Please install dependencies and try again." 
+  }
+}
+
+Function Connect-Tenant {
+  [CmdletBinding()]
+  [OutputType([void])]
+
+  Param
+  (
+    [Parameter(Mandatory = $true, 
+      HelpMessage = "The name of the tenant")][string] $Tenant
+  )
+
+  $connectionContextName = "easyGovernance"
+
+  Write-Host "Establishing connection to tenant '$Tenant.onmicrosoft.com'"
+  Write-Host "👉 Press any key to login as administrator..."
+  $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
+  
+  try {
+    $ctx = Get-AzContext -Name $connectionContextName
+    if ($null -eq $ctx) {
+      Write-Log -Level INFO -Message "Trying to establish connection to tenant '$Tenant.onmicrosoft.com'"
+      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      Write-Log -Level INFO -Message "Connection ok"
+    }
+  }
+  catch {
+    Write-Log -Level ERROR -Message "failed: $_"
   }
 }
