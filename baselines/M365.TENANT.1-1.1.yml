@@ -14,12 +14,12 @@ Configuration:
       AccountLinking: false # To prevent users from linking their personal accounts to their work accounts.
       AdoptionScore: configured # Specifies whether the organization's adoption score is configured.
       AzureSpeechServices: true # Enabling the organization-wide language model allows Azure Speech service to gather data from emails and other locations to improve M365 applications that use Azure Speech services.
-      Bookings: false # Exposes a public web page that provides access to user calendars for 3rd parties. 
+      Bookings: false # Exposes a public web page that provides access to user calendars for 3rd parties.
       MSVivaBriefing: true # Enabled by default to improve productivity, individual users can unsubscribe if desired.
       CalendarSharing: false # External sharing is disabled to prevent potential data spills.
       Copilot4Sales: false # Disable Sales Copilot
       Cortana: false # To align with ACSC Windows 10 hardening guidance to disable Windows web results and Cortana, to limit the risk of accidental disclosure of sensitive information.
-      M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups. 
+      M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups.
       M365AppsInstallationOpt: Monthly # To manage the update and deployment of Office updates and components.
       M365Lighthouse: false # To prevent the use of Lighthouse, which allows MSPs to manage multiple tenants from a single portal.
       M365OTW: 3rdParty disabled # Do not allow users to open files in third-party storage services in Office on the web as this may introduce risk of information disclosure or malicious content.
@@ -43,15 +43,13 @@ Configuration:
       VivaLearning: configured
       Whiteboard: configured
 
-
   - enforces: SecurityAndPrivacy
-    with:    
+    with:
       IdleSessionTimeout: configured # Specifies the time of inactivity before a user is automatically signed out.
       PasswordExpirationPolicy: true # User Passwords never expire
       PrivacyProfile: configured # Specifies whether the organization's privacy profile is configured.
-      Pronouns: 
+      Pronouns:
       Sharing: false # Tp prevent users from adding guests to the organization.
-
 
   - enforces: OrganizationProfile
     with:
