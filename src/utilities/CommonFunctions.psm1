@@ -20,7 +20,7 @@ Function Initialize-EasyGovernance() {
     Initialize-Logging    
   }
   catch {
-    Write-Host "✘ Module check failed. Please install dependencies and try again." -ForegroundColor Red
+    Write-Host "✘ Initialization of Logging setup failed." -ForegroundColor Red
     throw "Terminating during initalization"
   }
 }
