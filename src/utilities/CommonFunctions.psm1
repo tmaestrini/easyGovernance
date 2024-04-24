@@ -81,12 +81,7 @@ Function Connect-Tenant {
   $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   
   try {
-    Write-Log -Level INFO -Message "Trying to establish connection to tenant '$Tenant.onmicrosoft.com'"
-    $ctx = Get-AzContext -Name $connectionContextName
-    if ($null -eq $ctx) {
-      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
-    }
-    Write-Log -Level INFO -Message "Connection ok"
+    Connect-TenantAzure -connectionContextName $connectionContextName
   }
   catch {
     Write-Log -Level ERROR -Message "failed: $_"
@@ -96,17 +91,36 @@ Function Connect-Tenant {
 Function Disconnect-Tenant {
   Write-Log -Message "Disconnecting from tenant"
 
-  if($null -ne (Get-AzContext -Name $connectionContextName)) {
+  if ($null -ne (Get-AzContext -Name $connectionContextName)) {
     Disconnect-AzAccount -ContextName $connectionContextName | Out-Null
   }
-  if($null -ne (Get-PnPConnection)) {
+  if ($null -ne (Get-PnPConnection)) {
     Disconnect-PnPOnline | Out-Null
   }
 }
 
 <#
 .Synopsis
-  Connects to the tenant's admin site via PnPOnline and sets up the connection script variable ($Script:connection), if not already set.
+  Connects to the Azure tenant and sets up the connection.
+#>
+Function Connect-TenantAzure([string] $connectionContextName) {
+  Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
+  try {
+    $ctx = Get-AzContext -Name $connectionContextName
+    if ($null -eq $ctx) {
+      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+    }
+    Write-Log -Level INFO -Message "Connection established"
+  }
+  catch {
+    throw "Connection failed: $_"
+  }
+
+}
+
+<#
+.Synopsis
+  Connects to the tenant's admin site via PnPOnline and sets up the connection.
 #>
 Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
   Write-Log -Level INFO -Message "Trying to establish connection (PnPOnline)"
@@ -116,7 +130,7 @@ Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
   }
   catch {
     Connect-PnPOnline -Url $AdminSiteUrl -Interactive
-    if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
+    if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed: $_" }
     Write-Log -Level INFO "Connection established"
   }
 }
