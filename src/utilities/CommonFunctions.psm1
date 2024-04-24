@@ -1,3 +1,5 @@
+$connectionContextName = "easyGovernance"
+
 <#
 .Synopsis
 .DESCRIPTION
@@ -74,21 +76,47 @@ Function Connect-Tenant {
       HelpMessage = "The name of the tenant")][string] $Tenant
   )
 
-  $connectionContextName = "easyGovernance"
-
-  Write-Host "Establishing connection to tenant '$Tenant.onmicrosoft.com'"
+  Write-Host "Establishing connection to your Azure tenant '$Tenant.onmicrosoft.com':"
   Write-Host "👉 Press any key to login as administrator..."
   $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   
   try {
+    Write-Log -Level INFO -Message "Trying to establish connection to tenant '$Tenant.onmicrosoft.com'"
     $ctx = Get-AzContext -Name $connectionContextName
     if ($null -eq $ctx) {
-      Write-Log -Level INFO -Message "Trying to establish connection to tenant '$Tenant.onmicrosoft.com'"
       Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
-      Write-Log -Level INFO -Message "Connection ok"
     }
+    Write-Log -Level INFO -Message "Connection ok"
   }
   catch {
     Write-Log -Level ERROR -Message "failed: $_"
+  }
+}
+
+Function Disconnect-Tenant {
+  Write-Log -Message "Disconnecting from tenant"
+
+  if($null -ne (Get-AzContext -Name $connectionContextName)) {
+    Disconnect-AzAccount -ContextName $connectionContextName | Out-Null
+  }
+  if($null -ne (Get-PnPConnection)) {
+    Disconnect-PnPOnline | Out-Null
+  }
+}
+
+<#
+.Synopsis
+  Connects to the tenant's admin site via PnPOnline and sets up the connection script variable ($Script:connection), if not already set.
+#>
+Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
+  Write-Log -Level INFO -Message "Trying to establish connection (PnPOnline)"
+  try {
+    Get-PnPConnection | Out-Null    
+    Write-Log -Level INFO "Connection established"
+  }
+  catch {
+    Connect-PnPOnline -Url $AdminSiteUrl -Interactive
+    if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
+    Write-Log -Level INFO "Connection established"
   }
 }
