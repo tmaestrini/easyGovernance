@@ -3,9 +3,9 @@ Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Test-M365.SPO-5.2
+   Test-M365.1-5.2
 #>
-Function Test-M365.SPO-5.2 {
+Function Test-M365.1-5.2 {
   [CmdletBinding()]
   [Alias()]
   [OutputType([hashtable])]
