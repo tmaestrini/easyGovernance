@@ -1,4 +1,4 @@
-$connectionContextName = "easyGovernance"
+$Global:connectionContextName = "easyGovernance"
 
 <#
 .Synopsis
@@ -6,7 +6,7 @@ $connectionContextName = "easyGovernance"
 .EXAMPLE
    Initialize-EasyGovernance
 #>
-Function Initialize-EasyGovernance() {    
+Function Initialize-EasyGovernance {    
   Function Initialize-Logging() {
     Set-LoggingDefaultLevel -Level 'INFO'
     Add-LoggingTarget -Name Console
@@ -33,7 +33,7 @@ Function Initialize-EasyGovernance() {
 .EXAMPLE
    Test-RequiredModules
 #>
-Function Test-RequiredModules() {
+Function Test-RequiredModules {
   $requiredModules = @(
     @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "2.4.0" }
@@ -81,7 +81,7 @@ Function Connect-Tenant {
   $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   
   try {
-    Connect-TenantAzure -connectionContextName $connectionContextName
+    Connect-TenantAzure
   }
   catch {
     Write-Log -Level ERROR -Message "failed: $_"
@@ -91,11 +91,15 @@ Function Connect-Tenant {
 Function Disconnect-Tenant {
   Write-Log -Message "Disconnecting from tenant"
 
-  if ($null -ne (Get-AzContext -Name $connectionContextName)) {
-    Disconnect-AzAccount -ContextName $connectionContextName | Out-Null
-  }
-  if ($null -ne (Get-PnPConnection)) {
-    Disconnect-PnPOnline | Out-Null
+  try {
+    if ($null -ne (Get-AzContext -Name $Global:connectionContextName)) {
+      Disconnect-AzAccount -ContextName $Global:connectionContextName | Out-Null
+    }
+    if ($null -ne (Get-PnPConnection)) {
+      Disconnect-PnPOnline | Out-Null
+    }
+  } catch {
+    throw "Disconnect-Tenant > $_"
   }
 }
 
@@ -103,17 +107,19 @@ Function Disconnect-Tenant {
 .Synopsis
   Connects to the Azure tenant and sets up the connection.
 #>
-Function Connect-TenantAzure([string] $connectionContextName) {
+Function Connect-TenantAzure  {
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
-    $ctx = Get-AzContext -Name $connectionContextName
+    $ctx = Get-AzContext -Name $Global:connectionContextName
     if ($null -eq $ctx) {
-      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      $ctx = Get-AzContext -Name $Global:connectionContextName
+      $Global:AzureContext = $ctx
     }
     Write-Log -Level INFO -Message "Connection established"
   }
   catch {
-    throw "Connection failed: $_"
+    throw "Connect-TenantAzure > $_"
   }
 
 }
