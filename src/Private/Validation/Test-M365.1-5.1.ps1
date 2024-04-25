@@ -96,10 +96,5 @@ Function Test-M365.1-5.1 {
     catch {
       throw $_
     }
-    finally {
-      if (!$Script:KeepConnectionsAlive) {
-        Disconnect-PnPOnline
-      }
-    }
   }
 }

@@ -47,12 +47,14 @@ Function Start-Validation {
       }
     }
 
-    Disconnect-Tenant
-    Write-Log "*****************************************"
     if (!$ReturnAsObject) { $validationResults }
     if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }
   }
   catch {
     Write-Log -Level ERROR -Message "$($_)"
+  } 
+  finally {
+    if (!$Script:KeepConnectionsAlive) { Disconnect-Tenant }
+    Write-Log "*****************************************"
   }
 }
