@@ -1,5 +1,3 @@
-Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
-
 <#
 .Synopsis
 .DESCRIPTION

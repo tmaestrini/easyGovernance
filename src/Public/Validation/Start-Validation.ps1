@@ -1,6 +1,3 @@
-Import-Module ./src/utilities/CommonFunctions.psm1 -Force
-Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
-
 Function Start-Validation {
   param(
     [Parameter(

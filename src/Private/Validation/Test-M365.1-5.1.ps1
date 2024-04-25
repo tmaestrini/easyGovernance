@@ -1,4 +1,3 @@
-Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 <#
 .Synopsis
 .DESCRIPTION
