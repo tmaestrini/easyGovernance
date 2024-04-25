@@ -32,6 +32,9 @@ Function Test-M365.1-1.1 {
 
     function Extract() {
       try {
+        # $s = Get-M365TenantSettings -Properties "tenant/localdatalocation", "services/apps/azurespeechservices"
+        $settings = Get-M365TenantSettings -Properties "services/apps/azurespeechservices", "settings/apps/bookings"
+        return $settings
       }
       catch {
         throw "Baseline exctraction failed: $_" 
@@ -39,6 +42,12 @@ Function Test-M365.1-1.1 {
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
+      $settings = @{}
+      
+      # Office365Services
+      $settings.AzureSpeechServices = $extractedSettings.azurespeechservices.isTenantEnabled
+      $settings.Bookings = $extractedSettings.bookings.Enabled
+      
       return $settings
     }
 
@@ -77,11 +86,6 @@ Function Test-M365.1-1.1 {
     }
     catch {
       throw $_
-    }
-    finally {
-      if (!$Script:KeepConnectionsAlive) {
-        Disconnect-PnPOnline
-      }
     }
   }
 }
