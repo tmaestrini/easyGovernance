@@ -40,6 +40,7 @@ Function Test-RequiredModules {
     @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "2.4.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
+    @{name = "Az.Accounts" }
     @{name = "PSLogs"; version = "5.2.1" }
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  

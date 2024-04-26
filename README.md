@@ -21,6 +21,7 @@ The implementation is based on the following PowerShell modules:
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
 ![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
+![Az.Accounts](https://img.shields.io/badge/Az.Accounts-blue.svg)
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
 ![PSLogs](https://img.shields.io/badge/PSLogs-5.2.1-blue.svg)
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
