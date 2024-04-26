@@ -9,8 +9,10 @@ $Global:connectionContextName = "easyGovernance"
 Function Initialize-EasyGovernance {    
   Function Initialize-Logging() {
     Set-LoggingDefaultLevel -Level 'INFO'
-    Add-LoggingTarget -Name Console
-    Add-LoggingTarget -Name File -Configuration @{Path = (Join-Path -Path $PSScriptRoot -ChildPath '../../logs/easyGovernance_%{+%Y%m%d}.log') }
+    Set-LoggingDefaultFormat -Format '%{timestamp:+yyyy-MM-dd HH:mm:ss:12} %{level:-7} %{message} %{body}'
+
+    Add-LoggingTarget -Name Console -Configuration @{ Level = 'DEBUG'; Format = '%{timestamp:+yyyy-MM-dd HH:mm:ss:12} %{level:-7} [%{caller}] %{message} %{body}'  }
+    Add-LoggingTarget -Name File -Configuration @{Path = (Join-Path -Path $PSScriptRoot -ChildPath '../../logs/easyGovernance_%{+%Y%m%d}.log');}  
   }
 
   Clear-Host
@@ -38,7 +40,7 @@ Function Test-RequiredModules {
     @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "2.4.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
-    @{name = "Logging"; version = "4.8.5" }
+    @{name = "PSLogs"; version = "5.2.1" }
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
   )
@@ -48,12 +50,12 @@ Function Test-RequiredModules {
       $m = Get-Module -ListAvailable -Name $module.name | Sort-Object Version -Descending | Select-Object -First 1
       if ($null -eq $m ) { 
         if ($null -eq $module.version -or "" -eq $module.version) {
-          throw "Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
+          throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
         }
-        throw "Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+        throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
       elseif ($null -ne $module.version -and $module.version -notin @($m.Version.ToString(), "")) { 
-        throw "Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+        throw "Test-RequiredModules Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
     }
     catch {
@@ -98,7 +100,8 @@ Function Disconnect-Tenant {
     if ($null -ne (Get-PnPConnection)) {
       Disconnect-PnPOnline | Out-Null
     }
-  } catch {
+  }
+  catch {
     throw "Disconnect-Tenant > $_"
   }
 }
@@ -107,7 +110,7 @@ Function Disconnect-Tenant {
 .Synopsis
   Connects to the Azure tenant and sets up the connection.
 #>
-Function Connect-TenantAzure  {
+Function Connect-TenantAzure {
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
     $ctx = Get-AzContext -Name $Global:connectionContextName
