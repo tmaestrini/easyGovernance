@@ -11,8 +11,8 @@ Function Initialize-EasyGovernance {
     Set-LoggingDefaultLevel -Level 'INFO'
     Set-LoggingDefaultFormat -Format '%{timestamp:+yyyy-MM-dd HH:mm:ss:12} %{level:-7} %{message} %{body}'
 
-    Add-LoggingTarget -Name Console -Configuration @{ Level = 'DEBUG'; Format = '%{timestamp:+yyyy-MM-dd HH:mm:ss:12} %{level:-7} [%{caller}] %{message} %{body}'  }
-    Add-LoggingTarget -Name File -Configuration @{Path = (Join-Path -Path $PSScriptRoot -ChildPath '../../logs/easyGovernance_%{+%Y%m%d}.log');}  
+    Add-LoggingTarget -Name Console -Configuration @{ Level = 'DEBUG'; Format = '%{timestamp:+yyyy-MM-dd HH:mm:ss:12} %{level:-7} [%{caller}] %{message} %{body}' }
+    Add-LoggingTarget -Name File -Configuration @{Path = (Join-Path -Path $PSScriptRoot -ChildPath '../../logs/easyGovernance_%{+%Y%m%d}.log'); }  
   }
 
   Clear-Host
@@ -46,6 +46,20 @@ Function Test-RequiredModules {
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
   )
   $moduleCheckOk = $true
+
+  # Check for required PowerShell version
+  try {
+    if ($PSVersionTable.PSVersion.Major -lt 7) {
+      throw "Test-RequiredModules PowerShell version must be 7.0 or higher. You are running $($PSVersionTable.PSVersion.ToString()).`nWe recommend you to upgrade to the latest version."
+    }
+  }
+  catch {
+    $moduleCheckOk = $false
+    Write-Host "$($_)" -ForegroundColor Red
+    throw $_
+  }
+  
+  # Check for required modules
   foreach ($module in $requiredModules) {
     try {
       $m = Get-Module -ListAvailable -Name $module.name | Sort-Object Version -Descending | Select-Object -First 1
