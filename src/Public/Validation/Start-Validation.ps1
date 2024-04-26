@@ -1,6 +1,3 @@
-Import-Module ./src/utilities/CommonFunctions.psm1 -Force
-Import-Module ./src/utilities/TemplateFunctions.psm1 -Force
-
 Function Start-Validation {
   param(
     [Parameter(
@@ -17,8 +14,11 @@ Function Start-Validation {
   )
     
   Initialize-EasyGovernance
+  if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
+  
   try {
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
+    Connect-Tenant -Tenant $tenantConfig.Tenant
 
     Write-Log "*****************************************"
     Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
@@ -35,7 +35,7 @@ Function Start-Validation {
         
         # Run baseline validation dynamically (following the name of the function: Test-<Name of Baseline>)
         $arguments = @{baseline = $baseline; tenantId = $tenantConfig.Tenant; ReturnAsObject = $returnAsObject }
-        $validationResults += Invoke-Expression "Test-$selectedBaseline @arguments"
+        $validationResults += Invoke-Expression "Test-$($baseline.Id) @arguments"
 
         Write-Log -Message "Baseline validation terminated"
       }
@@ -43,11 +43,15 @@ Function Start-Validation {
         Write-Log -Level ERROR -Message "$($_)"
       }
     }
-    Write-Log "*****************************************"
+
     if (!$ReturnAsObject) { $validationResults }
     if ($ReturnAsObject) { return @{Tenant = $tenantConfig.Tenant; Validation = $validationResults } }
   }
   catch {
     Write-Log -Level ERROR -Message "$($_)"
+  } 
+  finally {
+    if (!$Script:KeepConnectionsAlive) { Disconnect-Tenant }
+    Write-Log "*****************************************"
   }
 }

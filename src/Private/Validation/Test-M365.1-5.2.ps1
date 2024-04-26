@@ -1,11 +1,10 @@
-Import-Module ./src/utilities/ValidationFunctions.psm1 -Force
 <#
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Test-M365.OD4B-5.1
+   Test-M365.1-5.2
 #>
-Function Test-M365.OD4B-5.1 {
+Function Test-M365.1-5.2 {
   [CmdletBinding()]
   [Alias()]
   [OutputType([hashtable])]
@@ -27,33 +26,34 @@ Function Test-M365.OD4B-5.1 {
  
   Begin {
     $adminSiteUrl = "https://${tenantId}-admin.sharepoint.com"
-
+    
     function Connect() {
-      Connect-PnPOnline -Url $adminSiteUrl -Interactive
-      if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed!" }
-      Write-Log -Level INFO "Connection established"
+      try {
+        Connect-TenantPnPOnline -AdminSiteUrl $adminSiteUrl
+      }
+      catch {
+        throw $_
+      }
     }
 
     function Extract() {
       try {
         $tenantSettings = Get-PnPTenant
-        $tenantSyncClientRestriction = Get-PnPTenantSyncClientRestriction
+        $browserIdleSignout = Get-PnPBrowserIdleSignout
 
-        return @{ tenant = $tenantSettings; tenantSyncClientRestriction = $tenantSyncClientRestriction }
+        return @{ tenant = $tenantSettings; browserIdleSignout = $browserIdleSignout }
       }
       catch {
-        throw "Test-M365.OD4B > Exctraction failed: $_" 
+        throw "Test-M365.1-5.2 > Exctraction failed: $_" 
       } 
     }
 
     function Transform([PSCustomObject] $extractedSettings) {
-      $settings = $extractedSettings.tenant | Select-Object -ExcludeProperty OneDriveStorageQuota
-      $settings | Add-Member -NotePropertyName OneDriveStorageQuota -NotePropertyValue ([int]$extractedSettings.tenant.OneDriveStorageQuota / 1024) # MB --> GB
-      
-      $settings | Add-Member -NotePropertyName TenantRestrictionEnabled -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.TenantRestrictionEnabled
-      $settings | Add-Member -NotePropertyName AllowedDomainList -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.AllowedDomainList
-      $settings | Add-Member -NotePropertyName ExcludedFileExtensions -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.ExcludedFileExtensions
-      
+      $settings = $extractedSettings.tenant
+      $settings | Add-Member -NotePropertyName BrowserIdleSignout -NotePropertyValue $extractedSettings.browserIdleSignout.Enabled
+      $settings | Add-Member -NotePropertyName BrowserIdleSignoutMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.SignOutAfter.TotalMinutes
+      $settings | Add-Member -NotePropertyName BrowserIdleSignoutWarningMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.WarnAfter.TotalMinutes
+
       return $settings
     }
 
@@ -92,9 +92,6 @@ Function Test-M365.OD4B-5.1 {
     }
     catch {
       throw $_
-    }
-    finally {
-      Disconnect-PnPOnline
     }
   }
 }

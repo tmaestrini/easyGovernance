@@ -1,0 +1,13 @@
+Topic: Tenant Basic Configuration
+Type: Baseline
+Id: M365.1-1.2
+Version: 1.0
+
+References:
+
+Configuration:
+  - enforces: Licensing
+    with:
+      LicenseError: false # No License Error in tenant
+      OnlyGroupBasedLicenseAssignment: true # Only Group Based License Assignment
+      SelfServicePurchase: false # Self Service Purchase Disabled

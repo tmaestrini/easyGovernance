@@ -21,8 +21,9 @@ The implementation is based on the following PowerShell modules:
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
 ![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
+![Az.Accounts](https://img.shields.io/badge/Az.Accounts-blue.svg)
+![PSLogs](https://img.shields.io/badge/PSLogs-5.2.1-blue.svg)
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
-![Logging](https://img.shields.io/badge/Logging-4.8.5-blue.svg)
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
 ![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
 
@@ -45,7 +46,7 @@ Any contribution is welcome. Please read our [contribution guidelines](./Contrib
 
 | Version | Date           | Comments        |
 | ------- | :------------- | :-------------- |
-| 1.0     | February, 2023 | Initial release |
+| 1.0     | February, 2024 | Initial release |
 
 ## Disclaimer
 
@@ -82,7 +83,8 @@ Before using, install all dependencies on your local machine:
 Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
 Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
-Install-Module -Name Logging -RequiredVersion 4.8.5 -Scope CurrentUser
+Install-Module -Name Az.Accounts -Scope CurrentUser
+Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
 Install-Module -Name MarkdownPS	-RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 ```
