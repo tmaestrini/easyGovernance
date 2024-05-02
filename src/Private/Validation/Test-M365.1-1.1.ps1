@@ -32,8 +32,7 @@ Function Test-M365.1-1.1 {
 
     function Extract() {
       try {
-        # $s = Get-M365TenantSettings -Properties "tenant/localdatalocation", "services/apps/azurespeechservices"
-        $settings = Get-M365TenantSettings -Properties "services/apps/azurespeechservices", "settings/apps/bookings"
+        $settings = Get-M365TenantSettings -Properties "services/apps/azurespeechservices", "settings/apps/bookings", "settings/apps/calendarsharing"
         return $settings
       }
       catch {
@@ -47,6 +46,7 @@ Function Test-M365.1-1.1 {
       # Office365Services
       $settings.AzureSpeechServices = $extractedSettings.azurespeechservices.isTenantEnabled
       $settings.Bookings = $extractedSettings.bookings.Enabled
+      $settings.CalendarSharing = $extractedSettings.calendarsharing.EnableCalendarSharing
       
       return $settings
     }
