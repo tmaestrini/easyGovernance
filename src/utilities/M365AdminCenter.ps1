@@ -75,7 +75,7 @@ Function Get-M365TenantSettingsServices {
         "MSSearchBing" { @{name = $_; path = "fd/bfb/api/v3/office/switch/feature"; attr = "BingDefault" } }
         "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
         "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
-        "MSToDo" { @{name = $_; path = "" } }
+        # "MSToDo" { @{name = $_; path = "n/a" } }
         "MSVivaInsights" { @{name = $_; path = "admin/api/services/apps/vivainsights" } }
         "ModernAuth" { @{name = $_; path = "admin/api/services/apps/modernAuth" ; attr = "EnableModernAuth" } }
         "News" { @{name = $_; path = "admin/api/searchadminapi/news/options/Bing" ; attr = "NewsOptions.HomepageOptions.IsEnabled" } }
@@ -123,7 +123,7 @@ Function Get-M365TenantSettingsOrgProfile {
     )
     
     $apiSelection = switch ($Properties) {
-        "CustomThemes" { @{name = $_; path = "" } }
+        "CustomThemes" { @{name = $_; path = "admin/api/Settings/company/theme/v2" } }
         "DataLocation" { @{name = $_; path = "admin/api/tenant/datalocation" } }
         "HelpDeskInfo" { @{name = $_; path = "admin/api/Settings/company/helpdesk" } }
         "ReleasePreferences" { @{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
