@@ -112,7 +112,7 @@ Function Disconnect-Tenant {
     if ($null -ne (Get-AzContext -Name $Global:connectionContextName)) {
       Disconnect-AzAccount -ContextName $Global:connectionContextName | Out-Null
     }
-    if ($null -ne (Get-PnPConnection)) {
+    if ($Script:PnPConnection -and $null -ne (Get-PnPConnection)) {
       Disconnect-PnPOnline | Out-Null
     }
   }
@@ -149,12 +149,13 @@ Function Connect-TenantAzure {
 Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
   Write-Log -Level INFO -Message "Trying to establish connection (PnPOnline)"
   try {
-    Get-PnPConnection | Out-Null    
+    $Script:PnPConnection = Get-PnPConnection 
     Write-Log -Level INFO "Connection established"
   }
   catch {
     Connect-PnPOnline -Url $AdminSiteUrl -Interactive
     if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed: $_" }
+    $Script:PnPConnection = Get-PnPConnection 
     Write-Log -Level INFO "Connection established"
   }
 }
