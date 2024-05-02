@@ -32,14 +32,17 @@ Function Test-M365.1-1.1 {
 
     function Extract() {
       try {
+        $settings = @{}
+
         # Office365Services
-        $settings = Get-M365TenantSettings -Properties  AzureSpeechServices, Bookings, CalendarSharing, Cortana, Copilot4Sales, M365AppsInstallationOpt, `
-          M365Lighthouse, MSGraphDataConnect, MSLoop, MSPlanner, M365Groups, M365OTW, ModernAuth, MSForms, MSTeams, MSTeamsAllowGuestAccess, MSToDo, MSUserCommunication, `
-          MSSearchBing, MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
-          UserOwnedAppsandServices, VivaLearning, Whiteboard
+        # $settings.Services = Get-M365TenantSettingsServices -Properties AzureSpeechServices, Bookings, CalendarSharing, Cortana, Copilot4Sales, M365AppsInstallationOpt, `
+        #   M365Lighthouse, MSGraphDataConnect, MSLoop, MSPlanner, M365Groups, M365OTW, ModernAuth, MSForms, MSTeams, MSTeamsAllowGuestAccess, MSToDo, MSUserCommunication, `
+        #   MSSearchBing, MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
+        #   UserOwnedAppsandServices, VivaLearning, Whiteboard
         
         # SecurityAndPrivacy
-
+        $settings.SecurityAndPrivacy = Get-M365TenantSettingsSecurityAndPrivacy -Properties IdleSessionTimeout, PasswordExpirationPolicyNeverExpire, PrivacyProfile, Pronouns, SharingAllowUsersToAddGuests
+        
         #OrganizationProfile
         
         return $settings

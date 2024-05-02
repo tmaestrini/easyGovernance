@@ -47,10 +47,10 @@ Configuration:
   - enforces: SecurityAndPrivacy
     with:
       IdleSessionTimeout: configured # Specifies the time of inactivity before a user is automatically signed out.
-      PasswordExpirationPolicy: true # User Passwords never expire
+      PasswordExpirationPolicyNeverExpire: true # User Passwords never expire
       PrivacyProfile: configured # Specifies whether the organization's privacy profile is configured.
       Pronouns:
-      Sharing: false # Tp prevent users from adding guests to the organization.
+      SharingAllowUsersToAddGuests: false # Tp prevent users from adding guests to the organization.
 
   - enforces: OrganizationProfile
     with:
