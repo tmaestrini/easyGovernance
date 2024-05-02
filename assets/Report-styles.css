@@ -48,7 +48,8 @@ table.reportHeader td, table.reportHeader th {
 }
 
 table.reportDetails td:last-child {
-    min-width: 300px;
+    max-width: 300px;
+    width: 300px;
 }
 
 th {
