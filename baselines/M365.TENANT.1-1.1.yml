@@ -49,7 +49,7 @@ Configuration:
       IdleSessionTimeout: configured # Specifies the time of inactivity before a user is automatically signed out.
       PasswordExpirationPolicyNeverExpire: true # User Passwords never expire
       PrivacyProfile: configured # Specifies whether the organization's privacy profile is configured.
-      Pronouns:
+      Pronouns: "" # Specifies the pronouns of the organization.
       SharingAllowUsersToAddGuests: false # Tp prevent users from adding guests to the organization.
 
   - enforces: OrganizationProfile
@@ -57,5 +57,5 @@ Configuration:
       CustomThemes: configured # Specifies whether company branding is configured.
       DataLocation: "" # Specifies the residency of the tenant.
       HelpDeskInfo: configured # Streamline user support by adding your organization's contact information to the Microsoft 365 help pane.
-      ReleasePreferences: configured
+      ReleasePreferences: StandardRelease # Specifies the release preferences to get updates when Microsoft releases them broadly.
       EmailNotFromOwnDomain: configured # To prevent phishing attacks.

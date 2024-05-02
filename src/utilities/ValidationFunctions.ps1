@@ -28,9 +28,9 @@ function Test-Settings {
       $groupName = $baselineSettingsGroup.enforces
       $settings = $baselineSettingsGroup.with
       foreach ($key in $settings.Keys) {
-        $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
-        
         try {
+          $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
+        
           if ($test) { 
             $testResult.Add("$groupName-$key", [PSCustomObject] @{
                 Group   = $groupName
@@ -52,7 +52,8 @@ function Test-Settings {
           }
         }
         catch {
-          throw $_
+          Write-Log -Level ERROR -Message "$($key): $($_)"
+          # throw $_
         }
       }
     }

@@ -116,3 +116,23 @@ Function Get-M365TenantSettingsSecurityAndPrivacy {
     }
     catch { }
 }
+
+Function Get-M365TenantSettingsOrgProfile {
+    param (
+        [Parameter(Mandatory = $true)][ValidateSet("CustomThemes", "DataLocation", "HelpDeskInfo", "ReleasePreferences", "EmailNotFromOwnDomain")][string[]]$Properties
+    )
+    
+    $apiSelection = switch ($Properties) {
+        "CustomThemes" { @{name = $_; path = "" } }
+        "DataLocation" { @{name = $_; path = "admin/api/tenant/datalocation" } }
+        "HelpDeskInfo" { @{name = $_; path = "admin/api/Settings/company/helpdesk" } }
+        "ReleasePreferences" { @{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
+        "EmailNotFromOwnDomain" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
+        
+        Default {}
+    }
+    try {
+        return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { }
+}
