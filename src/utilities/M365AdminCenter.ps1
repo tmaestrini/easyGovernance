@@ -27,7 +27,7 @@ Function Invoke-M365AdminCenterRequest {
         $req = $_
         try {
             $path = ($req.path) -replace "{{tenantId}}", $tenantId
-            $result = Invoke-RestMethod -Uri "https://admin.microsoft.com/$path" -Headers $headers
+            $result = Invoke-RestMethod -Uri "https://admin.microsoft.com/$path" -Headers $headers -Method ($($req.method) ? $req.method : "GET")
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {
