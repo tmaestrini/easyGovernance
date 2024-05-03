@@ -15,7 +15,7 @@ Function Invoke-M365AdminCenterRequest {
         [Parameter(Mandatory = $true)][object[]]$ApiRequests
     )
     
-    if (!$Global:connectionContextName) { throw "Get-M365TenantSettings > No connection context provided." }
+    if (!$Global:connectionContextName) { throw "Invoke-M365AdminCenterRequest > No connection context provided." }
     $ctx = Get-AzContext -Name $Global:connectionContextName
     $tenantId = $ctx.Tenant.Id
 
