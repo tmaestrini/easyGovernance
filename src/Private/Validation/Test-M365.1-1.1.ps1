@@ -25,9 +25,8 @@ Function Test-M365.1-1.1 {
   )
  
   Begin {
-    $adminSiteUrl = "https://${tenantId}-admin.sharepoint.com"
-
     function Connect() {
+      # Connection is handled system-wide
     }
 
     function Extract() {
