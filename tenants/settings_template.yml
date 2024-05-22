@@ -1,5 +1,6 @@
 Tenant: MyTenantName
 
 Baselines:
+  - M365.1-1.1
   - M365.1-5.1
   - M365.1-5.2
