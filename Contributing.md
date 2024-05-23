@@ -7,8 +7,8 @@ This project welcomes contributions and suggestions. Thank you for your interest
 In order to help us process your contributions, please make sure you do the following:
 
 - don't surprise us with big PR's. Instead create an issue & start a discussion so we can agree on a direction before you invest a large amount of time.
-- create your branch from `dev` (NOT `main`). This will make it easier for us to merge your changes.
-- submit PR to the `dev` branch of this repo (NOT `main`). PRs submitted to other branches will be declined.
+- create your branch from `develop` (NOT `main`). This will make it easier for us to merge your changes.
+- submit PR to the `develop` branch of this repo (NOT `main`). PRs submitted to other branches will be declined.
 - let us know what's in the PR: sometimes code is not enough and in order to help us understand your awesome work please follow the PR template to provide required information.
 - don't commit code you didn't write.
 
@@ -18,7 +18,7 @@ Do not be afraid to ask question. We are here to help you succeed in helping us 
 
 > ⚠️ **Important**: Before you start, this product under the hood uses PnP.PowerShell and some other PowerShell modules. Please make sure that your local dependencies on you developer machine matches the required PowerShell modules from the [README file](./README.md).
 
-- Fork this project. When creating the fork deselect the checkbox 'Copy the `main` branch only' to get both `main` and `dev` branches.
+- Fork this project. When creating the fork deselect the checkbox 'Copy the `main` branch only' to get both `main` and `develop` branches.
 - Clone the forked repository
 - Open the _easyGovernance_ project in Visual Studio Code
 - refer to one of the example scripts in the [`examples`](./examples/) folder
