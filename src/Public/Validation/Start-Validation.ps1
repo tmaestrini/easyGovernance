@@ -12,11 +12,11 @@ Function Start-Validation {
       HelpMessage = "Returns the results as an object"
     )][switch]$ReturnAsObject
   )
-    
-  Initialize-EasyGovernance
-  if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
   
   try {
+    Initialize-EasyGovernance
+    if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
+  
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     Connect-Tenant -Tenant $tenantConfig.Tenant
 
