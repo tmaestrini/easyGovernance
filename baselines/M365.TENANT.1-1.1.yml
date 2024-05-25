@@ -13,9 +13,9 @@ Configuration:
     with:
       AccountLinking: false # To prevent users from linking their personal accounts to their work accounts.
       AdoptionScore:
-        - PSGroupsOptedOut: false  # Select users and groups for calculating insights as Include all users 
-        - CohortInsightOptedIn: false # Opt out fpr group data filtering
-        - ActionFlowOptedIn: false # Opt out for organizational messages by approved admins
+        PSGroupsOptedOut: false  # Select users and groups for calculating insights as Include all users 
+        CohortInsightOptedIn: false # Opt out fpr group data filtering
+        ActionFlowOptedIn: false # Opt out for organizational messages by approved admins
       AzureSpeechServices: true # Enabling the organization-wide language model allows Azure Speech service to gather data from emails and other locations to improve M365 applications that use Azure Speech services.
       Bookings: false # Exposes a public web page that provides access to user calendars for 3rd parties.
       MSVivaBriefing: true # Enabled by default to improve productivity, individual users can unsubscribe if desired.
@@ -24,30 +24,29 @@ Configuration:
       Cortana: false # To align with ACSC Windows 10 hardening guidance to disable Windows web results and Cortana, to limit the risk of accidental disclosure of sensitive information.
       M365Groups: true # External collaboration will be conducted in Microsoft Teams and SharePoint Online, which relies on Microsoft 365 groups.
       M365AppsInstallationOpt: # To manage the update and deployment of Office updates and components.
-      - Branch: 3
-      - Office(includes Skype for Business),MicrosftOffice_BusinessDownload: true
-      - SkypeforBusiness(Standalone),MicrosoftCommunicationsOnline: false
-      - SkypeforBusiness(XEICapitan10.11orhigher),MicrosoftCommunicationsOnline: false
-      - Office,MicrosftOffice_BusinessDownload: true
+        Branch: MonthlyEnterpriseChannel  #ToDo: Resolve enum value to 3
+        Office(IncludesSfB): true #ToDo: implement Office(includes Skype for Business),MicrosftOffice_BusinessDownload: true
+        SkypeforBusiness(Standalone): false #ToDo: implement SkypeforBusiness(Standalone),MicrosoftCommunicationsOnline: false
+        Office4Mac: true # ToDo: implement Office,MicrosftOffice_BusinessDownload: true
+        Skype4BusfMac: false #ToDo: implement SkypeforBusiness(XEICapitan10.11orhigher),MicrosoftCommunicationsOnline: false
       M365Lighthouse: false # To prevent the use of Lighthouse, which allows MSPs to manage multiple tenants from a single portal.
       M365OTW: false # Do not allow users to open files in third-party storage services in Office on the web as this may introduce risk of information disclosure or malicious content.
       MSUserCommunication: false # To prevent users from receiving communications from Microsoft.
       MSForms:
-      - BingImageSearchEnabled: true
-      - ExternalCollaborationEnabled: false
-      - ExternalSendFormEnabled: true
-      - ExternalShareCollaborationEnabled: true
-      - ExternalShareResultEnabled: true
-      - ExternalShareTemplateEnabled: true
-      - InOrgFormsPhishingScanEnabled: true
-      - InOrgSurveyIncentiveEnabled: null
-      - RecordIdentityByDefaultEnabled: false
-      - ResponderEditResponse: true
+        BingImageSearchEnabled: true
+        ExternalCollaborationEnabled: false
+        ExternalSendFormEnabled: true
+        ExternalShareCollaborationEnabled: true
+        ExternalShareResultEnabled: true
+        ExternalShareTemplateEnabled: true
+        InOrgFormsPhishingScanEnabled: true
+        InOrgSurveyIncentiveEnabled: null
+        RecordIdentityByDefaultEnabled: false
+        ResponderEditResponse: true
       MSGraphDataConnect: false # disable if not in use
-      MSLoop: # Specifies whether Microsoft Loop is configured.
-      - LoopPolicy: 1
+      MSLoop: true # ToDo: resolve enum value LoopPolicy: 1
       MSPlanner:  # To enable task management and collaboration.
-      - allowCalendarSharing: false
+        allowCalendarSharing: false
       MSSearchBing: false # Microsoft Search integrates with bing.com for Search. Office 365 data is indexed to provide bing.com search functionality and is therefore not desirable for this design.
       MSTeams: true # To enable internal collaboration.
       MSTeamsAllowGuestAccess: true # To enable external collaboration.
@@ -58,52 +57,52 @@ Configuration:
       OfficeScripts: false # To prevent the execution of unapproved code.
       Reports: false # Disable data reporting to Microsoft on Office 365 usage.
       SearchIntelligenceAnalytics:
-      - userfiltersoptin: false
-      - monthlyreportOptIn: false
+        userfiltersoptin: false
+        monthlyreportOptIn: false
       SharePoint: true # New and Existing guests must sign in or provide a verification code when accessing SharePoint data.
       SwayShareWithExternalUsers: false # External collaboration will be conducted in Teams or SharePoint online.
       UserOwnedAppsandServices: false # Applications will be delivered via the Business Store, there is no need to have the Official Store enabled.
       VivaLearning:
-      - CustomUploadSharePointEnabled: true
-      - IsRequiredDiagnosticDataEnabled: false
-      - IsOptionalDiagnosticDataEnabled: false
+        CustomUploadSharePointEnabled: true
+        IsRequiredDiagnosticDataEnabled: false
+        IsOptionalDiagnosticDataEnabled: false
       Whiteboard:
-      - IsEnabled: true
-      - TelemetryPolicy: 0
-      - AreConnectedServicesEnabled: false
-      - IsClaimEnabled: false    
+        IsEnabled: true
+        TelemetryPolicy: Neither #ToDo resolve enum value to 0
+        AreConnectedServicesEnabled: false
+        IsClaimEnabled: false    
 
   - enforces: SecurityAndPrivacy
     with:
       IdleSessionTimeout: # Specifies the time of inactivity before a user is automatically signed out.
-      - EnableActivityBasedTimeout: true
-      - TimeoutString: "6 hours"
-      - TimeoutValue: 360
-      - dropdownTimeoutName: "6 hours"
-      - dropdownTimeoutValue: 360
+        EnableActivityBasedTimeout: true
+        TimeoutString: "6 hours"
+        TimeoutValue: 360
+        dropdownTimeoutName: "6 hours"
+        dropdownTimeoutValue: 360
       PasswordExpirationPolicyNeverExpire: true # User Passwords never expire
       PrivacyProfile: # Specifies whether the organization's privacy profile is configured.
-      - PrivacyContact: PrivacyContact@yourdomain.com
-      - PrivacyStatement: "https://www.yourorg.com/privacy"
+        PrivacyContact: PrivacyContact@yourdomain.com
+        PrivacyStatement: "https://www.yourorg.com/privacy"
       Pronouns: # Specifies the pronouns of the organization.
-      - isEnabledInOrganization: true
+        isEnabledInOrganization: true
       SharingAllowUsersToAddGuests: false # Tp prevent users from adding guests to the organization.
 
   - enforces: OrganizationProfile
     with:
       CustomThemes: configured # Specifies whether company branding is configured.
       HelpDeskInfo: # Streamline user support by adding your organization's contact information to the Microsoft 365 help pane.
-      - CustomSupportEnabled: true
-      - EmailAddress: helpdesk@yourorg.com
-      - EmailEnabled: true
-      - PhoneEnabled: true
-      - PhoneNumber: "+61 2 1234 5678"
-      - Title: "Help Desk"
-      - UrlEnabled: true
-      - SupportUrl: "https://www.yourorg.com/help"
-      - SupportUrlTitle: "Help Desk"
+        CustomSupportEnabled: true
+        EmailAddress: helpdesk@yourorg.com
+        EmailEnabled: true
+        PhoneEnabled: true
+        PhoneNumber: "+61 2 1234 5678"
+        Title: "Help Desk"
+        UrlEnabled: true
+        SupportUrl: "https://www.yourorg.com/help"
+        SupportUrlTitle: "Help Desk"
       ReleasePreferences: 
-      - ReleaseTrack: "None" # Specifies the release preferences to get updates when Microsoft releases them broadly.
+        ReleaseTrack: StandardRelease # ToDo: implement StandardRelaese with value "None"
       EmailNotFromOwnDomain: # To prevent phishing attacks.
-      - ServiceEnabled: true
-      - TenantSendFromAddress: "noreply@yourdomain.com"
+        ServiceEnabled: true
+        TenantSendFromAddress: "noreply@yourdomain.com"
