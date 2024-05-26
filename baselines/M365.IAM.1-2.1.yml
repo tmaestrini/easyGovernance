@@ -44,9 +44,12 @@ Configuration:
 
   - enforces: Microsoft365Groups
     with:
-      M365GroupCreation: false # Specifies whether group creation is enabled.
-      M365GroupNamingPolicy: "" # Specifies the group naming policy.
-      M365GroupExpiration: annualy # Specifies the group expiration policy.
+      M365GroupCreation: false # ToDo: same value as in MicrosoftEntraID, needs to be discussed
+      M365GroupNamingPolicy: "" # ToDo: needs to be discussed
+      M365GroupExpiration:
+        GroupLifetime: 365 # Specifies the group lifetime in days.
+        adminNotificationEmail: ticketing@{organisation}.ch # Specifies the admin notification email for ownerless groups.
+        managedGroups: All # ToDo: Resolve enum value to 0
 
   - enforces: BreakGlassAccounts
     with:
