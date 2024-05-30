@@ -32,9 +32,7 @@ Configuration:
         SecurityGroupCreation: false
         M365GroupCreation: false
       EntraIDRBAC: NoDirectRoleAssignmentAllowed  # Validator must accordingly find out that no admin roles are assigned directly, but only via Groups, Backlog: extend with PIM Feature
-      EnterpriseApplications:  # ToDo: needs to be discussed, if it is necessary 
-      DeviceRegistration:  # ToDo: needs to be discussed, if it is necessary
-      IdentityGovernance:  # ToDo: needs to be discussed, if it is necessary
+      IdentityGovernance:
         BlockExternalUser: true 
         RemoveExternalUser: true
         DaysBeforeRemoving: 30 # Specifies the number of days before removing the external user.
@@ -43,12 +41,11 @@ Configuration:
         - {organisation}.onmicrosoft.com
         - {organisation}.ch
       Mobility: MicrosoftIntune # Specifies whether mobility is set to default.
-      CompanyBranding: configured # ToDo: Validator must check whether values in Company Branding are no longer “null”
+      CompanyBranding: true # ToDo: Validator must check whether values in Company Branding are no longer “null” "Stichprobenmäßig"
 
   - enforces: Microsoft365Groups
     with:
-      M365GroupCreation: false # ToDo: same value as in MicrosoftEntraID, needs to be discussed
-      M365GroupNamingPolicy: "" # ToDo: needs to be discussed
+      M365GroupCreation: false 
       M365GroupExpiration:
         GroupLifetime: 365 # Specifies the group lifetime in days.
         adminNotificationEmail: ticketing@{organisation}.ch # Specifies the admin notification email for ownerless groups.
@@ -56,7 +53,7 @@ Configuration:
 
   - enforces: BreakGlassAccounts
     with:
-      BreakGlassAccountEnabled: true # ToDo: how to check?
+      BreakGlassAccountEnabled: true # ToDo: how to check? mindestens 2 User in BrakeGlassAccountGroup, die von CA ausgenommen sind.
       BreakGlassAccountGroupName: "BreakGlassAccounts" # Specifies the break glass account group name.
 
   - enforces: Lockout
