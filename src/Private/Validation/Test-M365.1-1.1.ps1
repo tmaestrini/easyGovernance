@@ -1,3 +1,5 @@
+using module .\Class\BaselineValidator.psm1
+
 <#
 .Synopsis
 .DESCRIPTION
@@ -25,12 +27,14 @@ Function Test-M365.1-1.1 {
   )
  
   Begin {
-    function Connect() {
-      # Connection is handled system-wide
-    }
+    class M365TenantValidator : BaselineValidator {
+      M365TenantValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
+  
+      Connect() {
+        # Connection is handled system-wide
+      }
 
-    function Extract() {
-      try {
+      [PSCustomObject] Extract() {
         $settings = @{}
 
         # Office365Services
@@ -44,102 +48,76 @@ Function Test-M365.1-1.1 {
         
         #OrganizationProfile
         $settings.OrganizationProfile = Get-M365TenantSettingsOrgProfile -Properties CustomThemes, DataLocation, HelpDeskInfo, ReleasePreferences, EmailNotFromOwnDomain
+        
         return $settings
       }
-      catch {
-        Write-Log -Level CRITICAL "Baseline exctraction failed: $_" 
-      } 
-    }
 
-    function Transform([PSCustomObject] $extractedSettings) {
-      $settings = @{}
+      [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
+        $settings = @{}
       
-      # Office365Services
-      $settings.AccountLinking = "n/a"
-      $settings.AdoptionScore = "n/a"
-      $settings.AzureSpeechServices = $extractedSettings.Services.AzureSpeechServices
-      $settings.Bookings = $extractedSettings.Services.Bookings
-      $settings.CalendarSharing = $extractedSettings.Services.CalendarSharing
-      $settings.Copilot4Sales = $extractedSettings.Services.Copilot4Sales
-      $settings.Cortana = $extractedSettings.Services.Cortana
-      $settings.M365Groups = "needs to be specified"
-      $settings.M365AppsInstallationOpt = $extractedSettings.Services.M365AppsInstallationOpt
-      $settings.M365Lighthouse = $extractedSettings.Services.M365Lighthouse
-      $settings.M365OTW = $extractedSettings.Services.M365OTW
-      $settings.MSUserCommunication = $extractedSettings.Services.MSUserCommunication
-      $settings.MSForms = "needs to be specified"
-      $settings.MSGraphDataConnect = $extractedSettings.Services.MSGraphDataConnect
-      $settings.MSLoop = $extractedSettings.Services.MSLoop
-      $settings.MSPlanner = $extractedSettings.Services.MSPlanner
-      $settings.MSSearchBing = "n/a"
-      $settings.MSTeams = $extractedSettings.Services.MSTeams
-      $settings.MSTeamsAllowGuestAccess = $extractedSettings.Services.MSTeamsAllowGuestAccess
-      $settings.MSToDo = $extractedSettings.Services.MSToDo
-      $settings.MSVivaInsights = $extractedSettings.Services.MSVivaInsights
-      $settings.ModernAuth = $extractedSettings.Services.ModernAuth
-      $settings.News = $extractedSettings.Services.News
-      $settings.OfficeScripts = $extractedSettings.Services.OfficeScripts
-      $settings.Reports = $extractedSettings.Services.Reports
-      $settings.SearchIntelligenceAnalytics = $extractedSettings.Services.SearchIntelligenceAnalytics
-      $settings.SharePoint = $extractedSettings.Services.SharePoint
-      $settings.SwayShareWithExternalUsers = $extractedSettings.Services.SwayShareWithExternalUsers
-      $settings.UserOwnedAppsandServices = $extractedSettings.Services.UserOwnedAppsandServices
-      $settings.VivaLearning = $extractedSettings.Services.VivaLearning
-      $settings.Whiteboard = $extractedSettings.Services.Whiteboard
-      
-      # # SecurityAndPrivacy
-      $settings.IdleSessionTimeout = $extractedSettings.SecurityAndPrivacy.IdleSessionTimeout
-      $settings.PasswordExpirationPolicyNeverExpire = $extractedSettings.SecurityAndPrivacy.PasswordExpirationPolicyNeverExpire
-      $settings.PrivacyProfile = $extractedSettings.SecurityAndPrivacy.PrivacyProfile
-      $settings.Pronouns = $extractedSettings.SecurityAndPrivacy.Pronouns
-      $settings.SharingAllowUsersToAddGuests = $extractedSettings.SecurityAndPrivacy.SharingAllowUsersToAddGuests
-
-      # #OrganizationProfile
-      $settings.CustomThemes = $extractedSettings.OrganizationProfile.CustomThemes
-      $settings.DataLocation = $extractedSettings.OrganizationProfile.DataLocation
-      $settings.HelpDeskInfo = $extractedSettings.OrganizationProfile.HelpDeskInfo
-      $settings.ReleasePreferences = $extractedSettings.OrganizationProfile.ReleasePreferences
-      $settings.EmailNotFromOwnDomain = $extractedSettings.OrganizationProfile.EmailNotFromOwnDomain
-      
-      return $settings
-    }
-
-    function Validate([PSCustomObject] $tenantSettings, [PSCustomObject] $baseline) {
-      $testResult = Test-Settings $tenantSettings -Baseline $baseline | Sort-Object -Property Group, Setting
-      return $testResult
+        # Office365Services
+        $settings.AccountLinking = "n/a"
+        $settings.AdoptionScore = "n/a"
+        $settings.AzureSpeechServices = $extractedSettings.Services.AzureSpeechServices
+        $settings.Bookings = $extractedSettings.Services.Bookings
+        $settings.CalendarSharing = $extractedSettings.Services.CalendarSharing
+        $settings.Copilot4Sales = $extractedSettings.Services.Copilot4Sales
+        $settings.Cortana = $extractedSettings.Services.Cortana
+        $settings.M365Groups = "needs to be specified"
+        $settings.M365AppsInstallationOpt = $extractedSettings.Services.M365AppsInstallationOpt
+        $settings.M365Lighthouse = $extractedSettings.Services.M365Lighthouse
+        $settings.M365OTW = $extractedSettings.Services.M365OTW
+        $settings.MSUserCommunication = $extractedSettings.Services.MSUserCommunication
+        $settings.MSForms = "needs to be specified"
+        $settings.MSGraphDataConnect = $extractedSettings.Services.MSGraphDataConnect
+        $settings.MSLoop = $extractedSettings.Services.MSLoop
+        $settings.MSPlanner = $extractedSettings.Services.MSPlanner
+        $settings.MSSearchBing = "n/a"
+        $settings.MSTeams = $extractedSettings.Services.MSTeams
+        $settings.MSTeamsAllowGuestAccess = $extractedSettings.Services.MSTeamsAllowGuestAccess
+        $settings.MSToDo = $extractedSettings.Services.MSToDo
+        $settings.MSVivaInsights = $extractedSettings.Services.MSVivaInsights
+        $settings.ModernAuth = $extractedSettings.Services.ModernAuth
+        $settings.News = $extractedSettings.Services.News
+        $settings.OfficeScripts = $extractedSettings.Services.OfficeScripts
+        $settings.Reports = $extractedSettings.Services.Reports
+        $settings.SearchIntelligenceAnalytics = $extractedSettings.Services.SearchIntelligenceAnalytics
+        $settings.SharePoint = $extractedSettings.Services.SharePoint
+        $settings.SwayShareWithExternalUsers = $extractedSettings.Services.SwayShareWithExternalUsers
+        $settings.UserOwnedAppsandServices = $extractedSettings.Services.UserOwnedAppsandServices
+        $settings.VivaLearning = $extractedSettings.Services.VivaLearning
+        $settings.Whiteboard = $extractedSettings.Services.Whiteboard
+        
+        # # SecurityAndPrivacy
+        $settings.IdleSessionTimeout = $extractedSettings.SecurityAndPrivacy.IdleSessionTimeout
+        $settings.PasswordExpirationPolicyNeverExpire = $extractedSettings.SecurityAndPrivacy.PasswordExpirationPolicyNeverExpire
+        $settings.PrivacyProfile = $extractedSettings.SecurityAndPrivacy.PrivacyProfile
+        $settings.Pronouns = $extractedSettings.SecurityAndPrivacy.Pronouns
+        $settings.SharingAllowUsersToAddGuests = $extractedSettings.SecurityAndPrivacy.SharingAllowUsersToAddGuests
+  
+        # #OrganizationProfile
+        $settings.CustomThemes = $extractedSettings.OrganizationProfile.CustomThemes
+        $settings.DataLocation = $extractedSettings.OrganizationProfile.DataLocation
+        $settings.HelpDeskInfo = $extractedSettings.OrganizationProfile.HelpDeskInfo
+        $settings.ReleasePreferences = $extractedSettings.OrganizationProfile.ReleasePreferences
+        $settings.EmailNotFromOwnDomain = $extractedSettings.OrganizationProfile.EmailNotFromOwnDomain
+        
+        return $settings  
+      }
     }
   }
   Process {
     try {
-      # Establish connection to tenant & services
-      Connect
-
-      # Validate tenant settings
-      $settingsToValidate = Extract
-      $tenantSettings = Transform $settingsToValidate
-      $result = Validate $tenantSettings -baseline $baseline
-
-      # Output
-      $resultGrouped = ($result | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
-      if (!$ReturnAsObject) { $resultGrouped | Out-Host }
-      $resultStats = Get-TestStatistics $result
-      $resultStats.asText | Out-Host
-
-      # Return data
+      $validator = [M365TenantValidator]::new($Baseline, $tenantId, $ReturnAsObject)
+      $validator.StartValidation()
+      $result = $validator.GetValidationResult()
+      
       if ($returnAsObject) {
-        return @{
-          Baseline          = $baseline.Id;
-          Version           = $baseline.Version;
-          Result            = $result; 
-          ResultGroupedText = $resultGrouped;
-          Statistics        = $resultStats.stats;
-          StatisticsAsText  = $resultStats.asText;
-        } 
+        return $result
       }
     }
     catch {
-      Write-Log -Level ERROR -Message "Validate baseline: $($_)"
-      # throw $_
+      throw $_
     }
   }
 }
