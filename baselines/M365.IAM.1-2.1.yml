@@ -35,6 +35,9 @@ Configuration:
       EnterpriseApplications:  # ToDo: needs to be discussed, if it is necessary 
       DeviceRegistration:  # ToDo: needs to be discussed, if it is necessary
       IdentityGovernance:  # ToDo: needs to be discussed, if it is necessary
+        BlockExternalUser: true 
+        RemoveExternalUser: true
+        DaysBeforeRemoving: 30 # Specifies the number of days before removing the external user.
       Licenses: true # ToDo: needs to be discussed, if it is necessary because of baseline M365.LIC.1-1.1
       CustomDomainNames: # Specifies whether custom domain names are configured.
         - {organisation}.onmicrosoft.com
@@ -53,7 +56,7 @@ Configuration:
 
   - enforces: BreakGlassAccounts
     with:
-      BreakGlassAccountEnabled: true # Specifies whether the break glass account is enabled.
+      BreakGlassAccountEnabled: true # ToDo: how to check?
       BreakGlassAccountGroupName: "BreakGlassAccounts" # Specifies the break glass account group name.
 
   - enforces: Lockout
