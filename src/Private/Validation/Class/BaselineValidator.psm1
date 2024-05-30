@@ -42,6 +42,12 @@ class BaselineValidator {
         $this.validationResult = Test-Settings $tenantSettings -Baseline $this.ValidationSettings.Baseline | Sort-Object -Property Group, Setting
     }
 
+    <#
+    .DESCRIPTION
+    The StartValidation method is used to start the validation process. Always call this method before any other method.
+    This method calls the Extract and Transform methods (which must be implemented) first and then validates the results.
+    To get the validation result, use the GetValidationResult method after this.
+    #>
     [void] StartValidation() {
         try {
             $this.Connect()
