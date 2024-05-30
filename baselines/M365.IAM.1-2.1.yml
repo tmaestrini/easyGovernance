@@ -5,6 +5,7 @@ Version: 1.0
 
 References:
   - https://blueprint.oobe.com.au/blueprint/platform/#microsoft-entra-id
+  - https://www.cisa.gov/sites/default/files/2024-05/CISA%20SCuBA%20Microsoft%20Azure%20Active%20Directory%20SCB.pdf
 
 Configuration:
   - enforces: MicrosoftEntraID
@@ -12,32 +13,48 @@ Configuration:
       AllowUsersRegisterApplications: false # Specifies whether users can register applications.
       RestrictUserToCreateTenants: false # Specifies whether users can create tenants.
       CanUsersCreateSecurityGroups: false # Specifies whether users can create security groups.
-      AccessRestrictionsForGuest: tbd # Specifies the access restrictions for guest users.
+      AccessRestrictionsForGuest: MostRestrictive # Specifies the access restrictions for guest users.
       RestrictAccessToEntraIDPortal: true # Specifies whether users access to the EntraID portal is restricted.
       AllowLinkedinConnections: false # Specifies whether users can connect their LinkedIn account to their EntraID account.
       KeepMeSignedIn: false # Specifies whether the Keep me signed in option is enabled.
-      ExternalCollaboration: configured # Specifies whether external collaboration is configured.
-      ManageUserFeature: false # Specifies whether the manage user feature is configured.
-      GroupManagement: configured # Specifies whether group management with naming policy and expiration is configured.
-      EntraIDRBAC: configured # Specifies whether EntraID Roles are only configured via PIM.
-      EnterpriseApplications: not configured # Specifies whether enterprise applications are detected.
-      DeviceRegistration: not configured # Specifies whether device registration is set to default
-      IdentityGovernance: not configured # Specifies whether identity governance is set to default
-      Licenses: true # Specifies whether licenses are only assigend to groups.
-      CustomDomainNames: configured # Specifies whether custom domain names are configured.
-      Mobility: not configured # Specifies whether mobility is set to default.
-      CompanyBranding: configured # Specifies whether company branding is configured.
+      ExternalCollaboration:
+        GuestUserAccess: MostRestrictive # Specifies the guest user access.
+        GuestInviteRestrictions: OnlyUsersWithAdminRole
+        EnableGuestSelfServiceSignUp: false
+        ExternalUserLeaveSettings: true
+        CollaborationRestrictions: MostRestrictive
+      ManageUserFeature:
+        MyAppsPreview: None #ToDo: Resolve enum value to 0
+        MyStaffAccess: None #ToDo: Resolve enum value to 0
+      GroupManagement:
+        MyGroupsSelfService: false
+        RestrictUserAccesMyGroups: true
+        SecurityGroupCreation: false
+        M365GroupCreation: false
+      EntraIDRBAC: NoDirectRoleAssignmentAllowed  # Validator must accordingly find out that no admin roles are assigned directly, but only via Groups, Backlog: extend with PIM Feature
+      IdentityGovernance:
+        BlockExternalUser: true 
+        RemoveExternalUser: true
+        DaysBeforeRemoving: 30 # Specifies the number of days before removing the external user.
+      Licenses: true # ToDo: needs to be discussed, if it is necessary because of baseline M365.LIC.1-1.1
+      CustomDomainNames: # Specifies whether custom domain names are configured.
+        - {organisation}.onmicrosoft.com
+        - {organisation}.ch
+      Mobility: MicrosoftIntune # Specifies whether mobility is set to default.
+      CompanyBranding: true # ToDo: Validator must check whether values in Company Branding are no longer “null” "Stichprobenmäßig"
 
   - enforces: Microsoft365Groups
     with:
-      M365GroupCreation: false # Specifies whether group creation is enabled.
-      M365GroupNamingPolicy: "" # Specifies the group naming policy.
-      M365GroupExpiration: annualy # Specifies the group expiration policy.
+      M365GroupCreation: false 
+      M365GroupExpiration:
+        GroupLifetime: 365 # Specifies the group lifetime in days.
+        adminNotificationEmail: ticketing@{organisation}.ch # Specifies the admin notification email for ownerless groups.
+        managedGroups: All # ToDo: Resolve enum value to 0
 
   - enforces: BreakGlassAccounts
     with:
-      BreakGlassAccountEnabled: true # Specifies whether the break glass account is enabled.
-      BreakGlassAccountGroupName: "" # Specifies the break glass account group name.
+      BreakGlassAccountEnabled: true #  mindestens 2 User in BrakeGlassAccountGroup, die von CA ausgenommen sind.
+      BreakGlassAccountGroupName: "BreakGlassAccounts" # Specifies the break glass account group name.
 
   - enforces: Lockout
     with:
@@ -52,7 +69,7 @@ Configuration:
 
   - enforces: MultiFactorAuthentication
     with:
-      MultiFactorAuthenticationEnabled: configured # Specifies whether the multi-factor authentication is enabled.
+      MultiFactorAuthenticationEnabled: true # Specifies whether the multi-factor authentication is enabled.
       MFAHardwareTokenSupport: true # Specifies whether the multi-factor authentication hardware token support is enabled.
       MFATrustedIPs: "" # Specifies the multi-factor authentication trusted IPs.
 
@@ -65,4 +82,4 @@ Configuration:
   - enforces: ConditionalAccess
     with:
       ConditionalAccessEnabled: true # Specifies whether the conditional access is enabled.
-      ConditionalAccessPolicy: "" # Specifies the conditional access policy.  
+      ConditionalAccessPolicy: true # Specifies the conditional access policy.  
