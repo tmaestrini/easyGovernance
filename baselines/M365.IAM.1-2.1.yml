@@ -13,16 +13,16 @@ Configuration:
       AllowUsersRegisterApplications: false # Specifies whether users can register applications.
       RestrictUserToCreateTenants: false # Specifies whether users can create tenants.
       CanUsersCreateSecurityGroups: false # Specifies whether users can create security groups.
-      AccessRestrictionsForGuest: mostrestrictive # Specifies the access restrictions for guest users.
+      AccessRestrictionsForGuest: MostRestrictive # Specifies the access restrictions for guest users.
       RestrictAccessToEntraIDPortal: true # Specifies whether users access to the EntraID portal is restricted.
       AllowLinkedinConnections: false # Specifies whether users can connect their LinkedIn account to their EntraID account.
       KeepMeSignedIn: false # Specifies whether the Keep me signed in option is enabled.
       ExternalCollaboration:
-        GuestUserAccess: mostrestrictive # Specifies the guest user access.
+        GuestUserAccess: MostRestrictive # Specifies the guest user access.
         GuestInviteRestrictions: OnlyUsersWithAdminRole
         EnableGuestSelfServiceSignUp: false
         ExternalUserLeaveSettings: true
-        CollaborationRestrictions: mostrestrictive
+        CollaborationRestrictions: MostRestrictive
       ManageUserFeature:
         MyAppsPreview: None #ToDo: Resolve enum value to 0
         MyStaffAccess: None #ToDo: Resolve enum value to 0
@@ -31,7 +31,7 @@ Configuration:
         RestrictUserAccesMyGroups: true
         SecurityGroupCreation: false
         M365GroupCreation: false
-      EntraIDRBAC: PIMonly  # ToDo: Validator must accordingly find out that no admin roles are assigned directly, but only via Conditinal Access 
+      EntraIDRBAC: NoDirectRoleAssignmentAllowed  # Validator must accordingly find out that no admin roles are assigned directly, but only via Groups, Backlog: extend with PIM Feature
       EnterpriseApplications:  # ToDo: needs to be discussed, if it is necessary 
       DeviceRegistration:  # ToDo: needs to be discussed, if it is necessary
       IdentityGovernance:  # ToDo: needs to be discussed, if it is necessary
