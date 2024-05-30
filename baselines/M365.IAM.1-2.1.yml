@@ -54,7 +54,7 @@ Configuration:
   - enforces: BreakGlassAccounts
     with:
       BreakGlassAccountEnabled: true # Specifies whether the break glass account is enabled.
-      BreakGlassAccountGroupName: "" # Specifies the break glass account group name.
+      BreakGlassAccountGroupName: "BreakGlassAccounts" # Specifies the break glass account group name.
 
   - enforces: Lockout
     with:
@@ -83,4 +83,3 @@ Configuration:
     with:
       ConditionalAccessEnabled: true # Specifies whether the conditional access is enabled.
       ConditionalAccessPolicy: "" # Specifies the conditional access policy.  
-      Test
