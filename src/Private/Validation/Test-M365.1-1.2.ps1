@@ -28,8 +28,8 @@ Function Test-M365.1-1.2 {
   )
  
   Begin {
-    class LicValidator : BaselineValidator {
-      LicValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
+    class M365LicValidator : BaselineValidator {
+      M365LicValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
       Connect() {}
 
@@ -45,7 +45,7 @@ Function Test-M365.1-1.2 {
   Process {
     try {
       throw "Validator not implemented yet"
-      $validator = [LicValidator]::new($Baseline, $tenantId, $ReturnAsObject)
+      $validator = [M365LicValidator]::new($Baseline, $tenantId, $ReturnAsObject)
       $validator.StartValidation()
       $result = $validator.GetValidationResult()
       
@@ -56,6 +56,5 @@ Function Test-M365.1-1.2 {
     catch {
       throw $_
     }
-
   }
 }
