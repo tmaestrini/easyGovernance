@@ -83,3 +83,4 @@ Configuration:
     with:
       ConditionalAccessEnabled: true # Specifies whether the conditional access is enabled.
       ConditionalAccessPolicy: "" # Specifies the conditional access policy.  
+      Test
