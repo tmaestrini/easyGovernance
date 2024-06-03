@@ -50,9 +50,16 @@ function Get-BaselineTemplate {
   )
  
   Begin {
+    # Load all existing baselines
     if ($null -eq $Script:baselines) {
-      $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ..\..\baselines
-      $BaselinesFiles = @( Get-ChildItem -Path $ConfigPath\*.yml -ErrorAction SilentlyContinue )
+     try {
+       $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ..\..\baselines
+       Test-Path -Path $ConfigPath -IsValid
+       $BaselinesFiles = @( Get-ChildItem -Path $ConfigPath\*.yml -ErrorAction SilentlyContinue )
+     }
+     catch {
+      <#Do this if a terminating exception happens#>
+     }
 
       $Script:baselines = @()
       foreach ($BaselineFile in $BaselinesFiles) {
@@ -62,7 +69,7 @@ function Get-BaselineTemplate {
         $Script:baselines += $baseline
       }
     }
-    $($BaselineId.Trim()).yml    
+    $($BaselineId.Trim()).yml
   }
   Process {
     $selectedBaseline = $Script:baselines | Where-Object { $BaselineId -eq $_.Filename -or $BaselineId -eq $_.Id }
