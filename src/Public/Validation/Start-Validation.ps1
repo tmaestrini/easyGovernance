@@ -29,7 +29,14 @@ Function Start-Validation {
     $validationResults = @();
     foreach ($selectedBaseline in $tenantConfig.Baselines) {      
       try {
-        $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline
+        if ($tenantConfig.BaselinesPath) { 
+          Write-Log "Trying to load baselines from path: '$($tenantConfig.BaselinesPath)'"
+          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline -BaselinesPath $tenantConfig.BaselinesPath 
+        }
+        else { 
+          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline 
+        }
+      
         Write-Log "-----------------------------------------"
         Write-Log "◉ Baseline: $($baseline.Id), Version $($baseline.Version)"
         
