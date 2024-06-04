@@ -38,8 +38,8 @@ Configuration:
         DaysBeforeRemoving: 30 # Specifies the number of days before removing the external user.
       Licenses: true # ToDo: needs to be discussed, if it is necessary because of baseline M365.LIC.1-1.1
       CustomDomainNames: # Specifies whether custom domain names are configured.
-        - {organisation}.onmicrosoft.com
-        - {organisation}.ch
+        - <organisation>.onmicrosoft.com
+        - <organisation>.ch
       Mobility: MicrosoftIntune # Specifies whether mobility is set to default.
       CompanyBranding: true # ToDo: Validator must check whether values in Company Branding are no longer “null” "Stichprobenmäßig"
 
@@ -48,7 +48,7 @@ Configuration:
       M365GroupCreation: false 
       M365GroupExpiration:
         GroupLifetime: 365 # Specifies the group lifetime in days.
-        adminNotificationEmail: ticketing@{organisation}.ch # Specifies the admin notification email for ownerless groups.
+        adminNotificationEmail: ticketing@>organisation>.ch # Specifies the admin notification email for ownerless groups.
         managedGroups: All # ToDo: Resolve enum value to 0
 
   - enforces: BreakGlassAccounts
