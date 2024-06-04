@@ -118,6 +118,9 @@ Baselines:
 
 Feel free to include only the baseline definition according to your needs.
 
+> [!NOTE]
+> If the attribute `BaselinesPath` is not provided in the tenant settings file, the execution process looks for the standard baseline's path (folder path from root: `./baselines`). In case of an erroneous path definition, the execution of the script is stopped.
+
 ### Validation of services
 
 To run a validation for a tenant according to the defined baselines, simply call the `Start-Validation` cmdlet.
