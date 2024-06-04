@@ -56,7 +56,7 @@ function Get-BaselineTemplate {
     $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ..\..\$BaselinesPath
     
     $isConfigPathValid = Test-Path -Path $ConfigPath
-    if(!$isConfigPathValid) {
+    if (!$isConfigPathValid) {
       throw "Invalid Baselines Path: '$BaselinesPath', execution stopped.`nPlease make sure the 'BaselinesPath' attribute in your tenant configuration file is set up correctly."
     }
 
@@ -71,9 +71,14 @@ function Get-BaselineTemplate {
       $Script:baselines = @()
       foreach ($BaselineFile in $BaselinesFiles) {
         $fileContent = Get-Content $BaselineFile.FullName -Raw -ErrorAction Stop
-        $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
-        $baseline.Filename = $BaselineFile.BaseName
-        $Script:baselines += $baseline
+        try {
+          $baseline = ConvertFrom-Yaml $fileContent -AllDocuments
+          $baseline.Filename = $BaselineFile.BaseName
+          $Script:baselines += $baseline
+        }
+        catch {
+          Write-Log -Level ERROR "Invalid baseline content definition for $($baseline.Id) on '$($BaselineFile.FullName)'`n$($_)"
+        }
       }
     }
     $($BaselineId.Trim()).yml
