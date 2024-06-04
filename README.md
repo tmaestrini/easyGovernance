@@ -5,12 +5,10 @@ By defining a _configuration baseline_ (YAML) that contains all the desired conf
 
 Any _configuration baseline_ is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
 
-
 > [!NOTE]
 > 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported – but other services will follow asap. Any contributors are welcome! 🙌
 
 Give it a try – We're sure you will like it! 💪
-
 
 ## Architecture and Dependencies
 
@@ -99,13 +97,31 @@ Currently, we recommend the following sequence to get up and running:
 
 - Create a fork of the repo and copy it locally
 - Copy one or more of the example scripts into the tenants folder in your forked copy. Files in the tenant folder are excluded in the .gitignore file, so anything you create there will stay local to your repo.
-- Copy the `settings_template.yaml` file and edit it `MyTenantName` to be the tenant where you would like to compare the baselines.
+- Copy the **tenant settings file** (`settings_template.yml`) and edit it `MyTenantName` to be the tenant where you would like to compare the baselines.
 - Run the baselines you choose with your copy of the example scripts.
+
+### Tenant settings file
+
+In order to configure a dedicated baseline configuration for a specific tenant, an according **tenant settings file** must be created (`yml`). The _file name_ can be chosen according to your needs (ending with `.yml`); consider using the tenant's name as the file descriptor, e.g. `[tenantname.yml]`.
+
+The tenant settings file must follow this structure:
+
+```yaml
+Tenant: MyTenantName
+
+BaselinesPath: <relative path to the folder that contains your baselines> # optional attribute
+Baselines:
+  - M365.1-1.1
+  - M365.1-5.1
+  - M365.1-5.2
+```
+
+Feel free to include only the baseline definition according to your needs.
 
 ### Validation of services
 
 To run a validation for a tenant according to the defined baselines, simply call the `Start-Validation` cmdlet.
-This will compare the existing setup from the settings file (`[tenantname.yml]`) with the configured baseline and print
+This will compare the existing setup from the tenant settings file (`[tenantname.yml]`) with the configured baseline and print
 the result to the std output.
 
 ```powershell
@@ -161,11 +177,12 @@ Therefore, make sure that you return the validation results as object by using t
 ```powershell
 # Validate a given tenant from settings file
 Import-Module .\src\Validation.psm1 -Force
-$result = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject 
+$result = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
 
 # Generate a report in directory ./output (optionally as HTML)
 New-Report -ValidationResults $result #-AsHTML
 ```
+
 > [!NOTE]
 > Optionally, you can also generate a HTML report in addition to the report in Markdown.
 > This offers a well-designed option which is suitable to put the validation results into a presentation or to share with management.
