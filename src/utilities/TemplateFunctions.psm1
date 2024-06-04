@@ -57,7 +57,7 @@ function Get-BaselineTemplate {
     
     $isConfigPathValid = Test-Path -Path $ConfigPath
     if(!$isConfigPathValid) {
-      throw "Invalid Baselines Path: '$BaselinesPath', execution stopped.`nPlease make sure your tenant configuration file is setup correctly (attribute 'BaselinesPath')."
+      throw "Invalid Baselines Path: '$BaselinesPath', execution stopped.`nPlease make sure the 'BaselinesPath' attribute in your tenant configuration file is set up correctly."
     }
 
     if ($null -eq $Script:baselines) {
