@@ -135,6 +135,7 @@ Function Connect-TenantAzure {
     if ($null -eq $ctx) {
       Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
       $ctx = Get-AzContext -Name $Global:connectionContextName
+
       $Global:AzureContext = $ctx
     }
     Write-Log -Level INFO -Message "Connection established"
@@ -142,7 +143,6 @@ Function Connect-TenantAzure {
   catch {
     throw "Connect-TenantAzure > $_"
   }
-
 }
 
 <#
@@ -152,7 +152,7 @@ Function Connect-TenantAzure {
 Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
   Write-Log -Level INFO -Message "Trying to establish connection (PnPOnline)"
   try {
-    $Script:PnPConnection = Get-PnPConnection 
+    $Script:PnPConnection = Get-PnPConnection
     Write-Log -Level INFO "Connection established"
   }
   catch {
