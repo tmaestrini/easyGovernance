@@ -112,8 +112,11 @@ Function Disconnect-Tenant {
     if ($null -ne (Get-AzContext -Name $Global:connectionContextName)) {
       Disconnect-AzAccount -ContextName $Global:connectionContextName | Out-Null
     }
-    if ($Script:PnPConnection -and $null -ne (Get-PnPConnection)) {
-      Disconnect-PnPOnline | Out-Null
+    if ($Script:PnPConnection) {
+      try { if ($null -ne (Get-PnPConnection)) { Disconnect-PnPOnline | Out-Null } }
+      finally {
+        $Script:PnPConnection = $null
+      }
     }
   }
   catch {
