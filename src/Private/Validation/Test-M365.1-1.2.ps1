@@ -31,10 +31,20 @@ Function Test-M365.1-1.2 {
     class M365LicValidator : BaselineValidator {
       M365LicValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
-      Connect() {}
+      Connect() {
+        # Connection is handled system-wide
+      }
 
       [PSCustomObject] Extract() {
-        return @{}
+        $settings = @{}
+
+        # Licenses infos
+        $settings.Licenses = Get-M365LicInfos -Properties GroupBasedLicenses, Errors
+
+        # Commerce infos
+        $settings.Commerce = Get-SelfServiceLicensing
+        
+        return $settings
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
