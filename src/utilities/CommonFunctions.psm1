@@ -132,12 +132,18 @@ Function Connect-TenantAzure {
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
     $ctx = Get-AzContext -Name $Global:connectionContextName
-    if ($null -eq $ctx) {
-      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
-      $ctx = Get-AzContext -Name $Global:connectionContextName
 
-      $Global:AzureContext = $ctx
+    if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
+      Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
+      Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
+        -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
     }
+    elseif ($null -eq $ctx -and !$Global:UnattendedScriptParameters) {
+      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+    }
+
+    $ctx = Get-AzContext -Name $Global:connectionContextName
+    $Global:AzureContext = $ctx
     Write-Log -Level INFO -Message "Connection established"
   }
   catch {
@@ -156,8 +162,14 @@ Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
     Write-Log -Level INFO "Connection established"
   }
   catch {
-    Connect-PnPOnline -Url $AdminSiteUrl -Interactive
-    if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed: $_" }
+    if ($Global:UnattendedScriptParameters) {
+      Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters
+    }
+    else {
+      Connect-PnPOnline -Url $AdminSiteUrl -Interactive
+    }
+
+    if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed: $_" }    
     $Script:PnPConnection = Get-PnPConnection 
     Write-Log -Level INFO "Connection established"
   }
