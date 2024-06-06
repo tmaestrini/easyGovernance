@@ -1,4 +1,4 @@
-Function Set-UnattendedScriptRun {
+Function Set-UnattendedRun {
     param (
         [Parameter(Mandatory = $true)][string]$username,
         [Parameter(Mandatory = $true)][string]$password,
@@ -14,6 +14,6 @@ Function Set-UnattendedScriptRun {
     }
 }
 
-Function Reset-UnattendedScriptRun {
+Function Reset-UnattendedRun {
     $Global:UnattendedScriptParameters = $null
 }
