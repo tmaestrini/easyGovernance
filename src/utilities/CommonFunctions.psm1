@@ -127,7 +127,7 @@ Function Disconnect-Tenant {
     throw "Disconnect-Tenant > $_"
   }
   finally {
-    if ($Global:UnattendedScriptParameters) { $Global:UnattendedScriptParameters = $null }
+    if ($Global:UnattendedScriptParameters) { Reset-UnattendedRun }
   }
 }
 
