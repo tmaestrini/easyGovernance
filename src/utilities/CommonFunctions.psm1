@@ -149,6 +149,9 @@ Function Connect-TenantAzure {
   catch {
     throw "Connect-TenantAzure > $_"
   }
+  finally {
+    if ($Global:UnattendedScriptParameters) { $Global:UnattendedScriptParameters = $null }
+  }
 }
 
 <#
