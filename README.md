@@ -266,7 +266,7 @@ The validation routine starter file (see [`example-validation-unattended.ps1`](e
    > [!IMPORTANT]
    > Never store credentials directly in your validation routine starter file.
 
-   > [NOTE]
+   > [!NOTE]
    > If you're using _Azure DevOps_, consider setting up a username and password for your service account that can be stored as a secret pipeline variable and referenced in the script to achieve full automation along that reference: [https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines](https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines). Alternatively, if you are running the validation on a local machine rather than from the cloud, use a vault / credentials manager or ENV variables (if running on your local machine) instead.
 
 2. Call the `Set-UnattendedRun` cmdlet to configure the validation process to be run in unattended mode. This requires the credentials from step one:
