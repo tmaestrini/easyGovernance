@@ -16,12 +16,14 @@ Function Start-Validation {
   try {
     Initialize-EasyGovernance
     if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
+
+    Write-Log "New tenant validation routine started"
   
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
     Connect-Tenant -Tenant $tenantConfig.Tenant
 
     Write-Log "*****************************************"
-    Write-Log "⭐︎ VALIDATING TENANT: $($tenantConfig.Tenant)"
+    Write-Log "🔥 VALIDATING TENANT: $($tenantConfig.Tenant)"
     Write-Log "*****************************************"
     Write-Log "Baseline Validation Results"
 
