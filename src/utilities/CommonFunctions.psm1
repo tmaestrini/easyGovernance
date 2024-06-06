@@ -94,14 +94,18 @@ Function Connect-Tenant {
   )
 
   Write-Host "Establishing connection to your Azure tenant '$Tenant.onmicrosoft.com':"
-  Write-Host "👉 Press any key to login as administrator..."
-  $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
+  if(!$Global:UnattendedScriptParameters) {
+    Write-Host "👉 Press any key to login as administrator..."
+    $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
+  }
   
   try {
     Connect-TenantAzure
+    Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com"
   }
   catch {
     Write-Log -Level ERROR -Message "failed: $_"
+    throw "Terminating routine due to erronous connection attempt."
   }
 }
 
@@ -121,6 +125,9 @@ Function Disconnect-Tenant {
   }
   catch {
     throw "Disconnect-Tenant > $_"
+  }
+  finally {
+    if ($Global:UnattendedScriptParameters) { $Global:UnattendedScriptParameters = $null }
   }
 }
 
@@ -149,9 +156,6 @@ Function Connect-TenantAzure {
   catch {
     throw "Connect-TenantAzure > $_"
   }
-  finally {
-    if ($Global:UnattendedScriptParameters) { $Global:UnattendedScriptParameters = $null }
-  }
 }
 
 <#
@@ -166,7 +170,14 @@ Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
   }
   catch {
     if ($Global:UnattendedScriptParameters) {
-      Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters
+      Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
+      try {
+        Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters
+      }
+      catch {
+        Write-Log -Level ERROR $_
+        throw $_      
+      }
     }
     else {
       Connect-PnPOnline -Url $AdminSiteUrl -Interactive
