@@ -39,7 +39,7 @@ Function Test-M365.1-1.2 {
         $settings = @{}
 
         # Licenses infos
-        $settings.Licenses = Get-M365LicInfos -Properties GroupBasedLicenses, Errors
+        $settings.Licenses = Get-M365LicInfos -Properties Errors, GroupBasedLicensing
 
         # Commerce infos
         $settings.Commerce = Get-SelfServiceLicensing
