@@ -1,0 +1,12 @@
+Topic: MS Teams
+Type: Baseline
+Id: M365.1-6.1
+Version: 1.0
+
+References:
+  - https://www.cisa.gov/sites/default/files/2023-12/Teams%20SCB_12.20.2023.pdf
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#microsoft-teams
+
+Configuration:
+  - enforces: Sharing
+    with:
