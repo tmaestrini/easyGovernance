@@ -28,3 +28,33 @@ Configuration:
       ScopeDirectorySearch: true
       RoleBasedChatPermissions: false
       ProvideLinkToSupportRequestPage: false
+
+  - enforces: Org-wide default Teams policy
+    with:
+      Name: Global
+      CreatePrivateChannels: true 
+
+  - enforces: Org-wide default Teams App policy
+    with:
+      Name: Global
+      MicrosoftApps: allow
+      Third-partyApps: block
+      CustomApps: block
+
+  - enforces: Org-wide default Teams Calling policy
+    with:
+      Name: Global
+      MakePrivateCalls: true
+      CloudRecordingForCalling: false
+      InternalCallForwardingAndRinging: true 
+      ExternalCallForwardingAndRinging: false
+      VoicemailEnabledForRoutingInboundCalls: true
+      DelegationInboundOutbound: true
+      PreventTollBypass: false
+      MusicOnHoldPSTN: true
+      BusyOnBusy: true
+      WebPSTNCalling: false
+      RealTimeCaptions: true
+      AutoAnswerMeetingInvites: false
+      SIPDevicesPerformCalling: false
+      
