@@ -8,5 +8,23 @@ References:
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#microsoft-teams
 
 Configuration:
-  - enforces: Sharing
+  - enforces: Teams settings
     with:
+      FeedSuggestionsInUsersActivityFeed: true
+      WhoCanManageTags: Team owners
+      LetTeamOwnersChangeHowCanTag: true
+      CustomTags: true
+      ShiftsAppCanApplyTags: true
+      AllowEmailIntoChannel: true
+      AllowCitrix: false
+      AllowDropBox: false
+      AllowBox: false
+      AllowGoogleDrive: false
+      AllowEgnyte: false
+      AllowOrganizationTab: true
+      Require2ndAuthforMeeting: "No access"
+      SetContentPin: "RequiredOutsideScheduleMeeting"
+      SurfaceHubCanSendMails: true
+      ScopeDirectorySearch: true
+      RoleBasedChatPermissions: false
+      ProvideLinkToSupportRequestPage: false
