@@ -108,4 +108,21 @@ Configuration:
       UsersInExternalOrgs: "Allow only specific external domains"
       MyOrgCanCommunicateWithUnmanagedAccounts: false
       UnmanagedAccountsCanContactMyOrg: false
-      UsersCanCommunicateWithSkypeUsers: true  
+      UsersCanCommunicateWithSkypeUsers: true
+
+  - enforces: Guest access settings
+    with:
+      AllowGuestsToAccessTeams: true
+      MakePrivateCalls: true
+      VideoConferencing: true
+      ScreenSharingMode: "Entire Screen"
+      MeetNow: true
+      EditSentMessages: true
+      DeleteSentMessages: true
+      DeleteChat: true
+      Chat: true
+      GiphyInConversations: false
+      GiphyContentRating: "Strict"
+      MemesInConversations: false
+      StickersInConversations: false
+      ImmerseReaderForMessages: true
