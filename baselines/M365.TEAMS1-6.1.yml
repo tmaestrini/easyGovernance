@@ -94,3 +94,11 @@ Configuration:
       MeetNowPrivateMeetings: true
       LiveCaptions: "Not enabled but the user can override"
       ChatInMeetings: true
+
+  - enforces: Org-wide default Teams live events policy
+    with:
+      Name: Global (Org-wide default)
+      LiveEventScheduling: true
+      TranscriptionForAttendees: false
+      WhoCanJoinLiveEvent: "Everyone in the organization"
+      WhoCanRecordLiveEvent: "Always record"
