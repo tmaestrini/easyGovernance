@@ -31,8 +31,10 @@ Function Test-M365.1-5.1 {
       M365OD4BValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
       Connect() {
-        $adminSiteUrl = "https://{0}-admin.sharepoint.com" -f $this.ValidationSettings.TenantId
-        Connect-TenantPnPOnline -AdminSiteUrl $adminSiteUrl
+        # Connection is handled system wide
+        
+        # $adminSiteUrl = "https://{0}-admin.sharepoint.com" -f $this.ValidationSettings.TenantId
+        # Connect-TenantPnPOnline -AdminSiteUrl $adminSiteUrl
       }
       
       [PSCustomObject] Extract() {
