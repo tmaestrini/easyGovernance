@@ -250,6 +250,48 @@ Configuration:
       - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
 ```
 
+### Running a validation process in unattended mode (automation scenario)
+
+In automated scenarios, the validation process could be processed in an unattended mode (for example in an [Azure DevOps Pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops), in [Azure Automation](https://learn.microsoft.com/en-us/azure/automation/overview) or in [Github Actions](https://docs.github.com/en/actions)). This allows validations to be processed on a regular basis with a service account and with silent authentication.
+
+The validation routine starter file (see [`example-validation-unattended.ps1`](examples/example-validation-unattended.ps1)) must follow three steps:
+
+1. Set up `username` and `password` of the service account.<br>The credentials can be retrieved for example as secret pipeline variables and must then be referenced in the script:
+
+   ```powershell
+   $username = "admin@[yourtenant].onmicrosoft.com"
+   $password = "[password]"
+   ```
+
+   > [!IMPORTANT]
+   > Never store credentials directly in your validation routine starter file.
+
+   > [!NOTE]
+   > If you're using _Azure DevOps_, consider setting up a username and password for your service account that can be stored as a secret pipeline variable and referenced in the script to achieve full automation along that reference: [https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines](https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines). Alternatively, if you are running the validation on a local machine rather than from the cloud, use a vault / credentials manager or ENV variables (if running on your local machine) instead.
+
+2. Call the `Set-UnattendedRun` cmdlet to configure the validation process to be run in unattended mode. This requires the credentials from step one:
+   ```powershell
+   Set-UnattendedScriptRun -username $username -password $password
+   ```
+3. Call the `Start-Validation` cmdlet to start the validation process
+
+Have a look at the example _validation routine starter file_ ([`example-validation-unattended.ps1`](examples/example-validation-unattended.ps1)):
+
+```powershell
+# Validate a given tenant from settings file by running in unattended mode (in an automation scenario)
+Import-Module .\src\Validation.psm1 -Force
+
+# prepare unattended mode with your credentials to login as administrator
+# 👉 Do not store credentials directly in this file; use a vault / credentials manager or ENV variables instead.
+$username = "admin@[yourtenant].onmicrosoft.com"
+$password = "[password]"
+
+Set-UnattendedRun -username $username -password $password
+
+# start validation
+Start-Validation -TemplateName "[tenantname].yml" > output.md
+```
+
 ### Provision of services
 
 > [!IMPORTANT]
