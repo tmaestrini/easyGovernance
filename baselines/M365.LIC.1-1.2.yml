@@ -10,4 +10,4 @@ Configuration:
     with:
       LicenseError: false # No License Error in tenant
       OnlyGroupBasedLicenseAssignment: true # Only Group Based License Assignment
-      SelfServicePurchase: false # Self Service Purchase Disabled
+      SelfServicePurchase: Disabled # Self Service Purchase should be set to 'Disabled'
