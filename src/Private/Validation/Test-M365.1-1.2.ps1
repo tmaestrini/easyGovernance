@@ -20,7 +20,7 @@ Function Test-M365.1-1.2 {
     )][PSCustomObject]$Baseline,
     [Parameter(
       Mandatory = $true,
-      HelpMessage = "The id of the tenant (https://[tenantId].sharepoint.com)"
+      HelpMessage = "The id of the tenant (https://[tenantId].onmicrosoft.com)"
     )][string] $tenantId,
     [Parameter(
       Mandatory = $false
@@ -32,7 +32,13 @@ Function Test-M365.1-1.2 {
       M365LicValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
       Connect() {
-        # Connection is handled system-wide
+        # Unattended mode
+        if ($Global:UnattendedScriptParameters) {
+          Connect-M365LicenseManager -Credential $Global:UnattendedScriptParameters.Credentials -Tenant $this.ValidationSettings.TenantId
+        }
+        else {
+          Connect-M365LicenseManager -Credential (Get-Credential -Message "Enter your admin credentials for the License Manager") -Tenant $this.ValidationSettings.TenantId
+        }
       }
 
       [PSCustomObject] Extract() {
@@ -52,9 +58,9 @@ Function Test-M365.1-1.2 {
       }
     }
   }
+
   Process {
     try {
-      throw "Validator not implemented yet"
       $validator = [M365LicValidator]::new($Baseline, $tenantId, $ReturnAsObject)
       $validator.StartValidation()
       $result = $validator.GetValidationResult()
