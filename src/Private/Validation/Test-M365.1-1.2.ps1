@@ -45,16 +45,23 @@ Function Test-M365.1-1.2 {
         $settings = @{}
 
         # Licenses infos
-        $settings.Licenses = Get-M365LicInfos -Properties Errors, GroupBasedLicensing
-
+        $settings.Licenses = Get-M365LicensingConfiguration -Properties SelfServicePurchase, LicenseError, OnlyGroupBasedLicenseAssignment
+        
         # Commerce infos
-        $settings.Commerce = Get-SelfServiceLicensing
+        # $settings.Commerce = Get-SelfServiceLicensing
         
         return $settings
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
-        return @{}
+        $settings = @{}
+
+        # Licenses
+        $licensesEnabled = ($extractedSettings.Licenses.SelfServicePurchase | Where-Object { $_.policyValue -eq "Enabled" }).length
+        
+        $settings.SelfServicePurchase = $licensesEnabled.length -gt 0 ? "Enabled" : "Disabled"
+
+        return $settings
       }
     }
   }
