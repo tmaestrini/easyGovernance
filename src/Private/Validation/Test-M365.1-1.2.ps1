@@ -57,9 +57,12 @@ Function Test-M365.1-1.2 {
         $settings = @{}
 
         # Licenses
-        $licensesEnabled = ($extractedSettings.Licenses.SelfServicePurchase | Where-Object { $_.policyValue -eq "Enabled" }).length
+        $licensesEnabled = ($extractedSettings.Licenses.SelfServicePurchase | Where-Object { $_.policyValue -eq "Enabled" })
         
         $settings.SelfServicePurchase = $licensesEnabled.length -gt 0 ? "Enabled" : "Disabled"
+        if($settings.SelfServicePurchase) { 
+          $settings.SelfServicePurchaseEnabledLicenses = $licensesEnabled
+        }
 
         return $settings
       }
