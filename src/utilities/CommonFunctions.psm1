@@ -94,14 +94,16 @@ Function Connect-Tenant {
   )
 
   Write-Host "Establishing connection to your Azure tenant '$Tenant.onmicrosoft.com':"
-  if(!$Global:UnattendedScriptParameters) {
+  if (!$Global:UnattendedScriptParameters) {
     Write-Host "👉 Press any key to login as administrator..."
     $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   }
   
   try {
     Connect-TenantAzure
-    Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com"
+    
+    $appId = Assert-EasyGovernanceAppRegistration -Tenant $Tenant
+    Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com" -AppId $appId
   }
   catch {
     Write-Log -Level ERROR -Message "failed: $_"
@@ -162,7 +164,16 @@ Function Connect-TenantAzure {
 .Synopsis
   Connects to the tenant's admin site via PnPOnline and sets up the connection.
 #>
-Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
+Function Connect-TenantPnPOnline {
+  [CmdletBinding()]
+  [OutputType([void])]
+
+  Param
+  (
+    [Parameter(Mandatory = $true)][string] $AdminSiteUrl,
+    [Parameter(Mandatory = $true)][string] $AppId
+  )
+
   Write-Log -Level INFO -Message "Trying to establish connection (PnPOnline)"
   try {
     $Script:PnPConnection = Get-PnPConnection
@@ -172,7 +183,7 @@ Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
     if ($Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
       try {
-        Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters
+        Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters -ClientId $AppId
       }
       catch {
         Write-Log -Level ERROR $_
@@ -180,11 +191,47 @@ Function Connect-TenantPnPOnline([string] $AdminSiteUrl) {
       }
     }
     else {
-      Connect-PnPOnline -Url $AdminSiteUrl -Interactive
+      Connect-PnPOnline -Url $AdminSiteUrl -Interactive -ClientId $AppId
     }
 
     if ($null -eq (Get-PnPConnection)) { throw "✖︎ Connection failed: $_" }    
     $Script:PnPConnection = Get-PnPConnection 
     Write-Log -Level INFO "Connection established"
   }
+}
+
+<#
+.Synopsis 
+  Testing if the EasyGovernance app that makes use of PnP.PowerShell is already installed in $Tenant.onmicrosoft.com.
+  If it is not installed, it will be created with standard permissions.
+  👉 Make sure that you have established an Azure connection before calling this function.
+  .OUTPUTS
+  This function will return the appropriate AppId that will be used for login purposes.
+#>
+Function Assert-EasyGovernanceAppRegistration {
+  [CmdletBinding()]
+  [OutputType([void])]
+
+  Param
+  (
+    [Parameter(Mandatory = $true, 
+      HelpMessage = "The name of the tenant")][string] $Tenant
+  )
+
+  $ctx = Get-AzContext -Name $Global:connectionContextName
+  $testAppIsInstalled = Get-AzADApplication -DisplayNameStartWith "easyGovernance"
+  
+  if (!$testAppIsInstalled) {
+    Write-Log -Message "Registering EasyGovernance application in Entra ID that will work with PnP.PowerShell"
+    $newApp = Register-PnPEntraIDAppForInteractiveLogin -ApplicationName "easyGovernance" -Tenant "$Tenant.onmicrosoft.com" -Interactive
+
+    Write-Host "Please consent the app in the browser before you proceed to login."
+    Write-Host "Proceeding without consent will cause authentication failure."
+    Write-Host "👉 Press any key to continue after you have given consent to the 'easyGovernance' app..."
+    $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
+  
+    $testAppIsInstalled = Get-AzADApplication -DisplayNameStartWith "easyGovernance"
+  } 
+  
+  return $testAppIsInstalled.AppId
 }
