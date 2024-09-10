@@ -32,20 +32,20 @@ Function New-Report {
 
       $reportStatistics = @{ Total = 0; Passed = 0; Failed = 0; Manual = 0 }
       Function Set-ReportStatistics($resultSet) {
-         $reportStatistics.Total += $resultSet.Statistics.Total
-         $reportStatistics.Passed += $resultSet.Statistics.Passed
-         $reportStatistics.Failed += $resultSet.Statistics.Failed
-         $reportStatistics.Manual += $resultSet.Statistics.Manual
+         $reportStatistics.Total = $reportStatistics.Total + $resultSet.Statistics.stats.Total
+         $reportStatistics.Passed = $reportStatistics.Passed + $resultSet.Statistics.stats.Passed
+         $reportStatistics.Failed = $reportStatistics.Failed + $resultSet.Statistics.stats.Failed
+         $reportStatistics.Manual = $reportStatistics.Manual + $resultSet.Statistics.stats.Manual
       }
 
       Function Add-MainContent([PSCustomObject]$resultSet, [PSCustomObject]$baseline) {
          $content = @()
          $content += "`n## ► $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
          $content += "### Report Validation statistics"
-         $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.Total)-blue.svg?style=flat-square)"
-         $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($resultSet.Statistics.Passed)-green.svg?style=flat-square)"
-         $content += "![failed](https://img.shields.io/badge/✘%20Checks%20failed-$($resultSet.Statistics.Failed)-red.svg?style=flat-square)"
-         $content += "![check](https://img.shields.io/badge/Manual%20check%20needed-$($resultSet.Statistics.Manual)-yellow.svg?style=flat-square)`n"
+         $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.stats.Total)-blue.svg?style=flat-square)"
+         $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($resultSet.Statistics.stats.Passed)-green.svg?style=flat-square)"
+         $content += "![failed](https://img.shields.io/badge/✘%20Checks%20failed-$($resultSet.Statistics.stats.Failed)-red.svg?style=flat-square)"
+         $content += "![check](https://img.shields.io/badge/Manual%20check%20needed-$($resultSet.Statistics.stats.Manual)-yellow.svg?style=flat-square)`n"
 
          $content += "### Baseline Reference(s)"
          $content += $baseline.References | ForEach-Object { "- [$($_)]($($_))" } 

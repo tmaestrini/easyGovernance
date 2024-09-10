@@ -16,8 +16,8 @@ Under the hood, the baseline validation engine is powered by the [PnP.Powershell
 
 The implementation is based on the following PowerShell modules:
 
-![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
-![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
+![PowerShell](https://img.shields.io/badge/Powershell-7.4.2-blue.svg)
+![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.12.0-blue.svg)
 ![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
 ![Az.Accounts](https://img.shields.io/badge/Az.Accounts-2.19.0-blue.svg)
 ![PSLogs](https://img.shields.io/badge/PSLogs-5.2.1-blue.svg)

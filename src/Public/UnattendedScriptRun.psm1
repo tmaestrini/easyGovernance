@@ -1,8 +1,7 @@
 Function Set-UnattendedRun {
     param (
         [Parameter(Mandatory = $true)][string]$username,
-        [Parameter(Mandatory = $true)][string]$password,
-        [Parameter(Mandatory = $false)][string]$clientId = "31359c7f-bd7e-475c-86db-fdb8c937548e" # the (standard) client id of PnP Management Shell
+        [Parameter(Mandatory = $true)][string]$password
     )
 
     [securestring]$secStringPassword = ConvertTo-SecureString $password -AsPlainText -Force
@@ -10,7 +9,6 @@ Function Set-UnattendedRun {
 
     $Global:UnattendedScriptParameters = @{
         Credentials = $creds;
-        ClientId    = $clientId;
     }
 }
 
