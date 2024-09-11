@@ -41,6 +41,7 @@ Function Test-RequiredModules {
     @{name = "PnP.PowerShell"; version = "2.12.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
     @{name = "Az.Accounts"; version = "2.19.0" }
+    @{name = "Az.Resources"; version = "6.4.0" }
     @{name = "PSLogs"; version = "5.2.1" }
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
