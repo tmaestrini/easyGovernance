@@ -1,11 +1,10 @@
 Function Set-UnattendedRun {
     param (
         [Parameter(Mandatory = $true)][string]$username,
-        [Parameter(Mandatory = $true)][string]$password
+        [Parameter(Mandatory = $true)][SecureString]$password
     )
 
-    [securestring]$secStringPassword = ConvertTo-SecureString $password -AsPlainText -Force
-    [pscredential]$creds = New-Object System.Management.Automation.PSCredential ($username, $secStringPassword)
+    [pscredential]$creds = New-Object System.Management.Automation.PSCredential ($username, $password)
 
     $Global:UnattendedScriptParameters = @{
         Credentials = $creds;
