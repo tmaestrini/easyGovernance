@@ -103,7 +103,7 @@ Function Connect-Tenant {
   try {
     Connect-TenantAzure
     
-    $appId = Assert-EasyGovernanceAppRegistration -Tenant $Tenant
+    $appId = Get-OrCreateEasyGovernanceAppRegistration -Tenant $Tenant
     Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com" -AppId $appId
   }
   catch {
@@ -209,7 +209,7 @@ Function Connect-TenantPnPOnline {
   .OUTPUTS
   This function will return the appropriate AppId that will be used for login purposes.
 #>
-Function Assert-EasyGovernanceAppRegistration {
+Function Get-OrCreateEasyGovernanceAppRegistration {
   [CmdletBinding()]
   [OutputType([void])]
 
