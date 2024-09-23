@@ -38,7 +38,7 @@ Function Initialize-EasyGovernance {
 Function Test-RequiredModules {
   $requiredModules = @(
     @{name = "powershell-yaml" }
-    @{name = "PnP.PowerShell"; version = "2.4.0" }
+    @{name = "PnP.PowerShell"; version = "2.12.0" }
     @{name = "Microsoft.Graph"; version = "2.15.0" }
     @{name = "Az.Accounts"; version = "2.19.0" }
     @{name = "PSLogs"; version = "5.2.1" }
@@ -146,7 +146,7 @@ Function Connect-TenantAzure {
         -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
     }
     elseif ($null -eq $ctx -and !$Global:UnattendedScriptParameters) {
-      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
     }
 
     $ctx = Get-AzContext -Name $Global:connectionContextName
