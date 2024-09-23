@@ -8,9 +8,10 @@ RUN apt-get install xdg-utils -y
 
 # Install Powershell Moduels to Support Installation
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name powershell-yaml"
-RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name PnP.Powershell -RequiredVersion 2.4.0"
+RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name PnP.Powershell -RequiredVersion 2.12.0"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Microsoft.Graph -RequiredVersion 2.15.0"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Az.Accounts -RequiredVersion 2.19.0"
+RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Az.Resources -RequiredVersion 6.4.0"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name PSLogs -RequiredVersion 5.2.1"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name MarkdownPS -RequiredVersion 1.9"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name MarkdownToHtml -RequiredVersion 2.7.1"
