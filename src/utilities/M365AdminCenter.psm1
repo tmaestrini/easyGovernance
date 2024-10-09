@@ -26,8 +26,10 @@ Function Invoke-M365AdminCenterRequest {
     $requests = $ApiRequests | Foreach-Object {
         $req = $_
         try {
-            $path = ($req.path) -replace "{{tenantId}}", $tenantId
-            $result = Invoke-RestMethod -Uri "https://admin.microsoft.com/$path" -Headers $headers -Method ($($req.method) ? $req.method : "GET")
+            # $path = ($req.path) -replace "{{tenantId}}", $tenantId
+            $path = "https://admin.microsoft.com/$($req.path -replace "{{tenantId}}", $tenantId)"
+            $method = $($req.method) ? $req.method : "GET"
+            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 10
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {

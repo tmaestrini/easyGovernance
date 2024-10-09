@@ -4,7 +4,7 @@ $Utilities = @( Get-ChildItem -Path $PSScriptRoot\utilities\*.psm1 -ErrorAction 
 $PublicCommon = @( Get-ChildItem -Path $PSScriptRoot\Public\*.psm1 -ErrorAction SilentlyContinue )
 
 # Import all script resources
-Foreach ($import in @($Public + $PublicCommon + $Private)) {
+Foreach ($import in @($Public + $Private)) {
   $import
   Try {
     . $import.fullname

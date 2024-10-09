@@ -149,7 +149,7 @@ Function Connect-TenantAzure {
         -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
     }
     elseif ($null -eq $ctx -and !$Global:UnattendedScriptParameters) {
-      Connect-AzAccount -Tenant "$Tenant.onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
     }
 
     $ctx = Get-AzContext -Name $Global:connectionContextName
