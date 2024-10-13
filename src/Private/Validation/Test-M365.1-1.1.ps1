@@ -72,7 +72,7 @@ Function Test-M365.1-1.1 {
         $settings.MSGraphDataConnect = $extractedSettings.Services.MSGraphDataConnect
         $settings.MSLoop = $extractedSettings.Services.MSLoop
         $settings.MSPlanner = $extractedSettings.Services.MSPlanner
-        $settings.MSSearchBing = "n/a"
+        $settings.MSSearchBing = $null -eq $extractedSettings.Services.MSSearchBing ? $false : $true
         $settings.MSTeams = $extractedSettings.Services.MSTeams
         $settings.MSTeamsAllowGuestAccess = $extractedSettings.Services.MSTeamsAllowGuestAccess
         $settings.MSToDo = $extractedSettings.Services.MSToDo

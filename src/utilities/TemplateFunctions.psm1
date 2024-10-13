@@ -48,7 +48,10 @@ function Get-BaselineTemplate {
       Mandatory = $true
     )][string]$BaselineId,
     [Parameter(
-    )][string]$BaselinesPath = 'baselines'
+    )][string]$BaselinesPath = 'baselines',
+    [Parameter(
+      HelpMessage = "Force reload of baselines (overwrites already loaded baselines in memory by reading from file system)"
+    )][Switch]$Force = $false
   )
  
   Begin {
@@ -60,7 +63,7 @@ function Get-BaselineTemplate {
       throw "Invalid Baselines Path: '$BaselinesPath', execution stopped.`nPlease make sure the 'BaselinesPath' attribute in your tenant configuration file is set up correctly."
     }
 
-    if ($null -eq $Script:baselines) {
+    if ($null -eq $Script:baselines -or $Force.IsPresent) {
       try {
         $BaselinesFiles = @( Get-ChildItem -Path $ConfigPath\*.yml -ErrorAction SilentlyContinue )
       }
