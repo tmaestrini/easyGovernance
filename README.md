@@ -135,13 +135,23 @@ Import-Module .\src\Validation.psm1 -Force
 Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
 ```
 
-If you would like to store the validation results in a variable – for example to process the results further, simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+#### Parameters
 
-```powershell
-# Validate a given tenant from settings file and store the result in a variable
-Import-Module .\src\Validation.psm1 -Force
-$validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
-```
+Following parameters extend the functionality of the `Start-Validation`cmdlet and can be combined according to your needs:
+
+- `ReturnAsObject`: If you would like to store the validation results in a variable – for example to process the results further, simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+
+  ```powershell
+  # Validate a given tenant from settings file and store the result in a variable
+  Import-Module .\src\Validation.psm1 -Force
+  $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
+  ```
+
+- `KeepConnectionsAlive`: If you would like to keep the connections to the M365 services used in all validations alive after the validation routine has finished, just add the `KeepConnectionsAlive` parameter. The use of this parameter will not affect any output.
+
+- `ReloadBaselines`: After the first validation run, all baselines that are referenced in a tenant template (in the [`tenants` folder](./tenants/)) will be stored in memory (due to performance). If you intend to reload all the referenced baselines (for example when a baseline changed), simply add the `ReloadBaselines` parameter. The use of this parameter will not affect any output.
+
+#### Return values
 
 The returned object contains following attributes:
 
