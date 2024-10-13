@@ -82,7 +82,7 @@ Configuration:
         dropdownTimeoutValue: 360
       PasswordExpirationPolicyNeverExpire: true # User Passwords never expire
       PrivacyProfile: # Specifies whether the organization's privacy profile is configured.
-        PrivacyContact: PrivacyContact@yourdomain.com
+        PrivacyContact: "PrivacyContact@yourdomain.com"
         PrivacyStatement: "https://www.yourorg.com/privacy"
       Pronouns: # Specifies the pronouns of the organization.
         isEnabledInOrganization: true
