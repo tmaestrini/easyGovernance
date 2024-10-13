@@ -74,7 +74,7 @@ Function Get-M365TenantSettingsServices {
         "MSGraphDataConnect" { @{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
         "MSLoop" { @{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
         "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "isPlannerAllowed" } }
-        "MSSearchBing" { @{name = $_; path = "fd/bfb/api/v3/office/switch/feature"; attr = "BingDefault" } }
+        "MSSearchBing" { @{name = $_; path = "admin/api/searchadminapi/configurations"; attr = "ServiceEnabled" } }
         "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
         "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
         # "MSToDo" { @{name = $_; path = "n/a" } }
