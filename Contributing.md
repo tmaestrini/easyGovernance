@@ -16,7 +16,8 @@ Do not be afraid to ask question. We are here to help you succeed in helping us 
 
 ## 👣 How to start - Minimal path to awesome
 
-> ⚠️ **Important**: Before you start, this product under the hood uses PnP.PowerShell and some other PowerShell modules. Please make sure that your local dependencies on you developer machine matches the required PowerShell modules from the [README file](./README.md).
+> [!IMPORTANT]
+> Before you start, this product under the hood uses PnP.PowerShell and some other PowerShell modules. Please make sure that your local dependencies on you developer machine matches the required PowerShell modules from the [README file](./README.md).
 
 - Fork this project. When creating the fork deselect the checkbox 'Copy the `main` branch only' to get both `main` and `develop` branches.
 - Clone the forked repository
