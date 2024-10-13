@@ -149,7 +149,7 @@ Following parameters extend the functionality of the `Start-Validation`cmdlet an
 
 - `KeepConnectionsAlive`: If you would like to keep the connections to the M365 services used in all validations alive after the validation routine has finished, just add the `KeepConnectionsAlive` parameter. The use of this parameter will not affect any output.
 
-- `ReloadBaselines`: After the first validation run, all baselines that are referenced in a tenant template (in the [`tenants` folder](./tenants/)) will be stored in memory (due to performance). If you intend to reload all the referenced baselines (for example when a baseline changed), simply add the `ReloadBaselines` parameter. The use of this parameter will not affect any output.
+- `ReloadBaselines`: After the first validation run, all baselines that are referenced in a tenant template (in the [`tenants` folder](./tenants/)) will be stored in memory (due to performance). If you intend to reload all referenced baselines (for example when a baseline changed), simply add the `ReloadBaselines` parameter. The use of this parameter will not affect any output.
 
 #### Return values
 
