@@ -85,7 +85,7 @@ Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
 Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Scope CurrentUser
 Install-Module -Name Az.Resources -RequiredVersion 6.4.0 -Scope CurrentUser
 Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
-Install-Module -Name MarkdownPS	-RequiredVersion 1.9 -Scope CurrentUser
+Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 ```
 
