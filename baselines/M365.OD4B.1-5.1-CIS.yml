@@ -4,17 +4,19 @@ Id: M365.1-5.1
 Version: 1.0
 
 References:
+  - CIS Microsoft 365 Foundations Benchmark (v3.1.0) ⭐️
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
   - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#onedrive-settings
 
 Configuration:
   - enforces: Sharing
     with:
-      OneDriveSharingCapability: Disabled # governs the ability to share content from OneDrive with external users.
+      OneDriveSharingCapability: Disabled # ⭐️ governs the ability to share content from OneDrive with external users
       SharingWithExternalUsersDisabled: true # Sharing capabilities to external users
       DisplayNamesOfFileViewers: true # Let site owners choose to display the names of people who viewed files or pages
       OneDriveRequestFilesLinkEnabled: false # Let site owners choose to display the names of people who viewed files or pages
     references:
+      - OneDriveSharingCapability: "OneDrive content sharing can lead to potential risks such as inadvertent sharing of privileged information by end users. Restricting external OneDrive sharing will require users to transfer content to SharePoint folders first which have those tighter controls. You never should set the value to 'Anyone' ('ExternalUserAndGuestSharing')."
       - SharingWithExternalUsersDisabled: "Manually set the slider for OneDrive under 'External Sharing' to 'Only People in your organization' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing"
       - OneDriveRequestFilesLinkEnabled: "This setting depends on the setting in 'SharingWithExternalUsersDisabled'. Setting the value to 'true' has no effect as long as 'SharingWithExternalUsersDisabled' is set to 'true'."
 
@@ -22,11 +24,12 @@ Configuration:
     with:
       OrphanedPersonalSitesRetentionPeriod: 365 # Days to retain a deleted user's OneDrive
       OneDriveStorageQuota: 1024 # Default storage limit in GB
-      TenantRestrictionEnabled: false # Disable the Sync button on the OneDrive website
-      AllowedDomainList: "" # Allow syncing only on computers joined to specific domains
+      TenantRestrictionEnabled: true # ⭐️Enabling this feature will prevent users from using the OneDrive for Business Sync client on devices that are not joined to selected domains.
+      AllowedDomainList: "<Domain 1-GUID>" # ⭐️Allow syncing only on computers joined to specific Entra ID domains; see also setting 'TenantRestrictionEnabled'
       ExcludedFileExtensions: "" # Block upload of specific file types
     references:
-      - AllowedDomainList: "Recommendation: Leave this blank"
+      - TenantRestrictionEnabled: "Enabling this feature will prevent users from using the OneDrive for Business Sync client on devices that are not joined to selected domains."
+      - AllowedDomainList: "It is highly recommended that only computers that belong to specific Entra ID domains are allowed to use the OneDrive for Business Sync client."
       - ExcludedFileExtensions: "Recommendation: Leave this blank"
 
   - enforces: Notifications
