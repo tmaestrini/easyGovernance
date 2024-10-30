@@ -133,8 +133,8 @@ Function New-Report {
             return $data
          } 
       
-         $fileOutputPath = "$reportFilePath.csv"
-         $reportResultsPlain.Results | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
+         $fileOutputPath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.csv"
+         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
          Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
       }
 
