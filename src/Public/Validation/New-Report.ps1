@@ -17,7 +17,8 @@ Function New-Report {
          HelpMessage = "Full name of the template, including .yml (aka <name>.yml)"
       )][hashtable]$ValidationResults,
       [Parameter()][switch]$AsHTML,
-      [Parameter()][switch]$AsCSV
+      [Parameter()][switch]$AsCSV,
+      [Parameter()][switch]$AsJSON
    )
    
    Begin {
@@ -32,7 +33,7 @@ Function New-Report {
       }
 
       $reportStatistics = @{ Total = 0; Passed = 0; Failed = 0; Manual = 0 }
-      $reportResultsPlain = @{ Data = @() };
+      $reportResultsPlain = @{ Data = @(); Report = $reportAtts };
 
       Function Set-ReportStatistics($resultSet) {
          $reportStatistics.Total = $reportStatistics.Total + $resultSet.Statistics.stats.Total
@@ -111,13 +112,13 @@ Function New-Report {
    End {
       # save report as Markdown
       [System.IO.Directory]::CreateDirectory($reportPath) # ensure directory exists
-      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.md"
+      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report"
       $reportTemplate > $reportFilePath
       Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath)"
       
       # convert reports
       if ($AsHTML.IsPresent ) {
-         $htmlOutput = Convert-MarkdownToHTML $reportFilePath -SiteDirectory $reportPath
+         $htmlOutput = Convert-MarkdownToHTML $reportFilePath -SiteDirectory "$reportFilePath.md"
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
          Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
       }
@@ -132,9 +133,25 @@ Function New-Report {
             return $data
          } 
       
-         $fileOutputPath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.csv"
+         $fileOutputPath = "$reportFilePath.csv"
          $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
          Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
+      }
+
+      if ($AsJSON.IsPresent) {
+         Write-Log -Level INFO -Message "Creating JSON report"
+         $reportResultsPlain.Data = $ValidationResults.Validation | ForEach-Object {
+            return [ordered]@{
+               Baseline   = $_.Baseline
+               Version    = $_.Version
+               Statistics = $_.Statistics.stats
+               Result     = $_.Result
+            }
+         } 
+      
+         $fileOutputPath = "$reportFilePath.json"
+         $reportResultsPlain.Data | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
+         Write-Log -Level INFO -Message "JSON report created: $($fileOutputPath)"
       }
    }
 }
