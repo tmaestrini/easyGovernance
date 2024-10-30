@@ -126,13 +126,14 @@ Function New-Report {
          Write-Log -Level INFO -Message "Creating CSV report"
          $reportResultsPlain.Data = $ValidationResults.Validation | ForEach-Object {
             $resultSet = $_
-            $data = $resultSet.Result |`
-               Select-Object *, @{ Name = 'Baseline'; Expression = { $resultSet.Baseline } }, @{ Name = 'Version'; Expression = { $resultSet.Version } }
+            $data = $resultSet.Result | Select-Object *, `
+            @{ Name = 'Baseline'; Expression = { $resultSet.Baseline } }, `
+            @{ Name = 'Version'; Expression = { $resultSet.Version } }
             return $data
          } 
       
          $fileOutputPath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.csv"
-         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath
+         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
          Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
       }
    }
