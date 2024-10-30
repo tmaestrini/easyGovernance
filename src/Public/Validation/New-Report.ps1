@@ -134,7 +134,7 @@ Function New-Report {
          } 
       
          $fileOutputPath = "$reportFilePath.csv"
-         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
+         $reportResultsPlain.Results | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
          Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
       }
 
