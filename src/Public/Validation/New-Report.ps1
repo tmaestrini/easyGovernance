@@ -16,7 +16,8 @@ Function New-Report {
          Mandatory = $true,
          HelpMessage = "Full name of the template, including .yml (aka <name>.yml)"
       )][hashtable]$ValidationResults,
-      [Parameter()][switch]$AsHTML
+      [Parameter()][switch]$AsHTML,
+      [Parameter()][switch]$AsCSV
    )
    
    Begin {
@@ -31,6 +32,8 @@ Function New-Report {
       }
 
       $reportStatistics = @{ Total = 0; Passed = 0; Failed = 0; Manual = 0 }
+      $reportResultsPlain = @{ Data = @() };
+
       Function Set-ReportStatistics($resultSet) {
          $reportStatistics.Total = $reportStatistics.Total + $resultSet.Statistics.stats.Total
          $reportStatistics.Passed = $reportStatistics.Passed + $resultSet.Statistics.stats.Passed
@@ -112,11 +115,25 @@ Function New-Report {
       $reportTemplate > $reportFilePath
       Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath)"
       
-      # convert report to HTML
+      # convert reports
       if ($AsHTML.IsPresent ) {
          $htmlOutput = Convert-MarkdownToHTML $reportFilePath -SiteDirectory $reportPath
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
          Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
+      }
+      
+      if ($AsCSV.IsPresent) {
+         Write-Log -Level INFO -Message "Creating CSV report"
+         $reportResultsPlain.Data = $ValidationResults.Validation | ForEach-Object {
+            $resultSet = $_
+            $data = $resultSet.Result |`
+               Select-Object *, @{ Name = 'Baseline'; Expression = { $resultSet.Baseline } }, @{ Name = 'Version'; Expression = { $resultSet.Version } }
+            return $data
+         } 
+      
+         $fileOutputPath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.csv"
+         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath
+         Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
       }
    }
 }
