@@ -44,7 +44,7 @@ Function New-Report {
 
       Function Add-MainContent([PSCustomObject]$resultSet, [PSCustomObject]$baseline) {
          $content = @()
-         $content += "`n## ► $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
+         $content += "`n## ▶︎ $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
          $content += "### Report Validation statistics"
          $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.stats.Total)-blue.svg?style=flat-square)"
          $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($resultSet.Statistics.stats.Passed)-green.svg?style=flat-square)"
