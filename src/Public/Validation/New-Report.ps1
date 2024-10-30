@@ -33,7 +33,7 @@ Function New-Report {
       }
 
       $reportStatistics = @{ Total = 0; Passed = 0; Failed = 0; Manual = 0 }
-      $reportResultsPlain = @{ Data = @(); Report = $reportAtts };
+      $reportResultsPlain = [ordered]@{ Report = $reportAtts; Results = @() };
 
       Function Set-ReportStatistics($resultSet) {
          $reportStatistics.Total = $reportStatistics.Total + $resultSet.Statistics.stats.Total
@@ -125,7 +125,7 @@ Function New-Report {
       
       if ($AsCSV.IsPresent) {
          Write-Log -Level INFO -Message "Creating CSV report"
-         $reportResultsPlain.Data = $ValidationResults.Validation | ForEach-Object {
+         $reportResultsPlain.Results = $ValidationResults.Validation | ForEach-Object {
             $resultSet = $_
             $data = $resultSet.Result | Select-Object *, `
             @{ Name = 'Baseline'; Expression = { $resultSet.Baseline } }, `
@@ -134,13 +134,13 @@ Function New-Report {
          } 
       
          $fileOutputPath = "$reportFilePath.csv"
-         $reportResultsPlain.Data | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
+         $reportResultsPlain.Results | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
          Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
       }
 
       if ($AsJSON.IsPresent) {
          Write-Log -Level INFO -Message "Creating JSON report"
-         $reportResultsPlain.Data = $ValidationResults.Validation | ForEach-Object {
+         $reportResultsPlain.Results = $ValidationResults.Validation | ForEach-Object {
             return [ordered]@{
                Baseline   = $_.Baseline
                Version    = $_.Version
@@ -150,7 +150,7 @@ Function New-Report {
          } 
       
          $fileOutputPath = "$reportFilePath.json"
-         $reportResultsPlain.Data | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
+         $reportResultsPlain | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
          Write-Log -Level INFO -Message "JSON report created: $($fileOutputPath)"
       }
    }
