@@ -16,7 +16,9 @@ Function New-Report {
          Mandatory = $true,
          HelpMessage = "Full name of the template, including .yml (aka <name>.yml)"
       )][hashtable]$ValidationResults,
-      [Parameter()][switch]$AsHTML
+      [Parameter()][switch]$AsHTML,
+      [Parameter()][switch]$AsCSV,
+      [Parameter()][switch]$AsJSON
    )
    
    Begin {
@@ -31,6 +33,8 @@ Function New-Report {
       }
 
       $reportStatistics = @{ Total = 0; Passed = 0; Failed = 0; Manual = 0 }
+      $reportResultsPlain = [ordered]@{ Report = $reportAtts; Results = @() };
+
       Function Set-ReportStatistics($resultSet) {
          $reportStatistics.Total = $reportStatistics.Total + $resultSet.Statistics.stats.Total
          $reportStatistics.Passed = $reportStatistics.Passed + $resultSet.Statistics.stats.Passed
@@ -40,7 +44,7 @@ Function New-Report {
 
       Function Add-MainContent([PSCustomObject]$resultSet, [PSCustomObject]$baseline) {
          $content = @()
-         $content += "`n## ► $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
+         $content += "`n## ▶︎ $($baseline.Topic) [Baseline ``$($resultSet.Baseline)``, Version $($resultSet.Version)]"
          $content += "### Report Validation statistics"
          $content += "![total](https://img.shields.io/badge/Checks%20total-$($resultSet.Statistics.stats.Total)-blue.svg?style=flat-square)"
          $content += "![passed](https://img.shields.io/badge/✔%20Checks%20passed-$($resultSet.Statistics.stats.Passed)-green.svg?style=flat-square)"
@@ -108,15 +112,46 @@ Function New-Report {
    End {
       # save report as Markdown
       [System.IO.Directory]::CreateDirectory($reportPath) # ensure directory exists
-      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report.md"
-      $reportTemplate > $reportFilePath
-      Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath)"
+      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report"
+      $reportTemplate > "$reportFilePath.md"
+      Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath).md"
       
-      # convert report to HTML
+      # convert reports
       if ($AsHTML.IsPresent ) {
-         $htmlOutput = Convert-MarkdownToHTML $reportFilePath -SiteDirectory $reportPath
+         $htmlOutput = Convert-MarkdownToHTML "$reportFilePath.md" -SiteDirectory $reportPath
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
          Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
+      }
+      
+      if ($AsCSV.IsPresent) {
+         Write-Log -Level INFO -Message "Creating CSV report"
+         $reportResultsPlain.Results = $ValidationResults.Validation | ForEach-Object {
+            $resultSet = $_
+            $data = $resultSet.Result | Select-Object *, `
+            @{ Name = 'Baseline'; Expression = { $resultSet.Baseline } }, `
+            @{ Name = 'Version'; Expression = { $resultSet.Version } }
+            return $data
+         } 
+      
+         $fileOutputPath = "$reportFilePath.csv"
+         $reportResultsPlain.Results | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
+         Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
+      }
+
+      if ($AsJSON.IsPresent) {
+         Write-Log -Level INFO -Message "Creating JSON report"
+         $reportResultsPlain.Results = $ValidationResults.Validation | ForEach-Object {
+            return [ordered]@{
+               Baseline   = $_.Baseline
+               Version    = $_.Version
+               Statistics = $_.Statistics.stats
+               Result     = $_.Result
+            }
+         } 
+      
+         $fileOutputPath = "$reportFilePath.json"
+         $reportResultsPlain | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
+         Write-Log -Level INFO -Message "JSON report created: $($fileOutputPath)"
       }
    }
 }

@@ -202,6 +202,16 @@ New-Report -ValidationResults $result #-AsHTML
 > Optionally, you can also generate a HTML report in addition to the report in Markdown.
 > This offers a well-designed option which is suitable to put the validation results into a presentation or to share with management.
 
+In addition to the standard Markdown and HTML reports, the validation results can also be exported to a CSV or JSON file:
+
+```powershell
+# Generate a report in directory ./output, either as .csv or .json file
+New-Report -ValidationResults $result -AsCSV -AsJSON
+```
+
+> [!NOTE]
+> Due to the CSV data structure, the CSV report only contains a reduced set of validation results (hints and statistics are missing).
+
 ### Configuration baselines
 
 Every configuration baseline is a YAML file that contains an initial setup of configuration parameters for a specific service or a tenant. For example, here is the SharePoint Online baseline (as of 1 April 2024):
