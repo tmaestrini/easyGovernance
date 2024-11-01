@@ -94,14 +94,14 @@ Function Connect-Tenant {
       HelpMessage = "The name of the tenant")][string] $Tenant
   )
 
-  Write-Host "Establishing connection to your Azure tenant '$Tenant.onmicrosoft.com':"
+  Write-Host "Establishing connection to your Azure tenant '$($Tenant).onmicrosoft.com':"
   if (!$Global:UnattendedScriptParameters) {
     Write-Host "👉 Press any key to login as administrator..."
     $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   }
   
   try {
-    Connect-TenantAzure
+    Connect-TenantAzure -Tenant $Tenant
     
     $appId = Get-OrCreateEasyGovernanceAppRegistration -Tenant $Tenant
     Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com" -AppId $appId
@@ -135,10 +135,36 @@ Function Disconnect-Tenant {
 }
 
 <#
-.Synopsis
-  Connects to the Azure tenant and sets up the connection.
+.SYNOPSIS
+Establishes a connection to an Azure tenant.
+
+.DESCRIPTION
+The Connect-TenantAzure function attempts to establish a connection to an Azure tenant using the provided tenant name. 
+It supports both interactive and unattended modes. In unattended mode, it uses provided credentials to connect.
+
+.PARAMETER Tenant
+The name of the tenant to connect to. This parameter is mandatory.
+
+.EXAMPLE
+PS C:\> Connect-TenantAzure -Tenant "exampletenant"
+This command establishes a connection to the Azure tenant named "exampletenant.onmicrosoft.com".
+
+.NOTES
+If the connection context is not found and unattended script parameters are provided, it uses those credentials to connect.
+If the connection context is not found and unattended script parameters are not provided, it prompts for interactive login.
+The function logs the connection attempt and success or failure messages.
+
 #>
 Function Connect-TenantAzure {
+  [CmdletBinding()]
+  [OutputType([void])]
+
+  Param
+  (
+    [Parameter(Mandatory = $true, 
+      HelpMessage = "The name of the tenant")][string] $Tenant
+  )
+
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
     $ctx = Get-AzContext -Name $Global:connectionContextName
