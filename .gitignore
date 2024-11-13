@@ -10,3 +10,6 @@ logs/*
 
 # exclude reports
 output/*
+
+# Exclude macOS system files
+.DS_Store
