@@ -1,0 +1,52 @@
+Topic: Power Platform
+Type: Baseline
+Id: M365.1-3.1
+Version: 1.0
+
+References:
+  - https://www.cisa.gov/resources-tools/services/m365-power-platform
+
+Configuration:
+  - enforces: Environments
+    with:
+      DefaultEnvironment:
+        Name: "Personal Productivity (default)" # Specifies the default environment name.
+        Monitoring: true # Specifies whether the monitoring is enabled
+
+      DevelopmentEnvironments:
+        Monitoring: true # Specifies whether the monitoring is enabled
+        CreationRole: OnlySecificAdmins # Allows only specific admins
+        Admins: # Specifies the development environment administrators
+          - <your admin group>
+      ProductionEnvironments:
+        Monitoring: true # Specifies whether the monitoring is enabled
+        CreationRole: OnlySecificAdmins # Allows only specific admins
+        Admins: # Specifies the production environment administrators
+          - <your admin group>
+      TrialEnvironments:
+        Monitoring: true # Specifies whether the monitoring is enabled
+        CreationRole: OnlySecificAdmins # Allows only specific admins
+        Admins: # Specifies the trial environment administrators
+          - <your admin group>
+      
+  - enforces: DataPolicies
+    with:
+      DefaultEnvironment:
+        PolicyName: Default # Specifies the default environment policy name
+        OnlyCoreConnectors: true # Specifies whether only core connectors are allowed in the default environment
+      NonDefaultEnvironments:
+        MinimalActivePolicies: 1 # Specifies the minimal number of active policies in the non-default environments
+        
+  - enforces: SecuritySettings
+    with:
+      TenantIsolation: 
+        IsolationControl: On # Specifies whether the tenant isolation is enabled; can be 'On' or 'Off'
+      ContentSecurityPolicy:
+        CanvasApps: true # Specifies whether the content security policy is enabled for canvas apps
+        ModelDrivenApps: true # Specifies whether the content security policy is enabled for model-driven apps
+        EnableReportingViolations: true # Specifies whether the reporting of violations is enabled
+        EnableForDefaultEnvironment: true # Specifies whether the content security policy is enabled for the default environment
+        EnableForDevelopmentEnvironments: true # Specifies whether the content security policy is enabled for development environments
+        EnableForProductionEnvironments: true # Specifies whether the content security policy is enabled for production environments
+    references:
+      - TenantIsolation: "Power Platform tenant isolation only works for connectors using Microsoft Entra-based authentication, such as Office 365 Outlook or SharePoint.  Once tenant isolation is turned on, inbound (connections to the tenant from external tenants) and outbound (connections from the tenant to external tenants) cross-tenant connections are blocked by Power Platform, even if the user presents valid credentials to the Microsoft Entra-secured data source."
