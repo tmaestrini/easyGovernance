@@ -107,26 +107,17 @@ Function Request-PPLDataPoliciesSettings {
 
     catch {
         throw $_
-     }
+    }
 }
 
 Function Request-PPLSecuritySettings {
     param (
-        [Parameter(Mandatory = $true)][ValidateSet("TenantIsolation.IsolationControl", "ContentSecurityPolicy.CanvasApps", "ContentSecurityPolicy.ModelDrivenApps",
-            "ContentSecurityPolicy.EnableReportingViolations", "ContentSecurityPolicy.EnableForDefaultEnvironment", 
-            "ContentSecurityPolicy.EnableForDevelopmentEnvironments", "ContentSecurityPolicy.EnableForProductionEnvironments"
+        [Parameter(Mandatory = $true)][ValidateSet("TenantIsolation", "ContentSecurityPolicy"
         )][string[]]$Properties
     )
     
-
     $apiSelection = switch ($Properties) {
-        "TenantIsolation.IsolationControl" { @{name = $_; path = "admin/api/Settings/company/theme/v2" } }
-        "ContentSecurityPolicy.CanvasApps" { @{name = $_; path = "admin/api/tenant/datalocation" } }
-        "ContentSecurityPolicy.ModelDrivenApps" { @{name = $_; path = "admin/api/Settings/company/helpdesk" } }
-        "ContentSecurityPolicy.EnableReportingViolations" { @{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
-        "ContentSecurityPolicy.EnableForDefaultEnvironment" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
-        "ContentSecurityPolicy.EnableForDevelopmentEnvironments" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
-        "ContentSecurityPolicy.EnableForProductionEnvironments" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
+        "TenantIsolation" { @{name = $_; path = "PowerPlatform.Governance/v1/tenants/{{tenantId}}/tenantIsolationPolicy" } }
         
         Default {}
     }
