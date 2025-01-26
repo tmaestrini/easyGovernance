@@ -14,19 +14,19 @@ Configuration:
         Monitoring: true # Specifies whether the monitoring is enabled
       DevelopmentEnvironments:
         Monitoring: true # Specifies whether the monitoring is enabled
-        DisableDeveloperEnvironmentCreationByNonAdminUsers: true # Specifies whether the developer environment creation by non-admin users is disabled
+        DisableEnvironmentCreationByNonAdminUsers: true # Specifies whether the developer environment creation by non-admin users is disabled
       ProductionEnvironments:
         Monitoring: true # Specifies whether the monitoring is enabled
         DisableEnvironmentCreationByNonAdminUsers: true # Specifies whether the environment creation by non-admin users is disabled
       TrialEnvironments:
         Monitoring: true # Specifies whether the monitoring is enabled
-        DisableTrialEnvironmentCreationByNonAdminUsers: true # Specifies whether the trial environment creation by non-admin users is disabled
+        DisableEnvironmentCreationByNonAdminUsers: true # Specifies whether the trial environment creation by non-admin users is disabled
       
   - enforces: DataPolicies
     with:
       DefaultEnvironment:
         PolicyName: Default # Specifies the default environment policy name
-        OnlyCoreConnectors: true # Specifies whether only core connectors are allowed in the default environment
+        OnlyCoreConnectorsAllowed: true # Specifies whether only core connectors are allowed in the default environment
       NonDefaultEnvironments:
         MinimalActivePolicies: 1 # Specifies the minimal number of active policies in the non-default environments
         
@@ -43,3 +43,9 @@ Configuration:
         EnableForProductionEnvironments: true # Specifies whether the content security policy is enabled for production environments
     references:
       - TenantIsolation: "Power Platform tenant isolation only works for connectors using Microsoft Entra-based authentication, such as Office 365 Outlook or SharePoint.  Once tenant isolation is turned on, inbound (connections to the tenant from external tenants) and outbound (connections from the tenant to external tenants) cross-tenant connections are blocked by Power Platform, even if the user presents valid credentials to the Microsoft Entra-secured data source."
+
+  - enforces: PowerAutomate
+    with:
+      DisableFlowRunResubmission: false # Specifies whether the flow run resubmission is disabled; set to 'true' to disable
+    references:
+      - DisableFlowRunResubmission: "n/a"
