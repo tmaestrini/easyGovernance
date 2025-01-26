@@ -47,77 +47,70 @@ Function Invoke-PPLAdminCenterRequest {
     return $propertiesValues
 }
 
-Function Get-PPLEnvironmentSettings {
+Function Request-PPLSettings {
     param (
-        [Parameter(Mandatory = $true)][ValidateSet("DefaultEnvironment.Name", "DevelopmentEnvironments.DisableDeveloperEnvironmentCreationByNonAdminUsers",
-            "ProductionEnvironments.DisableEnvironmentCreationByNonAdminUsers", "TrialEnvironments.DisableEnvironmentCreationByNonAdminUsers"
+        [Parameter(Mandatory = $true)][ValidateSet("DefaultEnvironment", "Tenant"
         )][string[]]$Properties
     )
 
     $apiSelection = switch ($Properties) {
-        "DefaultEnvironment.Name" { @{name = $_; path = "Microsoft.BusinessAppPlatform/scopes/admin/environments/?api-version=2024-05-01&`$filter=properties/environmentSku eq 'Default'"; attr="value"} }  
-        # "AdoptionScore" {  }  
-        # "AzureSpeechServices" { @{name = $_; path = "admin/api/services/apps/azurespeechservices"; attr = "isTenantEnabled" } }
-        # "Bookings" { @{name = $_; path = "admin/api/settings/apps/bookings"; attr = "Enabled" } }
-        # "MSVivaBriefing" {  }
-        # "CalendarSharing" { @{name = $_; path = "admin/api/settings/apps/calendarsharing"; attr = "EnableCalendarSharing" } }
-        # "Copilot4Sales" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/salesInsights"; attr = "isEnabledInOrganization" } }
-        # "Cortana" { @{name = $_; path = "admin/api/services/apps/cortana"; attr = "Enabled" } }
-        # "M365Groups" {  }
-        # "M365AppsInstallationOpt" { @{name = $_; path = "fd/dms/odata/TenantInfo({{tenantId}})"; attr = "EffectiveBranch" } }
-        # "M365Lighthouse" { @{name = $_; path = "admin/api/services/apps/m365lighthouse"; attr = "AccountEnabled" } }
-        # "M365OTW" { @{name = $_; path = "admin/api/settings/apps/officeonline"; attr = "Enabled" } }
-        # "MSUserCommunication" { @{name = $_; path = "admin/api/settings/apps/EndUserCommunications"; attr = "ServiceEnabled" } }
-        # "MSForms" { @{name = $_; path = "admin/api/settings/apps/officeforms" } }
-        # "MSGraphDataConnect" { @{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
-        # "MSLoop" { @{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
-        # "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "isPlannerAllowed" } }
-        # "MSSearchBing" { @{name = $_; path = "admin/api/searchadminapi/configurations"; attr = "ServiceEnabled" } }
-        # "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
-        # "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
-        # # "MSToDo" { @{name = $_; path = "n/a" } }
-        # "MSVivaInsights" { @{name = $_; path = "admin/api/services/apps/vivainsights" } }
-        # "ModernAuth" { @{name = $_; path = "admin/api/services/apps/modernAuth" ; attr = "EnableModernAuth" } }
-        # "News" { @{name = $_; path = "admin/api/searchadminapi/news/options/Bing" ; attr = "NewsOptions.HomepageOptions.IsEnabled" } }
-        # "OfficeScripts" { @{name = $_; path = "admin/api/settings/apps/officescripts" ; attr = "EnabledOption" } }
-        # "Reports" { @{name = $_; path = "admin/api/reports/config/GetTenantConfiguration" ; attr = "Output.0.PrivacyEnabled" } }
-        # "SearchIntelligenceAnalytics" { @{name = $_; path = "admin/api/services/apps/searchintelligenceanalytics" ; attr = "userFiltersOptIn" } }
-        # "SharePoint" { @{name = $_; path = "admin/api/settings/apps/sitessharing"; attr = "CollaborationType" } }
-        # "SwayShareWithExternalUsers" { @{name = $_; path = "admin/api/settings/apps/Sway"; attr = "ExternalSharingEnabled" } }
-        # "UserOwnedAppsandServices" { @{name = $_; path = "admin/api/settings/apps/store" } }
-        # "VivaLearning" { @{name = $_; path = "admin/api/settings/apps/learning" } }
-        # "Whiteboard" { @{name = $_; path = "admin/api/settings/apps/whiteboard"; attr = "IsEnabled" } }
+        "DefaultEnvironment" { @{name = $_; path = "Microsoft.BusinessAppPlatform/scopes/admin/environments/?api-version=2024-05-01&`$filter=properties/environmentSku eq 'Default'"; attr = "value" } }  
         
-        Default {}
+        Default { @{name = $_; method = "POST"; path = "Microsoft.BusinessAppPlatform/listTenantSettings?api-version=2024-05-01" } }
     }
 
     try {
-        return Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+        $response = Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+        
+        $settings = [PSCustomObject] @{
+            DefaultEnvironment = ($response.DefaultEnvironment[0] ?? $null);
+            Tenant             = ($response.Tenant ?? $null)
+        }
+        
+        return $settings
     }
-    catch { }
+    catch {
+        Write-Error $_
+    }
 }
 
-Function Get-PPLDataPoliciesSettings {
+Function Request-PPLDataPoliciesSettings {
     param (
-        [Parameter(Mandatory = $true)][ValidateSet("DefaultEnvironment.PolicyName", "DefaultEnvironment.OnlyCoreConnectorsAllowed", 
-            "NonDefaultEnvironments.MinimalActivePolicies"
-        )][string[]]$Properties
+        [Parameter(Mandatory = $true)][ValidateSet("DefaultEnvironment", "NonDefaultEnvironments"
+        )][string[]]$Properties,
+        [Parameter(Mandatory = $true)][string]$DefaultEnvironmentId
     )
     
     $apiSelection = switch ($Properties) {
-        "DefaultEnvironment.PolicyName" { @{name = $_; path = "admin/api/settings/security/activitybasedtimeout"; attr = "properties" } }
-        "DefaultEnvironment.OnlyCoreConnectorsAllowed" { @{name = $_; path = "admin/api/Settings/security/passwordpolicy"; attr = "NeverExpire" } }
-        "NonDefaultEnvironments.MinimalActivePolicies" { @{name = $_; path = "admin/api/Settings/security/privacypolicy" } }
-        
-        Default {}
+        Default { @{name = $_; path = "PowerPlatform.Governance/v1/policies?`$top=100"; attr = "value" } }
     }
     try {
-        return Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
-    }
-    catch { }
+        $apiSelection += @{name = "DefaultEnvironment"; path = "PowerPlatform.Governance/v1/policies?`$top=100"; attr = "value" }
+        $response = Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+
+        $defaultEnvironment = $response.DefaultEnvironment | Where-Object { 
+            $_.environments | Where-Object { $_.name -eq $DefaultEnvironmentId }
+        }
+
+        $nonDefaultEnvironments = $response.NonDefaultEnvironments | Where-Object { 
+            $policy = $_
+            -not ($policy.environments | Where-Object { $_.name -eq $DefaultEnvironmentId })
+        }
+
+        $settings = [PSCustomObject] @{
+            DefaultEnvironment     = $defaultEnvironment
+            NonDefaultEnvironments = $nonDefaultEnvironments
+        }
+
+        return $settings
+    }        
+
+    catch {
+        throw $_
+     }
 }
 
-Function Get-PPLSecuritySettings {
+Function Request-PPLSecuritySettings {
     param (
         [Parameter(Mandatory = $true)][ValidateSet("TenantIsolation.IsolationControl", "ContentSecurityPolicy.CanvasApps", "ContentSecurityPolicy.ModelDrivenApps",
             "ContentSecurityPolicy.EnableReportingViolations", "ContentSecurityPolicy.EnableForDefaultEnvironment", 
