@@ -12,14 +12,14 @@ class BaselineValidator {
         TenantId       = [string] $null
         ReturnAsObject = [switch] $false
     }
-    # [PSCustomObject]$Baseline
-    # [string] $TenantId
-    # [switch] $ReturnAsObject
 
     hidden [PSCustomObject] $validationResult = $null
     hidden [PSCustomObject] $validationResultGrouped = $null
     hidden [PSCustomObject] $validationResultStatistics = $null
-
+    
+    # Use this to store extracted service settings from the M365 service or tenant
+    [PSCustomObject] $extractedParamsFromService = @{}
+    
     BaselineValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) {
         $this.ValidationSettings.Baseline = $Baseline
         $this.ValidationSettings.TenantId = $TenantId
