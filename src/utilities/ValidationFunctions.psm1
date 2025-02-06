@@ -10,7 +10,7 @@ function Test-Settings {
   [OutputType([int])]
   Param
   (
-    # Tenant settings
+    # The actual settings from the tenant
     [PSCustomObject]
     $tenantSettings,
  
@@ -24,31 +24,31 @@ function Test-Settings {
   }
 
   Process {
-    foreach ($baselineSettingsGroup in $baseline.Configuration) {
-      $groupName = $baselineSettingsGroup.enforces
-      $settings = $baselineSettingsGroup.with
-      foreach ($key in $settings.Keys) {
+    foreach ($baselineConfiguration in $baseline.Configuration) {
+      $configurationName = $baselineConfiguration.enforces
+      $configurationSettings = $baselineConfiguration.with
+      foreach ($key in $configurationSettings.Keys) {
         try {
-          $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
+          $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $configurationSettings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
         
           if ($test) { 
-            $testResult.Add("$groupName-$key", [PSCustomObject] @{
-                Group   = $groupName
+            $testResult.Add("$configurationName-$key", [PSCustomObject] @{
+                Group   = $configurationName
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($settings.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
           else { 
-            $referenceHint = $baselineSettingsGroup.references.$key ? $baselineSettingsGroup.references.$key : $null
+            $referenceHint = $baselineConfiguration.references.$key ? $baselineConfiguration.references.$key : $null
             $outputObject = [PSCustomObject] @{
-              Group   = $groupName
+              Group   = $configurationName
               Setting = $key
-              Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
+              Result  = "--- [Should be '$($configurationSettings.$key -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
             if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
-            $testResult.Add("$groupName-$key", $outputObject);
+            $testResult.Add("$configurationName-$key", $outputObject);
           }
         }
         catch {
