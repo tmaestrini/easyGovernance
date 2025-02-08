@@ -59,7 +59,7 @@ function Test-Settings {
               $testResult.Add("$configurationName-$key", [PSCustomObject] @{
                   Group   = $configurationName
                   Setting = $key
-                  Result  = $test.status ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($test.should | ConvertTo-Yaml)' but is '$($test.is | ConvertTo-Yaml)']"
+                  Result  = $test.status ? "✔︎ [$($tenantSettings.$key)]" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
                   Status  = $test.status ? "PASS" : "FAIL"
                 })
             }  
@@ -72,7 +72,7 @@ function Test-Settings {
               $testResult.Add("$configurationName-$key", [PSCustomObject] @{
                   Group   = $configurationName
                   Setting = $key
-                  Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
+                  Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$key)'"
                   Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
                 })
             }  

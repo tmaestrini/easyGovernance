@@ -69,6 +69,8 @@ Function New-Report {
          else { 
             $table = $table | ConvertTo-Html -Fragment
             $table = $table -replace "&lt;br&gt;", "<br>"
+            $table = $table -replace "&lt;pre&gt;", "<pre>"
+            $table = $table -replace "&lt;/pre&gt;", "</pre>"
             $table = $table -replace "<table>", "<table class='reportDetails'>"
             $table = $table -replace "✔︎", "<img style='vertical-align: middle' src='https://img.shields.io/badge/PASS-✔︎-green.svg?style=flat-square'\>"
             $table = $table -replace "✘", "<img style='vertical-align: middle' src='https://img.shields.io/badge/FAIL-✘-red.svg?style=flat-square'\>"
@@ -118,7 +120,7 @@ Function New-Report {
       
       # convert reports
       if ($AsHTML.IsPresent ) {
-         $htmlOutput = Convert-MarkdownToHTML "$reportFilePath.md" -SiteDirectory $reportPath
+         $htmlOutput = Convert-MarkdownToHTML "$reportFilePath.md" -SiteDirectory $reportPath -IncludeExtension "common"
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
          Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
       }
