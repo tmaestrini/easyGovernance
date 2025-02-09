@@ -52,20 +52,20 @@ function Test-Settings {
       foreach ($key in $configurationSettings.Keys) {
         try {  
           # If the tenant settings are complex objects, we need to compare them differently
-          if ($null -ne $tenantSettings.$key -and ($tenantSettings.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]"))) {
-            $test = Compare-ComplexSettings -tenantSettings $tenantSettings.$key -configurationSettings $configurationSettings.$key
+          if ($null -ne $tenantSettings.$configurationName.$key -and ($tenantSettings.$configurationName.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]"))) {
+            $test = Compare-ComplexSettings -tenantSettings $tenantSettings.$configurationName.$key -configurationSettings $configurationSettings.$key
 
             if ($test) { 
               $testResult.Add("$configurationName-$key", [PSCustomObject] @{
                   Group   = $configurationName
                   Setting = $key
-                  Result  = $test.status ? "✔︎ [$($tenantSettings.$key)]" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
+                  Result  = $test.status ? "✔︎ [$($tenantSettings.$configurationName.$key)]" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
                   Status  = $test.status ? "PASS" : "FAIL"
                 })
-            }  
+            }
           }
           # If the tenant settings are simple values, we can compare them directly
-          elseif ($null -ne $tenantSettings.$key) {
+          elseif ($null -ne $tenantSettings.$configurationName.$key) {
             $test = Compare-Object -ReferenceObject $configurationSettings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
             
             if ($test) { 
@@ -81,12 +81,23 @@ function Test-Settings {
             $test = $null
             $referenceHint = $baselineConfiguration.references.$key ? $baselineConfiguration.references.$key : $null
 
-            $outputObject = [PSCustomObject] @{
-              Group   = $configurationName
-              Setting = $key
-              Result  = "--- [Should be '$($configurationSettings.$key -join ''' or ''')']"
-              Status  = "CHECK NEEDED"
+            # Distinghuish between complex settings and simple settings and create the output object
+            if($configurationSettings.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]")) {
+              $outputObject = [PSCustomObject] @{
+                Group   = $configurationName
+                Setting = $key
+                Result  = "--- Should be <pre>$($configurationSettings.$key | ConvertTo-Yaml)</pre>"
+                Status  = "CHECK NEEDED"
+              }
+            } else {
+              $outputObject = [PSCustomObject] @{
+                Group   = $configurationName
+                Setting = $key
+                Result  = "--- Should be '$($configurationSettings.$key -join ''' or ''')'"
+                Status  = "CHECK NEEDED"
+              }
             }
+
             if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
             $testResult.Add("$configurationName-$key", $outputObject);
           }
