@@ -73,17 +73,19 @@ Function Test-M365.1-3.1 {
 
           # Default environment
           $confidentialConnectors = $policySettings.DefaultEnvironment.connectorGroups | Where-Object { $_.classification -eq "Confidential" } | Select-Object -ExpandProperty connectors
-          $allowedConnectors = @("Approvals", "SharePoint", "Microsoft To-Do (Business)")
-          $missingConnectors = $allowedConnectors | Where-Object {
-            $allowedName = $_
-            -not ($confidentialConnectors | Where-Object { $_.name -eq $allowedName })
-          }
           
+          $dataPoliciesTemplate = Get-ConfigurationFromBaselineTemplate -Baseline $Baseline -ConfigurationName "DataPolicies"
+          $missingCoreConnectors = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors | Where-Object {
+            $allowedName = $_
+            -not ($confidentialConnectors | Where-Object { $_.id -eq $allowedName })
+          }
+
           $defaultEnvironment = [PSCustomObject] @{
-            PolicyName        = $policySettings.DefaultEnvironment.displayName ?? "dedicated policy not found";
-            PolicySettings    = $policySettings.DefaultEnvironment ?? $null
-            AllowedConnectors = $allowedConnectors;
-            MissingConnectors = $missingConnectors;
+            PolicyName                 = $policySettings.DefaultEnvironment.displayName ?? "dedicated policy not found";
+            PolicySettings             = $policySettings.DefaultEnvironment ?? $null;
+            CoreConnectorsFromTemplate = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors;
+            AllowedCoreConnectors      = $confidentialConnectors.id ?? @();
+            MissingCoreConnectors      = $missingCoreConnectors;
           }
 
           # Non-default environments
@@ -116,10 +118,25 @@ Function Test-M365.1-3.1 {
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
         $settings = @{}
-
+        
         # Environments
-        $settings.DefaultEnvironment = $extractedSettings.Environments.DefaultEnvironment;
-        $settings.ProductionEnvironments = $extractedSettings.Environments.ProductionEnvironments
+        $defaultEnvironmentId = $extractedSettings.Environments.DefaultEnvironment.Id
+        $extractedSettings.Environments.DefaultEnvironment.PSObject.Properties.Remove('Id')
+
+        $settings.Environments = $extractedSettings.Environments;
+
+        # Data Policies
+        $settings.DataPolicies = @{
+          DefaultEnvironment = @{
+            PolicyName            = $extractedSettings.DataPolicies.DefaultEnvironment.PolicyName;
+            AllowedCoreConnectors = $extractedSettings.DataPolicies.DefaultEnvironment.MissingCoreConnectors.Length -ne 0 ? $extractedSettings.DataPolicies.DefaultEnvironment.AllowedCoreConnectors : $extractedSettings.DataPolicies.DefaultEnvironment.CoreConnectorsFromTemplate;
+          };
+
+          NonDefaultEnvironments = @{
+            AtLeastOneActivePolicy = $extractedSettings.DataPolicies.NonDefaultEnvironments.PolicySettings.Length -ne 0;
+          }
+        }
+        
         return $settings
       }
     }

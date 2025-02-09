@@ -98,3 +98,33 @@ function Get-BaselineTemplate {
     return $selectedBaseline
   }
 }
+
+function Get-ConfigurationFromBaselineTemplate {
+  [CmdletBinding()]
+  [Alias()]
+  [OutputType([int])]
+  Param
+  (
+    [Parameter(
+      Mandatory = $true
+    )][PSCustomObject]$Baseline,
+    [Parameter(
+      Mandatory = $true
+    )][string]$ConfigurationName
+  )
+ 
+  Begin {
+    $selectedBaseline = $Baseline
+  }
+  Process {
+    $selectedConfiguration = $selectedBaseline.Configuration | Where-Object { $ConfigurationName -eq $_.enforces }
+    if (0 -eq $selectedConfiguration.Count) {
+      Write-Log -Level WARNING "$($ConfigurationName): No matching configuration found with '$ConfigurationName' in baseline" -ErrorAction Stop
+      throw "Configuration Error (see above)"
+      return
+    }
+  }
+  End {
+    return $selectedConfiguration.with
+  }
+}

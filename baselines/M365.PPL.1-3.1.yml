@@ -25,11 +25,33 @@ Configuration:
   - enforces: DataPolicies
     with:
       DefaultEnvironment:
-        PolicyName: Default # Specifies the default environment policy name
-        OnlyCoreConnectorsAllowed: true # Specifies whether only core connectors are allowed in the default environment
+        PolicyName: Default # Specifies the default environment policy name (should be 'Default' for clarity)
+        AllowedCoreConnectors: # Specifies the allowed core connectors
+          - "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+          - "/providers/Microsoft.PowerApps/apis/shared_office365users"
+          - "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness"
+          - "/providers/Microsoft.PowerApps/apis/shared_approvals"
+          - "/providers/Microsoft.PowerApps/apis/shared_commondataservice"
+          - "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+          - "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+          - "/providers/Microsoft.PowerApps/apis/shared_microsoftformspro"
+          - "/providers/Microsoft.PowerApps/apis/shared_office365"
+          - "/providers/Microsoft.PowerApps/apis/shared_office365groups"
+          - "/providers/Microsoft.PowerApps/apis/shared_onenote"
+          - "/providers/Microsoft.PowerApps/apis/shared_planner"
+          - "/providers/Microsoft.PowerApps/apis/shared_powerappsnotification"
+          - "/providers/Microsoft.PowerApps/apis/shared_powerappsnotificationv2"
+          - "/providers/Microsoft.PowerApps/apis/shared_powerbi"
+          - "/providers/Microsoft.PowerApps/apis/shared_shifts"
+          - "/providers/Microsoft.PowerApps/apis/shared_teams"
+          - "/providers/Microsoft.PowerApps/apis/shared_todo"
+          - "/providers/Microsoft.PowerApps/apis/shared_yammer"
       NonDefaultEnvironments:
-        MinimalActivePolicies: 1 # Specifies the minimal number of active policies in the non-default environments
-        
+        AtLeastOneActivePolicy: true # Specifies whether at least one active policy is required for non-default environments
+    References:
+      EnableForDefaultEnvironment:
+        AllowedCoreConnectors: "The following connectors drive core Power Platform functionality and should be allowed in 'Business' section: Approvals, Dynamics 365 Customer Voice, Excel Online (Business), Microsoft Dataverse, Microsoft Dataverse (legacy), Microsoft Teams, Microsoft To -Do (Business), Office 365 Groups, Office 365 Outlook, Office 365 Users, OneDrive for Business, OneNote (Business), Planner, Power Apps Notification, Power BI, SharePoint, Shifts for Microsoft Teams, and Viva Engage (ex Yammer)."
+
   - enforces: SecuritySettings
     with:
       TenantIsolation: 
