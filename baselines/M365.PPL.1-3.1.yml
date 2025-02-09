@@ -49,7 +49,7 @@ Configuration:
       NonDefaultEnvironments:
         AtLeastOneActivePolicy: true # Specifies whether at least one active policy is required for non-default environments
     References:
-      EnableForDefaultEnvironment:
+      DefaultEnvironment:
         AllowedCoreConnectors: "The following connectors drive core Power Platform functionality and should be allowed in 'Business' section: Approvals, Dynamics 365 Customer Voice, Excel Online (Business), Microsoft Dataverse, Microsoft Dataverse (legacy), Microsoft Teams, Microsoft To -Do (Business), Office 365 Groups, Office 365 Outlook, Office 365 Users, OneDrive for Business, OneNote (Business), Planner, Power Apps Notification, Power BI, SharePoint, Shifts for Microsoft Teams, and Viva Engage (ex Yammer)."
 
   - enforces: SecuritySettings
