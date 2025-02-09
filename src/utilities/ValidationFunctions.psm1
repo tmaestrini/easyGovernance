@@ -35,9 +35,12 @@ function Test-Settings {
       $tenantSettingsFormatted = $tenantSettings.GetType() -notin "Hashtable" ? (Format-TenantSettings -tenantSettings $tenantSettings) : $tenantSettings
 
       # Compare the tenant settings with the configuration settings
-      $result = Compare-Object $tenantSettingsFormatted.PSObject.Properties $configurationSettings.PSObject.Properties -IncludeEqual
+      # $result = Compare-Object $tenantSettingsFormatted.PSObject.Properties $configurationSettings.PSObject.Properties -IncludeEqual -Property $propertiesToCompare
+      $propertiesToCompare = [string[]] $configurationSettings.Keys
+      $result = Compare-Object $tenantSettingsFormatted $configurationSettings -IncludeEqual -Property $propertiesToCompare
+      
       $output = [ordered]@{
-        status = $result.SideIndicator -eq "==";
+        status = $result.SideIndicator -eq "==" ? $true : $false;
         should = $configurationSettings;
         is     = $tenantSettingsFormatted;
       }
