@@ -32,12 +32,12 @@ function Test-Settings {
       }
 
       # If the tenant settings are complex objects, we need to format them into a Hashtable in order to compare them
-      $tenantSettingsFormatted = Format-TenantSettings -tenantSettings $tenantSettings
+      $tenantSettingsFormatted = $tenantSettings.GetType() -notin "Hashtable" ? (Format-TenantSettings -tenantSettings $tenantSettings) : $tenantSettings
 
       # Compare the tenant settings with the configuration settings
       $result = Compare-Object $tenantSettingsFormatted.PSObject.Properties $configurationSettings.PSObject.Properties -IncludeEqual
       $output = [ordered]@{
-        status = -not $result
+        status = $result.SideIndicator -eq "==";
         should = $configurationSettings;
         is     = $tenantSettingsFormatted;
       }
@@ -59,20 +59,20 @@ function Test-Settings {
               $testResult.Add("$configurationName-$key", [PSCustomObject] @{
                   Group   = $configurationName
                   Setting = $key
-                  Result  = $test.status ? "✔︎ [$($tenantSettings.$configurationName.$key)]" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
+                  Result  = $test.status ? "✔︎ <pre>$($tenantSettings.$configurationName.$key | ConvertTo-Yaml)</pre>" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
                   Status  = $test.status ? "PASS" : "FAIL"
                 })
             }
           }
           # If the tenant settings are simple values, we can compare them directly
           elseif ($null -ne $tenantSettings.$configurationName.$key) {
-            $test = Compare-Object -ReferenceObject $configurationSettings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
+            $test = Compare-Object -ReferenceObject $configurationSettings.$key -DifferenceObject $tenantSettings.$configurationName.$key -IncludeEqual
             
             if ($test) { 
               $testResult.Add("$configurationName-$key", [PSCustomObject] @{
                   Group   = $configurationName
                   Setting = $key
-                  Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$key)'"
+                  Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$configurationName.$key)]" : "✘ Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$configurationName.$key)'"
                   Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
                 })
             }  
@@ -82,14 +82,15 @@ function Test-Settings {
             $referenceHint = $baselineConfiguration.references.$key ? $baselineConfiguration.references.$key : $null
 
             # Distinghuish between complex settings and simple settings and create the output object
-            if($configurationSettings.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]")) {
+            if ($configurationSettings.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]")) {
               $outputObject = [PSCustomObject] @{
                 Group   = $configurationName
                 Setting = $key
                 Result  = "--- Should be <pre>$($configurationSettings.$key | ConvertTo-Yaml)</pre>"
                 Status  = "CHECK NEEDED"
               }
-            } else {
+            }
+            else {
               $outputObject = [PSCustomObject] @{
                 Group   = $configurationName
                 Setting = $key
