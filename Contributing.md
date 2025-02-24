@@ -19,7 +19,7 @@ Do not be afraid to ask question. We are here to help you succeed in helping us 
 > [!IMPORTANT]
 > Before you start, this product under the hood uses PnP.PowerShell and some other PowerShell modules. Please make sure that your local dependencies on you developer machine matches the required PowerShell modules from the [README file](./README.md).
 
-- Fork this project. When creating the fork deselect the checkbox 'Copy the `main` branch only' to get both `main` and `develop` branches.
+- Fork this project. When creating the fork deselect the checkbox 'Copy the `develop` branch only' to get your copy of the `develop` branch.
 - Clone the forked repository
 - Open the _easyGovernance_ project in Visual Studio Code
 - refer to one of the example scripts in the [`examples`](./examples/) folder
