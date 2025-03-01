@@ -69,12 +69,12 @@ Function Test-RequiredModules {
       $currentVersion = [version]$m.Version
       if ($null -eq $m ) { 
         if ($null -eq $requiredVersion -or "" -eq $requiredVersion) {
-          throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
+          throw "[Test-RequiredModules] Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
         }
-        throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($requiredVersion) -Scope CurrentUser" 
+        throw "[Test-RequiredModules] Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($requiredVersion) -Scope CurrentUser" 
       }
       elseif ($null -ne $requiredVersion -and $currentVersion -lt $requiredVersion) { 
-        throw "Test-RequiredModules Module '$($module.name)' must refer at least to version $($requiredVersion): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+        throw "[Test-RequiredModules] Module '$($module.name)' is version $($currentVersion) but must be at least version $($requiredVersion): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
     }
     catch {
