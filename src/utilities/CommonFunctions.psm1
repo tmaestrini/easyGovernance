@@ -64,14 +64,17 @@ Function Test-RequiredModules {
   foreach ($module in $requiredModules) {
     try {
       $m = Get-Module -ListAvailable -Name $module.name | Sort-Object Version -Descending | Select-Object -First 1
+      
+      $requiredVersion = [version]$module.version
+      $currentVersion = [version]$m.Version
       if ($null -eq $m ) { 
-        if ($null -eq $module.version -or "" -eq $module.version) {
-          throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
+        if ($null -eq $requiredVersion -or "" -eq $requiredVersion) {
+          throw "[Test-RequiredModules] Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
         }
-        throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+        throw "[Test-RequiredModules] Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($requiredVersion) -Scope CurrentUser" 
       }
-      elseif ($null -ne $module.version -and $module.version -notin @($m.Version.ToString(), "")) { 
-        throw "Test-RequiredModules Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+      elseif ($null -ne $requiredVersion -and $currentVersion -lt $requiredVersion) { 
+        throw "[Test-RequiredModules] Module '$($module.name)' is version $($currentVersion) but must be at least version $($requiredVersion): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
     }
     catch {
