@@ -39,7 +39,7 @@ Function Test-RequiredModules {
   $requiredModules = @(
     @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "2.12.0" }
-    @{name = "Microsoft.Graph"; version = "2.26.1" }
+    @{name = "Microsoft.Graph"; version = "2.25.1" }
     @{name = "Az.Accounts"; version = "4.0.2" }
     @{name = "Az.Resources"; version = "6.4.0" }
     @{name = "PSLogs"; version = "5.2.1" }
@@ -64,14 +64,17 @@ Function Test-RequiredModules {
   foreach ($module in $requiredModules) {
     try {
       $m = Get-Module -ListAvailable -Name $module.name | Sort-Object Version -Descending | Select-Object -First 1
+      
+      $requiredVersion = [version]$module.version
+      $currentVersion = [version]$m.Version
       if ($null -eq $m ) { 
-        if ($null -eq $module.version -or "" -eq $module.version) {
+        if ($null -eq $requiredVersion -or "" -eq $requiredVersion) {
           throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -Scope CurrentUser" 
         }
-        throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+        throw "Test-RequiredModules Module '$($module.name)' is not installed: Install-Module $($module.name) -RequiredVersion $($requiredVersion) -Scope CurrentUser" 
       }
-      elseif ($null -ne $module.version -and $module.version -notin @($m.Version.ToString(), "")) { 
-        throw "Test-RequiredModules Module '$($module.name)' must refer to version $($module.version): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
+      elseif ($null -ne $requiredVersion -and $currentVersion -lt $requiredVersion) { 
+        throw "Test-RequiredModules Module '$($module.name)' must refer at least to version $($requiredVersion): Install-Module $($module.name) -RequiredVersion $($module.version) -Scope CurrentUser" 
       }
     }
     catch {
