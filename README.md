@@ -104,12 +104,12 @@ Currently, we recommend the following sequence to get up and running:
 
 ### Tenant settings file
 
-In order to configure a dedicated baseline configuration for a specific tenant, an according **tenant settings file** must be created (`yml`). The _file name_ can be chosen according to your needs (ending with `.yml`); consider using the tenant's name as the file descriptor, e.g. `[tenantname.yml]`.
+In order to configure a dedicated baseline configuration for a specific tenant, an according **tenant settings file** must be created (`yml`). The _file name_ can be chosen according to your needs (ending with `.yml`); consider using the tenant's name as the file descriptor, e.g. `[contoso.yml]`.
 
 The tenant settings file must follow this structure:
 
 ```yaml
-Tenant: MyTenantName
+Tenant: MyTenantName # 👈 the name of the tenant, without TLD, or onmicrosoft.com e.g. contoso
 
 BaselinesPath: <relative path to the folder that contains your baselines> # optional attribute
 Baselines:
