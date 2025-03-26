@@ -1,0 +1,27 @@
+<h2>%{baseline}</h2>
+Baseline <code>%{baselineId}</code>, Version %{baselineVersion}
+<div class="summary-cards">
+    <div class="summary-card">
+        <h3 class="card-title">Checks in total</h3>
+        <p class="card-value" id="totalLicensesValue">%{count_checks}</p>
+    </div>
+    <div class="summary-card check-passed">
+        <h3 class="card-title">Checks passed</h3>
+        <p class="card-value" id="usedLicensesValue">%{count_checks_passed}</p>
+    </div>
+    <div class="summary-card check-failed">
+        <h3 class="card-title">Checks failed</h3>
+        <p class="card-value" id="unusedLicensesValue">%{count_checks_failed}</p>
+    </div>
+    <div class="summary-card check-manual">
+        <h3 class="card-title">Manual check needed</h3>
+        <p class="card-value" id="unusedLicensesValue">%{count_checks_needed}</p>
+    </div>
+</div>
+
+<div class="baseline-references">
+    %{baseline_references}
+</div>
+
+<h3>Report details</h3>
+%{report_details}
