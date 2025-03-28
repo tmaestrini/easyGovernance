@@ -84,7 +84,7 @@ Function New-Report {
          $htmlTemplate = Get-Content (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-baseline.html') -Raw
 
          $referenceContent = "<ul>"
-         $referenceContent += $baseline.References | ForEach-Object { "`n`t<li/><a href=`"$($_)`">$($_)</a>" } 
+         $referenceContent += $baseline.References | ForEach-Object { "`n`t<li><a href=`"$($_)`">$($_)</a>" } 
          $referenceContent += "</ul>"
 
          $content = $htmlTemplate -join "`n"
@@ -99,7 +99,7 @@ Function New-Report {
          $content = $content -replace '%{count_checks_needed}', $resultSet.Statistics.stats.Manual
          
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
-         @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br>👉 $($_.Reference)" : $_.Setting } }, `
+         @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br><small>👉 $($_.Reference)</small>" : $_.Setting } }, `
          @{Name = "Status"; Expression = { Get-Status $_.Result } }, Result
          
          $table = $table | New-MDTable -Shrink
