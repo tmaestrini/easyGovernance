@@ -1,28 +1,33 @@
 <h2>Baseline: %{baseline}</h2>
-<p></p>Baseline <code>%{baselineId}</code>, Version %{baselineVersion}</p>
 
 <div class="summary-cards">
-    <div class="summary-card">
-        <h3 class="card-title">Checks in total</h3>
-        <p class="card-value" id="totalLicensesValue">%{count_checks}</p>
+    <div class="card-one">
+        <p><code>%{baselineId}</code><br>
+            Version: %{baselineVersion}</p>
     </div>
-    <div class="summary-card check-passed">
-        <h3 class="card-title">Checks passed</h3>
-        <p class="card-value" id="usedLicensesValue">%{count_checks_passed}</p>
-    </div>
-    <div class="summary-card check-failed">
-        <h3 class="card-title">Checks failed</h3>
-        <p class="card-value" id="unusedLicensesValue">%{count_checks_failed}</p>
-    </div>
-    <div class="summary-card check-manual">
-        <h3 class="card-title">Manual check needed</h3>
-        <p class="card-value" id="unusedLicensesValue">%{count_checks_needed}</p>
+    <div class="card-three">
+        <p class="card-title">Checks in total: %{count_checks}</p>
+        <div class="floating-content">
+            <div class="check-passed" style="flex-grow: %{count_checks_passed};">🟢 PASS: %{count_checks_passed}
+            </div>
+            <div class="check-failed" style="flex-grow: %{count_checks_failed};">🔴 FAIL: %{count_checks_failed}
+            </div>
+            <div class="check-manual" style="flex-grow: %{count_checks_needed};">🟡 CHECK: %{count_checks_needed}
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="baseline-references">
-    %{baseline_references}
+<div class="summary-card-full">
+    {AI-Zusammenfassung und Handlungsvorschläge}
 </div>
 
-<h3>Report details</h3>
-%{report_details}
+<details style="margin-top: 2em;">
+    <div class="baseline-references">
+        <h3>Baseline references</h3>
+        %{baseline_references}
+    </div>
+
+    <h3>Report details</h3>
+    %{report_details}
+</details>

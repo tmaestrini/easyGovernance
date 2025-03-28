@@ -109,14 +109,53 @@
             gap: 20px;
         }
 
-        .summary-card {
+        .summary-card,
+        .summary-card-full {
             background-color: white;
             border-radius: 8px;
             padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .summary-card {
             width: calc(24% - 14px);
+            text-align: left;
+        }
+
+        .card-one {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: calc(25% - 24px);
             box-sizing: border-box;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+        }
+
+        .card-three {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: calc(75% - 10px);
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .floating-content {
+            display: flex;
+            justify-content: space-between;
+            border-radius: 2px;
+            gap: 2px;
+            /* Add a 2px gap between all child elements */
+            border: 1px solid silver;
+            box-sizing: border-box;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 6px;
+
+            div {}
         }
 
         .check-passed {
@@ -365,18 +404,17 @@
         <div class="report-summary-container">
             <h2>Report summary</h2>
 
-            easyGovernance validates several configurations and resources along predefined configuration baselines for
-            the Microsoft 365 tenant <code>%{Tenant}</code> and dedicated services. Any configuration baseline is
-            considered to reference the baseline suggestions from the <a
-                href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
-                target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
-                365</a> by CISA and <a href="https://blueprint.oobe.com.au/blueprint/" target="_blank"
-                rel="noopener noreferer">the blueprint</a> by oobe. All configuration parameters that are used in the
-            configuration baselines provide a standard and proven approach for Microsoft 365 but can be extended
-            according to your needs.
-
             <div class="report-summary">
-                %{Summary}
+                easyGovernance validates several configurations and resources along predefined configuration baselines
+                for
+                the Microsoft 365 tenant <code>%{Tenant}</code> and dedicated services. Any configuration baseline is
+                considered to reference the baseline suggestions from the <a
+                    href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
+                    target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
+                    365</a> by CISA and <a href="https://blueprint.oobe.com.au/blueprint/" target="_blank"
+                    rel="noopener noreferer">the blueprint</a> by oobe. All configuration parameters that are used in
+                the configuration baselines provide a standard and proven approach for Microsoft 365 but can be extended
+                according to your needs.
             </div>
         </div>
 
