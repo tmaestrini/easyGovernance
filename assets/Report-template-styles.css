@@ -7,11 +7,11 @@
 }
 
 .header-container {
-    background: linear-gradient(135deg, #0078D4 0%, #106EBE 100%);
+    background: linear-gradient(900deg, #000000 0%, #3e3e3e 100%);
     color: white;
     padding: 25px 40px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
 .header-content {
