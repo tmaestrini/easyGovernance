@@ -146,7 +146,7 @@ Function New-Report {
             count_checks              = $reportStatistics.Total
             count_checks_passed       = $reportStatistics.Passed
             count_checks_failed       = $reportStatistics.Failed
-            count_checks_needed       = $reportStatistics.Manual
+            count_checks_manual       = $reportStatistics.Manual
 
             total_quote_checks_passed = [decimal] [math]::Round(($reportStatistics.Passed / $reportStatistics.Total) * 100, 1)
             total_quote_checks_failed = [decimal] [math]::Round(($reportStatistics.Failed / $reportStatistics.Total) * 100, 1)

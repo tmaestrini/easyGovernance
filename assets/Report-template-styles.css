@@ -57,21 +57,21 @@ h1 {
 }
 
 .author-link {
-    color: white;
+    color: black;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
     padding: 4px 10px;
     border-radius: 4px;
     margin-right: 10px;
     transition: all 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .author-link:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 0, 0, 0.7);
 }
 
 .author-link svg {
@@ -256,7 +256,7 @@ ul {
     text-align: center;
     margin-top: 30px;
     font-size: 12px;
-    color: #666;
+    color: #000;
 }
 
 .high-unused {
