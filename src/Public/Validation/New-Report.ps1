@@ -70,7 +70,6 @@ Function New-Report {
          return $content
       }
 
-
       Function Add-HTMLMainContent([PSCustomObject]$resultSet, [PSCustomObject]$baseline) {
 
          Function Get-Status() {
@@ -86,17 +85,6 @@ Function New-Report {
          $referenceContent = "<ul>"
          $referenceContent += $baseline.References | ForEach-Object { "`n`t<li><a href=`"$($_)`">$($_)</a>" } 
          $referenceContent += "</ul>"
-
-         $content = $htmlTemplate -join "`n"
-         $content = $content -replace '%{baseline}', $baseline.Topic
-         $content = $content -replace '%{baselineId}', $resultSet.Baseline
-         $content = $content -replace '%{baselineVersion}', $baseline.Version
-         $content = $content -replace '%{baseline_references}', $referenceContent
-         
-         $content = $content -replace '%{count_checks}', $resultSet.Statistics.stats.Total
-         $content = $content -replace '%{count_checks_passed}', $resultSet.Statistics.stats.Passed
-         $content = $content -replace '%{count_checks_failed}', $resultSet.Statistics.stats.Failed
-         $content = $content -replace '%{count_checks_needed}', $resultSet.Statistics.stats.Manual
          
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
          @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br><small>👉 $($_.Reference)</small>" : $_.Setting } }, `
@@ -106,13 +94,27 @@ Function New-Report {
          
          $table = ($table | ConvertFrom-Markdown).Html
          $table = $table -replace "&lt;br&gt;", "<br>"
-         $table = $table -replace "<table>", "<table class='report-details'>"
+         $table = $table -replace "<table>", "<table class=""report-details"">"
          $table = $table -replace "(✔︎|✘|---)\s", ""
 
-         $content = $content -replace '%{report_details}', $table
+         # Create content based on the template
+         $binding = @{
+            baseline = $baseline.Topic
+            baselineId = $resultSet.Baseline
+            baselineVersion = $baseline.Version
+            baseline_references = $referenceContent
+            
+            count_checks = $resultSet.Statistics.stats.Total
+            count_checks_passed = $resultSet.Statistics.stats.Passed
+            count_checks_failed = $resultSet.Statistics.stats.Failed
+            count_checks_needed = $resultSet.Statistics.stats.Manual
+            
+            report_details = $table
+         }
+
+         $content = Invoke-EpsTemplate -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-baseline.html') -Binding $binding -Safe
          return $content
       }
-
 
       Function Add-SummaryContent() {
          $passedQuota = [double] $($reportStatistics.Passed) / $($reportStatistics.Total)
@@ -166,14 +168,14 @@ Function New-Report {
          return $output
       }
 
-      Function New-HtmlReport($markdownReport) {
+      Function New-HtmlReport() {
 
          $htmlTemplate = Get-Content (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template.html') -Raw
          
          foreach ($resultSet in $ValidationResults.Validation) {
             $baseline = Get-BaselineTemplate -BaselineId $resultSet.baseline
             $contentFragment = (Add-HTMLMainContent $resultSet -baseline $baseline)
-            $mainContent += ($contentFragment | ConvertFrom-Markdown).Html
+            $mainContent += $contentFragment
          }
 
          $summaryContent += Add-HTMLSummaryContent 
@@ -188,7 +190,7 @@ Function New-Report {
       $mdOutput = New-MdReport
       
       if ($AsHTML.IsPresent ) {
-         $htmlReportOutput = New-HtmlReport -markdownReport $mdOutput
+         $htmlReportOutput = New-HtmlReport
       }
    }
    End {
@@ -200,12 +202,11 @@ Function New-Report {
       
       # convert reports
       if ($AsHTML.IsPresent ) {
-         $htmlOutput = Convert-MarkdownToHTML "$reportFilePath.md" -SiteDirectory $reportPath
-         Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-styles.css') -Destination "$reportPath/styles/md-styles.css"
-         Write-Log -Level INFO -Message "HTML report created: $($htmlOutput)"
+         # Create a stylesheet for the HTML report
+         Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-template-styles.css') -Destination "$reportPath/styles/report.css"
 
-         $htmlReportOutput > "$($reportFilePath)-new.html"
-         Write-Log -Level INFO -Message "HTML (new) report created: $($reportFilePath)-new.html"
+         $htmlReportOutput > "$($reportFilePath).html"
+         Write-Log -Level INFO -Message "HTML report ready: $($reportFilePath).html"
       }
       
       if ($AsCSV.IsPresent) {

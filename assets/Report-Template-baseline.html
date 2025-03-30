@@ -1,19 +1,29 @@
-<h2>Baseline: %{baseline}</h2>
+<h2>Baseline: <%= $baseline %></h2>
 
 <div class="summary-cards">
     <div class="card-one">
-        <p><code>%{baselineId}</code><br>
-            Version: %{baselineVersion}</p>
+        <p><code><%= $baselineId %></code><br>
+            Version: <%= $baselineVersion %>
+        </p>
     </div>
     <div class="card-three">
-        <p class="card-title">Checks in total: %{count_checks}</p>
+        <p class="card-title">Checks in total: <%= $count_checks %></p>
         <div class="floating-content">
-            <div class="check-passed" style="flex-grow: %{count_checks_passed};">🟢 PASS: %{count_checks_passed}
+            <% if($count_checks_passed -gt 0) { %>
+            <div class="check-passed" style="flex-grow: <%= $count_checks_passed %>;">
+                <p>PASS: <%= $count_checks_passed %></p>
             </div>
-            <div class="check-failed" style="flex-grow: %{count_checks_failed};">🔴 FAIL: %{count_checks_failed}
+            <% } %>
+            <% if($count_checks_failed -gt 0) { %>
+            <div class="check-failed" style="flex-grow: <%= $count_checks_failed %>;">
+                <p>FAIL: <%= $count_checks_failed %></p>
             </div>
-            <div class="check-manual" style="flex-grow: %{count_checks_needed};">🟡 CHECK: %{count_checks_needed}
+            <% } %>
+            <% if($count_checks_needed -gt 0) { %>
+            <div class="check-manual" style="flex-grow: <%= $count_checks_needed %>;">
+                <p>CHECK: <%= $count_checks_needed %></p>
             </div>
+            <% } %>
         </div>
     </div>
 </div>
@@ -25,9 +35,9 @@
 <details style="margin-top: 2em;">
     <div class="baseline-references">
         <h3>Baseline references</h3>
-        %{baseline_references}
+        <%= $baseline_references %>
     </div>
 
     <h3>Report details</h3>
-    %{report_details}
+    <%= $report_details %>
 </details>
