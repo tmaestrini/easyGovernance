@@ -83,7 +83,7 @@ Function New-Report {
          $htmlTemplate = Get-Content (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-baseline.html') -Raw
 
          $referenceContent = "<ul>"
-         $referenceContent += $baseline.References | ForEach-Object { "`n`t<li><a href=`"$($_)`">$($_)</a>" } 
+         $referenceContent += $baseline.References | ForEach-Object { "`n`t<li><a href=`"$($_)`" target=""_blank"" rel=""noopener noreferer"">$($_)</a>" } 
          $referenceContent += "</ul>"
          
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
