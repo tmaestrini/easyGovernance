@@ -99,17 +99,17 @@ Function New-Report {
 
          # Create content based on the template
          $binding = @{
-            baseline = $baseline.Topic
-            baselineId = $resultSet.Baseline
-            baselineVersion = $baseline.Version
+            baseline            = $baseline.Topic
+            baselineId          = $resultSet.Baseline
+            baselineVersion     = $baseline.Version
             baseline_references = $referenceContent
             
-            count_checks = $resultSet.Statistics.stats.Total
+            count_checks        = $resultSet.Statistics.stats.Total
             count_checks_passed = $resultSet.Statistics.stats.Passed
             count_checks_failed = $resultSet.Statistics.stats.Failed
             count_checks_needed = $resultSet.Statistics.stats.Manual
             
-            report_details = $table
+            report_details      = $table
          }
 
          $content = Invoke-EpsTemplate -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-baseline.html') -Binding $binding -Safe
@@ -129,8 +129,6 @@ Function New-Report {
       }
 
       Function Add-HTMLSummaryContent() {
-         $passedQuota = [double] $($reportStatistics.Passed) / $($reportStatistics.Total)
-
          $htmlTemplate = Get-Content (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-stats.html') -Raw
 
          $content = $htmlTemplate -join "`n"
@@ -143,6 +141,19 @@ Function New-Report {
          $content = $content -replace '%{total_quote_checks_failed}', [decimal] [math]::Round(($reportStatistics.Failed / $reportStatistics.Total) * 100, 1)
          $content = $content -replace '%{total_quote_checks_manual}', [decimal] [math]::Round(($reportStatistics.Manual / $reportStatistics.Total) * 100, 1)
 
+         # Create content based on the template
+         $binding = @{
+            count_checks              = $reportStatistics.Total
+            count_checks_passed       = $reportStatistics.Passed
+            count_checks_failed       = $reportStatistics.Failed
+            count_checks_needed       = $reportStatistics.Manual
+
+            total_quote_checks_passed = [decimal] [math]::Round(($reportStatistics.Passed / $reportStatistics.Total) * 100, 1)
+            total_quote_checks_failed = [decimal] [math]::Round(($reportStatistics.Failed / $reportStatistics.Total) * 100, 1)
+            total_quote_checks_manual = [decimal] [math]::Round(($reportStatistics.Manual / $reportStatistics.Total) * 100, 1)
+         }
+
+         $content = Invoke-EpsTemplate -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template-stats.html') -Binding $binding -Safe
          return $content
       }
 
