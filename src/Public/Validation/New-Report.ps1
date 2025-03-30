@@ -180,8 +180,6 @@ Function New-Report {
       }
 
       Function New-HtmlReport() {
-
-         $htmlTemplate = Get-Content (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template.html') -Raw
          
          foreach ($resultSet in $ValidationResults.Validation) {
             $baseline = Get-BaselineTemplate -BaselineId $resultSet.baseline
@@ -191,10 +189,19 @@ Function New-Report {
 
          $summaryContent += Add-HTMLSummaryContent 
          
-         # generate report
-         $output = $htmlTemplate -replace '%{result_details}', $mainContent
-         $output = $output -replace '%{summary_stats}', $summaryContent
-         return $output
+         # Create content based on the template
+         $binding = @{
+            result_details = $mainContent
+            summary_stats  = $summaryContent
+
+            Date_generated = $reportAtts.Date
+            Issuer         = $reportAtts.Issuer
+            Tenant         = $reportAtts.Tenant
+            Title          = $reportAtts.Title
+         }
+         
+         $content = Invoke-EpsTemplate -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-Template.html') -Binding $binding -Safe
+         return $content
       }
    }
    Process {

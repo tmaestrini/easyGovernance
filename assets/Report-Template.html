@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>easyGorvernance · Easy Report</title>
+    <title>easyGorvernance · <%= $Title %></title>
     <link rel="stylesheet" href="./styles/report.css">
 </head>
 
@@ -12,19 +12,19 @@
     <div class="header-container">
         <div class="header-content">
             <div>
-                <h1>easyGovernance · Baseline Report</h1>
+                <h1>easyGovernance · <%= $Title %></h1>
                 <div class="header-subtitle">Overview of alignment of existing tenant settings along your baseline</div>
             </div>
             <div class="report-info">
-                <div class="report-date">Report generated: %{Date_generated} </div>
-                <div class="report-issuer">Issued by: %{Issuer}</div>
-                <div class="tenant">Tenant: %{Tenant}</div>
+                <div class="report-date">Report generated: <%= $Date_generated %></div>
+                <div class="report-issuer">Issued by: <%= $Issuer%></div>
+                <div class="tenant">Tenant: <%= $Tenant %></div>
             </div>
         </div>
     </div>
 
     <div class="content-container">
-        %{summary_stats}
+        <%= $summary_stats %>
 
         <div class="report-summary-container">
             <h2>Report summary</h2>
@@ -32,7 +32,7 @@
             <div class="report-summary">
                 easyGovernance validates several configurations and resources along predefined configuration baselines
                 for
-                the Microsoft 365 tenant <code>%{Tenant}</code> and dedicated services. Any configuration baseline is
+                the Microsoft 365 tenant <code><%= $Tenant %></code> and dedicated services. Any configuration baseline is
                 considered to reference the baseline suggestions from the <a
                     href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
                     target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
@@ -49,7 +49,7 @@
                     <input type="checkbox" id="toggleUnused" onchange="applyFilters()">
                     <span class="slider"></span>
                 </label>
-                <span class="filter-label">Show only subscriptions with unused licenses</span>
+                <span class="filter-label">Show only baselines with failed results</span>
             </div>
 
             <div class="filter-group">
@@ -57,7 +57,7 @@
                     <input type="checkbox" id="toggleHideFree" onchange="applyFilters()">
                     <span class="slider"></span>
                 </label>
-                <span class="filter-label">Hide free/promotional licenses</span>
+                <span class="filter-label">Hide failed results</span>
             </div>
 
             <div class="filter-group">
@@ -65,11 +65,11 @@
                     <input type="checkbox" id="toggleHideTrial" onchange="applyFilters()">
                     <span class="slider"></span>
                 </label>
-                <span class="filter-label">Hide trial licenses</span>
+                <span class="filter-label">Hide manual checks</span>
             </div>
         </div>
 
-        %{result_details}
+        <%= $result_details %>
 
         <div class="footer">
             <p>easyGovernance (2024 – 2025) · <a href="https://github.com/tmaestrini/easyGovernance" class="author-link" target="_blank">
