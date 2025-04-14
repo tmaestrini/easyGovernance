@@ -220,6 +220,8 @@ Function New-Report {
       
       # convert reports
       if ($AsHTML.IsPresent ) {
+         [System.IO.Directory]::CreateDirectory("$reportPath/styles/") # ensure directory exists
+
          # Create a stylesheet for the HTML report
          Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-template-styles.css') -Destination "$reportPath/styles/report.css"
 
