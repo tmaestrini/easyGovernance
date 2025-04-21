@@ -1,3 +1,4 @@
+# Use full path for module import to improve class resolution
 using module .\Class\BaselineValidator.psm1
 
 <#
@@ -59,17 +60,18 @@ Function Test-M365.1-3.1 {
             Monitoring                                = "n/a"
           }
          
-          $this.extractedParamsFromService | Add-Member -MemberType NoteProperty -Name Environments -Value @{
-            DefaultEnvironment      = $defaultEnvironment;
-            DevelopmentEnvironments = $developmentEnvironments;
-            TrialEnvironments       = $trialEnvironments;
-            ProductionEnvironments  = $productionEnvironments
-          }
+          $this.AddExtractedProperty("Environments", @{
+              DefaultEnvironment      = $defaultEnvironment;
+              DevelopmentEnvironments = $developmentEnvironments;
+              TrialEnvironments       = $trialEnvironments;
+              ProductionEnvironments  = $productionEnvironments
+            })
         }
         
         function Get-DataPoliciesSettings() {
+          $extractedParams = $this.GetExtractedParams()
           $policySettings = Request-PPLDataPoliciesSettings -Properties DefaultEnvironment, NonDefaultEnvironments `
-            -DefaultEnvironmentId $this.extractedParamsFromService.Environments.DefaultEnvironment.Id
+            -DefaultEnvironmentId $extractedParams.Environments.DefaultEnvironment.Id
 
           # Default environment
           $confidentialConnectors = $policySettings.DefaultEnvironment.connectorGroups | Where-Object { $_.classification -eq "Confidential" } | Select-Object -ExpandProperty connectors
@@ -94,26 +96,26 @@ Function Test-M365.1-3.1 {
           }
 
           # return data
-          $this.extractedParamsFromService | Add-Member -MemberType NoteProperty -Name DataPolicies -Value @{
-            DefaultEnvironment     = $defaultEnvironment;
-            NonDefaultEnvironments = $nonDefaultEnvironments
-          }
+          $this.AddExtractedProperty("DataPolicies", @{
+              DefaultEnvironment     = $defaultEnvironment;
+              NonDefaultEnvironments = $nonDefaultEnvironments
+            })
         }
         
         function Get-SecuritySettings() {
           $securitySettings = Request-PPLSecuritySettings -Properties TenantIsolation, ContentSecurityPolicy
           
-          $this.extractedParamsFromService | Add-Member -MemberType NoteProperty -Name SecuritySettings -Value @{
-            TenantIsolation       = $securitySettings.TenantIsolation.properties ?? $null;
-            ContentSecurityPolicy = $securitySettings.ContentSecurityPolicy ?? $null
-          }
+          $this.AddExtractedProperty("SecuritySettings", @{
+              TenantIsolation       = $securitySettings.TenantIsolation.properties ?? $null;
+              ContentSecurityPolicy = $securitySettings.ContentSecurityPolicy ?? $null
+            })
         }
         
         Get-EnvironmentSettings
         Get-DataPoliciesSettings
         Get-SecuritySettings
 
-        return $this.extractedParamsFromService
+        return $this.GetExtractedParams()
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
@@ -127,7 +129,7 @@ Function Test-M365.1-3.1 {
 
         # Data Policies
         $settings.DataPolicies = @{
-          DefaultEnvironment = @{
+          DefaultEnvironment     = @{
             PolicyName            = $extractedSettings.DataPolicies.DefaultEnvironment.PolicyName;
             AllowedCoreConnectors = $extractedSettings.DataPolicies.DefaultEnvironment.MissingCoreConnectors.Length -ne 0 ? $extractedSettings.DataPolicies.DefaultEnvironment.AllowedCoreConnectors : $extractedSettings.DataPolicies.DefaultEnvironment.CoreConnectorsFromTemplate;
           };
