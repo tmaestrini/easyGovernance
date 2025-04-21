@@ -34,81 +34,109 @@ Function Test-M365.1-3.1 {
       
       Connect() {}
 
-      [PSCustomObject] Extract() {        
-
+      [PSCustomObject] Extract() {
+        Write-Log -Level INFO "Extracting PowerPlatform settings from tenant $($this.ValidationSettings.TenantId)"
+        
         function Get-EnvironmentSettings() {
-          $tenantSettings = Request-PPLSettings -Properties DefaultEnvironment, Tenant
+          Write-Log -Level INFO "Extracting environment settings"
 
-          $defaultEnvironment = [PSCustomObject] @{
-            Id         = $tenantSettings.DefaultEnvironment.name ?? $null;
-            Name       = $tenantSettings.DefaultEnvironment.properties.displayName ?? $null;
-            Monitoring = "n/a"
-          }
+          try {
+            $tenantSettings = Request-PPLSettings -Properties DefaultEnvironment, Tenant
 
-          $developmentEnvironments = [PSCustomObject] @{
-            DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.powerPlatform.governance.disableDeveloperEnvironmentCreationByNonAdminUsers ?? $null;
-            Monitoring                                = "n/a"
-          }
+            $defaultEnvironment = [PSCustomObject] @{
+              Id         = $tenantSettings.DefaultEnvironment.name ?? $null;
+              Name       = $tenantSettings.DefaultEnvironment.properties.displayName ?? $null;
+              Monitoring = "n/a"
+            }
 
-          $trialEnvironments = [PSCustomObject] @{
-            DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.disableTrialEnvironmentCreationByNonAdminUsers ?? $null;
-            Monitoring                                = "n/a"
-          }
+            $developmentEnvironments = [PSCustomObject] @{
+              DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.powerPlatform.governance.disableDeveloperEnvironmentCreationByNonAdminUsers ?? $null;
+              Monitoring                                = "n/a"
+            }
+
+            $trialEnvironments = [PSCustomObject] @{
+              DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.disableTrialEnvironmentCreationByNonAdminUsers ?? $null;
+              Monitoring                                = "n/a"
+            }
           
-          $productionEnvironments = [PSCustomObject] @{
-            DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.disableEnvironmentCreationByNonAdminUsers ?? $null;
-            Monitoring                                = "n/a"
-          }
+            $productionEnvironments = [PSCustomObject] @{
+              DisableEnvironmentCreationByNonAdminUsers = $tenantSettings.Tenant.disableEnvironmentCreationByNonAdminUsers ?? $null;
+              Monitoring                                = "n/a"
+            }
          
-          $this.AddExtractedProperty("Environments", @{
-              DefaultEnvironment      = $defaultEnvironment;
-              DevelopmentEnvironments = $developmentEnvironments;
-              TrialEnvironments       = $trialEnvironments;
-              ProductionEnvironments  = $productionEnvironments
-            })
+            $this.AddExtractedProperty("Environments", @{
+                DefaultEnvironment      = $defaultEnvironment;
+                DevelopmentEnvironments = $developmentEnvironments;
+                TrialEnvironments       = $trialEnvironments;
+                ProductionEnvironments  = $productionEnvironments
+              })
+
+            Write-Log -Level INFO "Successfully extracted environment settings"
+          }
+          catch {
+            Write-Log -Level ERROR "Failed to extract environment settings: $_"
+            throw $_
+          }
         }
         
         function Get-DataPoliciesSettings() {
-          $extractedParams = $this.GetExtractedParams()
-          $policySettings = Request-PPLDataPoliciesSettings -Properties DefaultEnvironment, NonDefaultEnvironments `
-            -DefaultEnvironmentId $extractedParams.Environments.DefaultEnvironment.Id
+          Write-Log -Level INFO "Extracting data policy settings"
 
-          # Default environment
-          $confidentialConnectors = $policySettings.DefaultEnvironment.connectorGroups | Where-Object { $_.classification -eq "Confidential" } | Select-Object -ExpandProperty connectors
+          try {
+            $extractedParams = $this.GetExtractedParams()
+            $policySettings = Request-PPLDataPoliciesSettings -Properties DefaultEnvironment, NonDefaultEnvironments `
+              -DefaultEnvironmentId $extractedParams.Environments.DefaultEnvironment.Id
+
+            # Default environment
+            $confidentialConnectors = $policySettings.DefaultEnvironment.connectorGroups | Where-Object { $_.classification -eq "Confidential" } | Select-Object -ExpandProperty connectors
           
-          $dataPoliciesTemplate = Get-ConfigurationFromBaselineTemplate -Baseline $Baseline -ConfigurationName "DataPolicies"
-          $missingCoreConnectors = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors | Where-Object {
-            $allowedName = $_
-            -not ($confidentialConnectors | Where-Object { $_.id -eq $allowedName })
-          }
+            $dataPoliciesTemplate = Get-ConfigurationFromBaselineTemplate -Baseline $Baseline -ConfigurationName "DataPolicies"
+            $missingCoreConnectors = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors | Where-Object {
+              $allowedName = $_
+              -not ($confidentialConnectors | Where-Object { $_.id -eq $allowedName })
+            }
 
-          $defaultEnvironment = [PSCustomObject] @{
-            PolicyName                 = $policySettings.DefaultEnvironment.displayName ?? "dedicated policy not found";
-            PolicySettings             = $policySettings.DefaultEnvironment ?? $null;
-            CoreConnectorsFromTemplate = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors;
-            AllowedCoreConnectors      = $confidentialConnectors.id ?? @();
-            MissingCoreConnectors      = $missingCoreConnectors;
-          }
+            $defaultEnvironment = [PSCustomObject] @{
+              PolicyName                 = $policySettings.DefaultEnvironment.displayName ?? "dedicated policy not found";
+              PolicySettings             = $policySettings.DefaultEnvironment ?? $null;
+              CoreConnectorsFromTemplate = $dataPoliciesTemplate.DefaultEnvironment.AllowedCoreConnectors;
+              AllowedCoreConnectors      = $confidentialConnectors.id ?? @();
+              MissingCoreConnectors      = $missingCoreConnectors;
+            }
 
-          # Non-default environments
-          $nonDefaultEnvironments = [PSCustomObject] @{
-            PolicySettings = $policySettings.NonDefaultEnvironments
-          }
+            # Non-default environments
+            $nonDefaultEnvironments = [PSCustomObject] @{
+              PolicySettings = $policySettings.NonDefaultEnvironments
+            }
 
-          # return data
-          $this.AddExtractedProperty("DataPolicies", @{
-              DefaultEnvironment     = $defaultEnvironment;
-              NonDefaultEnvironments = $nonDefaultEnvironments
-            })
+            # return data
+            $this.AddExtractedProperty("DataPolicies", @{
+                DefaultEnvironment     = $defaultEnvironment;
+                NonDefaultEnvironments = $nonDefaultEnvironments
+              })
+            Write-Log -Level INFO "Successfully extracted data policy settings"
+          }
+          catch {
+            Write-Log -Level ERROR "Failed to extract data policy settings: $_"
+            throw $_
+          }  
         }
         
         function Get-SecuritySettings() {
-          $securitySettings = Request-PPLSecuritySettings -Properties TenantIsolation, ContentSecurityPolicy
+          Write-Log -Level INFO "Extracting security settings"
+
+          try {
+            $securitySettings = Request-PPLSecuritySettings -Properties TenantIsolation, ContentSecurityPolicy
           
-          $this.AddExtractedProperty("SecuritySettings", @{
-              TenantIsolation       = $securitySettings.TenantIsolation.properties ?? $null;
-              ContentSecurityPolicy = $securitySettings.ContentSecurityPolicy ?? $null
-            })
+            $this.AddExtractedProperty("SecuritySettings", @{
+                TenantIsolation       = $securitySettings.TenantIsolation.properties ?? $null;
+                ContentSecurityPolicy = $securitySettings.ContentSecurityPolicy ?? $null
+              })
+          }
+          catch {
+            Write-Log -Level ERROR "Failed to extract security settings: $_"
+            throw $_
+          }  
         }
         
         Get-EnvironmentSettings
