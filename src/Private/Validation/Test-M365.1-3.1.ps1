@@ -171,34 +171,62 @@ Function Test-M365.1-3.1 {
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
-        $settings = @{}
+        Write-Log -Level INFO "Transforming extracted settings for validation"
+
+        try {
+          $settings = @{}
         
-        # Environments
-        $defaultEnvironmentId = $extractedSettings.Environments.DefaultEnvironment.Id
-        $extractedSettings.Environments.DefaultEnvironment.PSObject.Properties.Remove('Id')
+          # Environments
+          $defaultEnvironmentId = $extractedSettings.Environments.DefaultEnvironment.Id
+          $extractedSettings.Environments.DefaultEnvironment.PSObject.Properties.Remove('Id')
 
-        $settings.Environments = $extractedSettings.Environments;
+          $settings.Environments = $extractedSettings.Environments;
 
-        # Data Policies
-        $settings.DataPolicies = @{
-          DefaultEnvironment     = @{
-            PolicyName            = $extractedSettings.DataPolicies.DefaultEnvironment.PolicyName;
-            AllowedCoreConnectors = $extractedSettings.DataPolicies.DefaultEnvironment.MissingCoreConnectors.Length -ne 0 ? $extractedSettings.DataPolicies.DefaultEnvironment.AllowedCoreConnectors : $extractedSettings.DataPolicies.DefaultEnvironment.CoreConnectorsFromTemplate;
-          };
+          # Data Policies
+          $settings.DataPolicies = @{
+            DefaultEnvironment     = @{
+              PolicyName            = $extractedSettings.DataPolicies.DefaultEnvironment.PolicyName;
+              AllowedCoreConnectors = $extractedSettings.DataPolicies.DefaultEnvironment.MissingCoreConnectors.Length -eq 0 ? 
+              $extractedSettings.DataPolicies.DefaultEnvironment.CoreConnectorsFromTemplate : 
+              $extractedSettings.DataPolicies.DefaultEnvironment.AllowedCoreConnectors
+            };
 
-          NonDefaultEnvironments = @{
-            AtLeastOneActivePolicy = $extractedSettings.DataPolicies.NonDefaultEnvironments.PolicySettings.Length -ne 0;
+            NonDefaultEnvironments = @{
+              AtLeastOneActivePolicy = $extractedSettings.DataPolicies.NonDefaultEnvironments.PolicySettings.Length -ne 0;
+            }
           }
+
+          # Security Settings
+          $settings.SecuritySettings = @{
+            TenantIsolation       = @{
+              IsolationControl = $extractedSettings.SecuritySettings.TenantIsolation.isolationSettings?.isolationPolicy ?? "Off"
+            }
+            ContentSecurityPolicy = $extractedSettings.SecuritySettings.ContentSecurityPolicy
+          }
+                              
+          # Power Automate Settings
+          $settings.PowerAutomate = @{
+            DisableFlowRunResubmission = $extractedSettings.PowerAutomate.DisableFlowRunResubmission
+          }
+                              
+          Write-Log -Level INFO "Successfully transformed settings for validation"
+          return $settings
         }
-        
-        return $settings
+        catch {
+          Write-Log -Level ERROR "Failed to transform settings: $_"
+          throw $_
+        }
       }
     }
   }
   Process {
     try {
       $validator = [PPLSettingsValidator]::new($Baseline, $tenantId, $ReturnAsObject)
+
+      Write-Log -Level INFO "Starting validation process"
       $validator.StartValidation()
+
+      Write-Log -Level INFO "Retrieving validation results"
       $result = $validator.GetValidationResult()
       
       if ($returnAsObject) {
@@ -206,6 +234,7 @@ Function Test-M365.1-3.1 {
       }
     }
     catch {
+      Write-Log -Level ERROR "Validation failed: $_"
       throw $_
     }
   }
