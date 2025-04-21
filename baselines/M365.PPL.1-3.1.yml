@@ -68,6 +68,6 @@ Configuration:
 
   - enforces: PowerAutomate
     with:
-      DisableFlowRunResubmission: false # Specifies whether the flow run resubmission is disabled; set to 'true' to disable
+      EnableFlowRunResubmission: true # Allows users to resubmit previous flow executions initiated by other users using instant triggers
     references:
-      - DisableFlowRunResubmission: "n/a"
+      - EnableFlowRunResubmission: "n/a"

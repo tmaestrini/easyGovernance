@@ -141,13 +141,14 @@ Function Test-M365.1-3.1 {
 
         function Get-PowerAutomateSettings() {
           Write-Log -Level INFO "Extracting Power Automate settings"
+
           try {
-            # Note: This is a placeholder for actual implementation
-            # In a real implementation, you would call the appropriate API to get these settings
+            $powerAutomateSettings = Request-PPLPowerAutomateSettings -Properties GeneralSettings
+            
             $this.AddExtractedProperty("PowerAutomate", @{
-                DisableFlowRunResubmission = $false # Default value, should be replaced with actual API call
+                GeneralSettings = $powerAutomateSettings.GeneralSettings ?? $null
               })
-                      
+            
             Write-Log -Level INFO "Successfully extracted Power Automate settings"
           }
           catch {
@@ -206,7 +207,7 @@ Function Test-M365.1-3.1 {
                               
           # Power Automate Settings
           $settings.PowerAutomate = @{
-            DisableFlowRunResubmission = $extractedSettings.PowerAutomate.DisableFlowRunResubmission
+            EnableFlowRunResubmission = !$extractedSettings.PowerAutomate.GeneralSettings.disableFlowRunResubmission
           }
                               
           Write-Log -Level INFO "Successfully transformed settings for validation"

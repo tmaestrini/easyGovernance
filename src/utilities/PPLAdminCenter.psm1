@@ -29,7 +29,25 @@ Function Invoke-PPLAdminCenterRequest {
             $path = "https://api.bap.microsoft.com/providers/$($req.path -replace "{{tenantId}}", $tenantId)"
             $method = $($req.method) ? $req.method : "GET"
             $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 10
-            $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
+            
+            # Handle the attr parameter - if it contains dots, it's a nested path
+            if ($req.attr) {
+                $value = $result
+                # Split the attribute path by dots and traverse the object
+                $req.attr.Split('.') | ForEach-Object {
+                    if ($null -ne $value -and $value.PSObject.Properties[$_]) {
+                        $value = $value.$_
+                    }
+                    else {
+                        $value = $null
+                        Write-Log -Level WARNING "Property path '$($req.attr)' not found in result for $($req.name)"
+                    }
+                }
+                $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value $value
+            }
+            else {
+                $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value $result
+            }
         }
         catch {
             Write-Log -Level ERROR "PPL Admin Center: $($req.name) / $_"
@@ -124,5 +142,27 @@ Function Request-PPLSecuritySettings {
     try {
         return Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
     }
-    catch { }
+    catch { 
+        throw $_
+    }
+}
+
+Function Request-PPLPowerAutomateSettings {
+    param (
+        [Parameter(Mandatory = $true)][ValidateSet("GeneralSettings"
+        )][string[]]$Properties
+    )
+    
+    $apiSelection = switch ($Properties) {
+        "GeneralSettings" { @{name = $_; method = "POST"; path = "Microsoft.BusinessAppPlatform/listTenantSettings?api-version=2024-05-01"; attr = "powerPlatform.powerAutomate" } }
+        
+        Default {}
+    }
+    
+    try {
+        return Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { 
+        throw $_
+    }
 }
