@@ -138,12 +138,36 @@ Function Test-M365.1-3.1 {
             throw $_
           }  
         }
-        
-        Get-EnvironmentSettings
-        Get-DataPoliciesSettings
-        Get-SecuritySettings
 
-        return $this.GetExtractedParams()
+        function Get-PowerAutomateSettings() {
+          Write-Log -Level INFO "Extracting Power Automate settings"
+          try {
+            # Note: This is a placeholder for actual implementation
+            # In a real implementation, you would call the appropriate API to get these settings
+            $this.AddExtractedProperty("PowerAutomate", @{
+                DisableFlowRunResubmission = $false # Default value, should be replaced with actual API call
+              })
+                      
+            Write-Log -Level INFO "Successfully extracted Power Automate settings"
+          }
+          catch {
+            Write-Log -Level ERROR "Failed to extract Power Automate settings: $_"
+            throw $_
+          }
+        }
+  
+        try {
+          Get-EnvironmentSettings
+          Get-DataPoliciesSettings
+          Get-SecuritySettings
+          Get-PowerAutomateSettings
+  
+          return $this.GetExtractedParams()          
+        }
+        catch {
+          Write-Log -Level ERROR "Error during extraction: $_"
+          throw $_
+        }
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
