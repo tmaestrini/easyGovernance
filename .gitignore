@@ -11,5 +11,8 @@ logs/*
 # exclude reports
 output/*
 
+# exclude tests
+tests/*
+
 # Exclude macOS system files
 .DS_Store
