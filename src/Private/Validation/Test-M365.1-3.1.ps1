@@ -37,7 +37,7 @@ Function Test-M365.1-3.1 {
       [PSCustomObject] Extract() {
         Write-Log -Level INFO "Extracting PowerPlatform settings from tenant $($this.ValidationSettings.TenantId)"
         
-        function Get-EnvironmentSettings() {
+        function Get-EnvironmentSettings([BaselineValidator] $validator) {
           Write-Log -Level INFO "Extracting environment settings"
 
           try {
@@ -64,7 +64,7 @@ Function Test-M365.1-3.1 {
               Monitoring                                = "n/a"
             }
          
-            $this.AddExtractedProperty("Environments", @{
+            $validator.AddExtractedProperty("Environments", @{
                 DefaultEnvironment      = $defaultEnvironment;
                 DevelopmentEnvironments = $developmentEnvironments;
                 TrialEnvironments       = $trialEnvironments;
@@ -79,7 +79,7 @@ Function Test-M365.1-3.1 {
           }
         }
         
-        function Get-DataPoliciesSettings() {
+        function Get-DataPoliciesSettings([BaselineValidator] $validator) {
           Write-Log -Level INFO "Extracting data policy settings"
 
           try {
@@ -110,7 +110,7 @@ Function Test-M365.1-3.1 {
             }
 
             # return data
-            $this.AddExtractedProperty("DataPolicies", @{
+            $validator.AddExtractedProperty("DataPolicies", @{
                 DefaultEnvironment     = $defaultEnvironment;
                 NonDefaultEnvironments = $nonDefaultEnvironments
               })
@@ -122,13 +122,13 @@ Function Test-M365.1-3.1 {
           }  
         }
         
-        function Get-SecuritySettings() {
+        function Get-SecuritySettings([BaselineValidator] $validator) {
           Write-Log -Level INFO "Extracting security settings"
 
           try {
             $securitySettings = Request-PPLSecuritySettings -Properties TenantIsolation, ContentSecurityPolicy
           
-            $this.AddExtractedProperty("SecuritySettings", @{
+            $validator.AddExtractedProperty("SecuritySettings", @{
                 TenantIsolation       = $securitySettings.TenantIsolation.properties ?? $null;
                 ContentSecurityPolicy = $securitySettings.ContentSecurityPolicy ?? $null
               })
@@ -139,13 +139,13 @@ Function Test-M365.1-3.1 {
           }  
         }
 
-        function Get-PowerAutomateSettings() {
+        function Get-PowerAutomateSettings([BaselineValidator] $validator) {
           Write-Log -Level INFO "Extracting Power Automate settings"
 
           try {
             $powerAutomateSettings = Request-PPLPowerAutomateSettings -Properties GeneralSettings
             
-            $this.AddExtractedProperty("PowerAutomate", @{
+            $validator.AddExtractedProperty("PowerAutomate", @{
                 GeneralSettings = $powerAutomateSettings.GeneralSettings ?? $null
               })
             
@@ -158,10 +158,10 @@ Function Test-M365.1-3.1 {
         }
   
         try {
-          Get-EnvironmentSettings
-          Get-DataPoliciesSettings
-          Get-SecuritySettings
-          Get-PowerAutomateSettings
+          Get-EnvironmentSettings -Validator $this
+          Get-DataPoliciesSettings -Validator $this
+          Get-SecuritySettings -Validator $this
+          Get-PowerAutomateSettings -Validator $this
   
           return $this.GetExtractedParams()          
         }
