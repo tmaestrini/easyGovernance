@@ -22,6 +22,19 @@ function Test-Settings {
   Begin {
     $testResult = @{};
 
+    # Helper function to serialize complex objects for comparison
+    function ConvertTo-SerializableValue {
+      param([object]$Value)
+      
+      # Only serialize if it's not a simple type (string, number, boolean)
+      if ($Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
+        return $Value
+      }
+      else {
+        return $Value | ConvertTo-Json -Depth 10 -Compress
+      }
+    }
+    
     # Function to handle OR operator validation (||)
     function Test-OrOperator {
       param(
@@ -89,17 +102,23 @@ function Test-Settings {
           elseif ($settings.$key -is [array]) {
             $test = Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
           }
-          # Standard comparison for single values
+          # Standard comparison
           else {
-            $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual) : $null
+            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
+            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
+
+            $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $baselineValue -DifferenceObject $tenantValue -IncludeEqual) : $null
           }
         
           # If the test result is not null, we have a result to report
           if ($test) { 
+            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
+            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
+
             $testResult.Add("$groupName-$key", [PSCustomObject] @{
                 Group   = $groupName
                 Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$key)]" : "✘ [Should be '$($settings.$key -join ''' or ''')' but is '$($tenantSettings.$key)']"
+                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
                 Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
               })
           }
