@@ -18,9 +18,27 @@ Function Invoke-M365AdminCenterRequest {
     if (!$Global:connectionContextName) { throw "Invoke-M365AdminCenterRequest > No connection context provided." }
     $ctx = Get-AzContext -Name $Global:connectionContextName
     $tenantId = $ctx.Tenant.Id
+    $token = $null
+    
+    try {
+        # Write-Log -Level DEBUG "Trying authentication with resource: https://admin.microsoft.com"
+        $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
+        # Write-Log -Level DEBUG "Successfully obtained token for: https://admin.microsoft.com"
+        break
+    }
+    catch {
+        Write-Log -Level DEBUG "Failed to get token for $resourceUrl : $_"
+        continue
+    }
 
-    $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
-    $headers = @{ Authorization = "Bearer $($token.Token)" }
+    if (!$token) {
+        return
+    }
+    
+    # Convert SecureString token to plaintext for Authorization header
+    $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
+    
+    $headers = @{ Authorization = "Bearer $plainTextToken" }
 
     $propertiesValues = [PSCustomobject] @{}
     $requests = $ApiRequests | Foreach-Object {
