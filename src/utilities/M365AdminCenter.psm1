@@ -24,7 +24,6 @@ Function Invoke-M365AdminCenterRequest {
         # Write-Log -Level DEBUG "Trying authentication with resource: https://admin.microsoft.com"
         $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
         # Write-Log -Level DEBUG "Successfully obtained token for: https://admin.microsoft.com"
-        break
     }
     catch {
         Write-Log -Level DEBUG "Failed to get token for $resourceUrl : $_"
@@ -47,7 +46,7 @@ Function Invoke-M365AdminCenterRequest {
             # $path = ($req.path) -replace "{{tenantId}}", $tenantId
             $path = "https://admin.microsoft.com/$($req.path -replace "{{tenantId}}", $tenantId)"
             $method = $($req.method) ? $req.method : "GET"
-            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 10
+            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {
@@ -76,7 +75,7 @@ Function Get-M365TenantSettingsServices {
 
     $apiSelection = switch ($Properties) {
         "AccountLinking" {  }  
-        "AdoptionScore" {  }  
+        "AdoptionScore" { @{name = $_; path = "admin/api/reports/productivityScoreCustomerOption"; attr = "Output" } }  
         "AzureSpeechServices" { @{name = $_; path = "admin/api/services/apps/azurespeechservices"; attr = "isTenantEnabled" } }
         "Bookings" { @{name = $_; path = "admin/api/settings/apps/bookings"; attr = "Enabled" } }
         "MSVivaBriefing" {  }
@@ -91,7 +90,7 @@ Function Get-M365TenantSettingsServices {
         "MSForms" { @{name = $_; path = "admin/api/settings/apps/officeforms" } }
         "MSGraphDataConnect" { @{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
         "MSLoop" { @{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
-        "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "isPlannerAllowed" } }
+        "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "allowCalendarSharing" } }
         "MSSearchBing" { @{name = $_; path = "admin/api/searchadminapi/configurations"; attr = "ServiceEnabled" } }
         "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
         "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
