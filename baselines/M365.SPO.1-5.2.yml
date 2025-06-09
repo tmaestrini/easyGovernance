@@ -12,7 +12,7 @@ References:
 Configuration:
   - enforces: ExternalSharing
     with:
-      SharingCapability: ExistingExternalUserSharingOnly # Specifies what the sharing capabilities are for the site
+      SharingCapability: ExistingExternalUserSharingOnly || Disabled # Specifies what the sharing capabilities are for the site
       DefaultSharingLinkType: Direct # Specifies the default sharing link type ('Direct' means: only the people the user specifies will be able to access the link)
       DefaultLinkPermission: View
       RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
