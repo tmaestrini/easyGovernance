@@ -12,18 +12,21 @@ class BaselineValidator {
         TenantId       = [string] $null
         ReturnAsObject = [switch] $false
     }
-    # [PSCustomObject]$Baseline
-    # [string] $TenantId
-    # [switch] $ReturnAsObject
 
     hidden [PSCustomObject] $validationResult = $null
     hidden [PSCustomObject] $validationResultGrouped = $null
     hidden [PSCustomObject] $validationResultStatistics = $null
+    
+    # Change to use our dedicated type for better IntelliSense
+    hidden [System.Object] $extractedParamsFromService
 
     BaselineValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) {
         $this.ValidationSettings.Baseline = $Baseline
         $this.ValidationSettings.TenantId = $TenantId
         $this.ValidationSettings.ReturnAsObject = $ReturnAsObject
+
+        # Initialize extractedParamsFromService as an object
+        $this.extractedParamsFromService = @{}
     }
 
     Connect() {
@@ -42,6 +45,21 @@ class BaselineValidator {
         $this.validationResult = Test-Settings $tenantSettings -Baseline $this.ValidationSettings.Baseline | Sort-Object -Property Group, Setting
     }
 
+    # Update getter to return the typed object
+    [System.Object] GetExtractedParams() {
+        return $this.extractedParamsFromService
+    }
+    
+    # Helper method to add properties to extractedParamsFromService
+    [void] AddExtractedProperty([string]$Name, [object]$Value) {
+        if ($this.extractedParamsFromService.PSObject.Properties[$Name]) {
+            $this.extractedParamsFromService.$Name = $Value
+        } else {
+            # Otherwise use Add-Member for dynamic properties
+            $this.extractedParamsFromService | Add-Member -MemberType NoteProperty -Name $Name -Value $Value -Force
+        }
+    }
+    
     <#
     .DESCRIPTION
     The StartValidation method is used to start the validation process. Always call this method before any other method.

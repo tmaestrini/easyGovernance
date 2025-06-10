@@ -10,7 +10,7 @@ function Test-Settings {
   [OutputType([int])]
   Param
   (
-    # Tenant settings
+    # The actual settings from the tenant
     [PSCustomObject]
     $tenantSettings,
  
@@ -21,120 +21,89 @@ function Test-Settings {
 
   Begin {
     $testResult = @{};
+    
+    Function Compare-ComplexSettings($tenantSettings, $configurationSettings) {
+      Function Format-TenantSettings($tenantSettingsConfiguration) {
+        $tenantResult = @{}
+        $tenantSettingsConfiguration | Get-Member -MemberType *Property | ForEach-Object {
+          $tenantResult[$_.Name] = $tenantSettingsConfiguration.$($_.Name)
+        }
+        return $tenantResult
+      }
 
-    # Helper function to serialize complex objects for comparison
-    function ConvertTo-SerializableValue {
-      param([object]$Value)
+      # If the tenant settings are complex objects, we need to format them into a Hashtable in order to compare them
+      $tenantSettingsFormatted = $tenantSettings.GetType() -notin "Hashtable" ? (Format-TenantSettings -tenantSettings $tenantSettings) : $tenantSettings
+
+      # Compare the tenant settings with the configuration settings
+      # $result = Compare-Object $tenantSettingsFormatted.PSObject.Properties $configurationSettings.PSObject.Properties -IncludeEqual -Property $propertiesToCompare
+      $propertiesToCompare = [string[]] $configurationSettings.Keys
+      $result = Compare-Object $tenantSettingsFormatted $configurationSettings -IncludeEqual -Property $propertiesToCompare
       
-      # Only serialize if it's not a simple type (string, number, boolean)
-      if ($Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
-        return $Value
+      $output = [ordered]@{
+        status = $result.SideIndicator -eq "==" ? $true : $false;
+        should = $configurationSettings;
+        is     = $tenantSettingsFormatted;
       }
-      else {
-        return $Value | ConvertTo-Json -Depth 10 -Compress
-      }
-    }
-    
-    # Function to handle OR operator validation (||)
-    function Test-OrOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\|\|"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys matches, we can stop checking
-        if ($test.SideIndicator -eq "==") {
-          break
-        }
-      }
-      
-      return $test
-    }
-    
-    # Function to handle AND operator validation (&&)
-    function Test-AndOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\&\&"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys fails, we can stop checking
-        if ($test.SideIndicator -ne "==") { 
-          break
-        }
-      }
-      
-      return $test
+      return $output
     }
   }
 
   Process {
-    foreach ($baselineSettingsGroup in $baseline.Configuration) {
-      $groupName = $baselineSettingsGroup.enforces
-      $settings = $baselineSettingsGroup.with
-      foreach ($key in $settings.Keys) {
-        try {
-          $test = $null
+    foreach ($baselineConfiguration in $baseline.Configuration) {
+      $configurationName = $baselineConfiguration.enforces
+      $configurationSettings = $baselineConfiguration.with
+      foreach ($key in $configurationSettings.Keys) {
+        try {  
+          # If the tenant settings are complex objects, we need to compare them differently
+          if ($null -ne $tenantSettings.$configurationName.$key -and ($tenantSettings.$configurationName.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]"))) {
+            $test = Compare-ComplexSettings -tenantSettings $tenantSettings.$configurationName.$key -configurationSettings $configurationSettings.$key
 
-          # Check if $settings.$key contains an OR operator (||)
-          if ($settings.$key -is [string] -and $settings.$key -like "*||*") {
-            $test = Test-OrOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
-          }
-          # Check if $settings.$key contains an AND operator (&&)
-          elseif ($settings.$key -is [string] -and $settings.$key -like "*&&*") {
-            $test = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
-          }
-          # If $settings.$key is an array, we compare it with the tenant settings
-          elseif ($settings.$key -is [array]) {
-            $test = Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
-          }
-          # Standard comparison
-          else {
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-            $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $baselineValue -DifferenceObject $tenantValue -IncludeEqual) : $null
-          }
-        
-          # If the test result is not null, we have a result to report
-          if ($test) { 
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-            $testResult.Add("$groupName-$key", [PSCustomObject] @{
-                Group   = $groupName
-                Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
-                Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
-              })
-          }
-          # If the test result is null, we have to report an issue
-
-          else { 
-            $referenceHint = $baselineSettingsGroup.references.$key ? $baselineSettingsGroup.references.$key : $null
-            $outputObject = [PSCustomObject] @{
-              Group   = $groupName
-              Setting = $key
-              Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
-              Status  = "CHECK NEEDED"
+            if ($test) { 
+              $testResult.Add("$configurationName-$key", [PSCustomObject] @{
+                  Group   = $configurationName
+                  Setting = $key
+                  Result  = $test.status ? "✔︎ <pre>$($tenantSettings.$configurationName.$key | ConvertTo-Yaml)</pre>" : "✘ Should be <pre>$($test.should | ConvertTo-Yaml)</pre> but is <pre>$($test.is | ConvertTo-Yaml)</pre>"
+                  Status  = $test.status ? "PASS" : "FAIL"
+                })
             }
+          }
+          # If the tenant settings are simple values, we can compare them directly
+          elseif ($null -ne $tenantSettings.$configurationName.$key) {
+            $test = Compare-Object -ReferenceObject $configurationSettings.$key -DifferenceObject $tenantSettings.$configurationName.$key -IncludeEqual
+            
+            if ($test) { 
+              $testResult.Add("$configurationName-$key", [PSCustomObject] @{
+                  Group   = $configurationName
+                  Setting = $key
+                  Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantSettings.$configurationName.$key)]" : "✘ Should be '$($configurationSettings.$key -join ''' or ''')' but is '$($tenantSettings.$configurationName.$key)'"
+                  Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
+                })
+            }  
+          }
+          else {
+            $test = $null
+            $referenceHint = $baselineConfiguration.references.$key ? $baselineConfiguration.references.$key : $null
+
+            # Distinghuish between complex settings and simple settings and create the output object
+            if ($configurationSettings.$key.GetType() -in @("Hashtable", "PSCustomObject", "Object[]")) {
+              $outputObject = [PSCustomObject] @{
+                Group   = $configurationName
+                Setting = $key
+                Result  = "--- Should be <pre>$($configurationSettings.$key | ConvertTo-Yaml)</pre>"
+                Status  = "CHECK NEEDED"
+              }
+            }
+            else {
+              $outputObject = [PSCustomObject] @{
+                Group   = $configurationName
+                Setting = $key
+                Result  = "--- Should be '$($configurationSettings.$key -join ''' or ''')'"
+                Status  = "CHECK NEEDED"
+              }
+            }
+
             if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
-            $testResult.Add("$groupName-$key", $outputObject);
-            Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
+            $testResult.Add("$configurationName-$key", $outputObject);
           }
         }
         catch {
