@@ -20,7 +20,9 @@ Function Invoke-PPLAdminCenterRequest {
     $tenantId = $ctx.Tenant.Id
 
     $token = Get-AzAccessToken -ResourceUrl "https://service.powerapps.com"
-    $headers = @{ Authorization = "Bearer $($token.Token)" }
+    $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
+
+    $headers = @{ Authorization = "Bearer $($plainTextToken)" }
 
     $propertiesValues = [PSCustomobject] @{}
     $requests = $ApiRequests | Foreach-Object {
