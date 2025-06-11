@@ -25,6 +25,7 @@ The implementation is based on the following PowerShell modules:
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
 ![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
+![EPS](https://img.shields.io/badge/EPS-1.0.0-blue.svg)
 
 ## Applies to
 
@@ -43,9 +44,10 @@ Any contribution is welcome. Please read our [contribution guidelines](./Contrib
 
 ## Version history
 
-| Version | Date           | Comments        |
-| ------- | :------------- | :-------------- |
-| 1.0     | February, 2024 | Initial release |
+| Version | Date           | Comments                 |
+| ------- | :------------- | :----------------------- |
+| 1.1     | March, 2025    | Report Generator updated |
+| 1.0     | February, 2024 | Initial release          |
 
 ## Disclaimer
 
@@ -87,6 +89,7 @@ Install-Module -Name Az.Resources -RequiredVersion 6.4.0 -Scope CurrentUser
 Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
 Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
+Install-Module -Name EPS -RequiredVersion 1.0.0 -Scope CurrentUser
 ```
 
 ## Usage
