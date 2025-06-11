@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>easyGorvernance · <%= $Title %></title>
+    <title>easyGovernance · <%= $Title %></title>
     <link rel="stylesheet" href="./styles/report.css">
 </head>
 
@@ -13,7 +13,7 @@
         <div class="header-content">
             <div>
                 <h1>easyGovernance · <%= $Title %></h1>
-                <div class="header-subtitle">Overview of alignment of existing tenant settings along your baseline</div>
+                <div class="header-subtitle">Overview of alignment of existing tenant settings along your baselines</div>
             </div>
             <div class="report-info">
                 <div class="report-date">Report generated: <%= $Date_generated %></div>
@@ -31,18 +31,18 @@
 
             <div class="report-summary">
                 easyGovernance validates several configurations and resources along predefined configuration baselines
-                for
-                the Microsoft 365 tenant <code><%= $Tenant %></code> and dedicated services. Any configuration baseline is
-                considered to reference the baseline suggestions from the <a
+                for the Microsoft 365 tenant <code><%= $Tenant %></code> and dedicated services. 
+                Any configuration baseline is considered to reference the baseline suggestions from the <a
                     href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
                     target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
                     365</a> by CISA and <a href="https://blueprint.oobe.com.au/blueprint/" target="_blank"
-                    rel="noopener noreferer">the former blueprint standard</a> by oobe (on behalf of the Australian Government). All configuration parameters that are used in
-                the configuration baselines provide a standard and proven approach for Microsoft 365 but can be extended
-                according to your needs.
+                    rel="noopener noreferer">the former blueprint standard</a> by oobe (on behalf of the Australian Government). 
+                All configuration parameters that are used in the configuration baselines provide a standard and 
+                proven approach for Microsoft 365 but can be extended according to your needs.
             </div>
         </div>
 
+        <!--
         <div class="filter-container">
             <div class="filter-group">
                 <label class="switch">
@@ -68,6 +68,7 @@
                 <span class="filter-label">Hide manual checks</span>
             </div>
         </div>
+        -->
 
         <%= $result_details %>
 

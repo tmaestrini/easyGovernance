@@ -72,6 +72,16 @@ h1 {
     padding: 0 40px 40px;
 }
 
+.report-summary-container {
+    margin-bottom: 2rem;
+    
+    h2 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+}
+
 .summary-cards {
     display: flex;
     flex-wrap: wrap;
