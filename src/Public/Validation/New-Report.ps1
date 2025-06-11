@@ -86,14 +86,18 @@ Function New-Report {
          $referenceContent += $baseline.References | ForEach-Object { "`n`t<li><a href=`"$($_)`" target=""_blank"" rel=""noopener noreferer"">$($_)</a>" } 
          $referenceContent += "</ul>"
          
-         $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
+         $tableData = $resultSet.Result | Select-Object `
+         @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
          @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br><small>👉 $($_.Reference)</small>" : $_.Setting } }, `
-         @{Name = "Status"; Expression = { Get-Status $_.Result } }, Result
-         
-         $table = $table | New-MDTable -Shrink
-         
-         $table = ($table | ConvertFrom-Markdown).Html
-         $table = $table -replace "&lt;br&gt;", "<br>"
+         @{Name = "Status"; Expression = { Get-Status $_.Result } }, `
+            Result
+
+         # Convert the table data to HTML and format it         
+         $table = $tableData | ConvertTo-Html -Fragment
+         $table = $table -replace "&lt;(/?(?:br|small|strong|em|pre|code|span))&gt;", "<`$1>"
+         $table = $table -replace "&#39;", "'"
+         $table = $table -replace "&apos;", "'"
+         $table = $table -replace "'([^']+)'", '<code>$1</code>'
          $table = $table -replace "<table>", "<table class=""report-details"">"
          $table = $table -replace "(✔︎|✘|---)\s", ""
 
