@@ -44,10 +44,11 @@ Any contribution is welcome. Please read our [contribution guidelines](./Contrib
 
 ## Version history
 
-| Version | Date           | Comments                 |
-| ------- | :------------- | :----------------------- |
-| 1.1     | March, 2025    | Report Generator updated |
-| 1.0     | February, 2024 | Initial release          |
+| Version | Date           | Comments                                              |
+| ------- | :------------- | :---------------------------------------------------- |
+| 1.2     | June, 2025     | enhanced baseline definitions and validation routines |
+| 1.1     | March, 2025    | Report Generator updated                              |
+| 1.0     | February, 2024 | Initial release                                       |
 
 ## Disclaimer
 
