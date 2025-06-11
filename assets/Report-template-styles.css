@@ -74,7 +74,7 @@ h1 {
 
 .report-summary-container {
     margin-bottom: 2rem;
-    
+
     h2 {
         font-size: 28px;
         font-weight: 800;
@@ -211,7 +211,7 @@ td {
 }
 
 th {
-    background-color: #B5D8EB;
+    background-color: #cfcfcf;
     color: #333;
     font-weight: bold;
     text-transform: uppercase;
@@ -230,6 +230,11 @@ tr:hover {
 td {
     border-bottom: 1px solid #ddd;
     vertical-align: top;
+    word-break: break-all;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 tr:last-child td {
@@ -336,6 +341,12 @@ input:checked+.slider:before {
     margin-right: 30px;
     margin-bottom: 10px;
 }
+
+.baseline-report {
+    border-bottom: #cfcfcf 1px solid;
+    padding-bottom: 1.5rem;
+}
+
 
 .result-details {
     font-family: 'Courier New', Courier, monospace;

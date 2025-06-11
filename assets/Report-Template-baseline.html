@@ -1,45 +1,49 @@
-<h2>Baseline: <%= $baseline %></h2>
-
-<div class="summary-cards">
-    <div class="card-one">
-        <p><code><%= $baselineId %></code><br>
-            Version: <%= $baselineVersion %>
-        </p>
+<div class="baseline-report">
+    <div class="baseline-title">
+        <h2>⌾ Baseline: <%= $baseline %></h2>
     </div>
-    <div class="card-three">
-        <p class="card-title">Checks in total: <%= $count_checks %></p>
-        <div class="floating-content">
-            <% if($count_checks_passed -gt 0) { %>
-            <div class="check-passed" style="flex-grow: <%= $count_checks_passed %>;">
-                <p>PASS: <%= $count_checks_passed %></p>
+
+    <div class="summary-cards">
+        <div class="card-one">
+            <p><code><%= $baselineId %></code><br>
+                Version: <%= $baselineVersion %>
+            </p>
+        </div>
+        <div class="card-three">
+            <p class="card-title">Checks in total: <%= $count_checks %></p>
+            <div class="floating-content">
+                <% if($count_checks_passed -gt 0) { %>
+                <div class="check-passed" style="flex-grow: <%= $count_checks_passed %>;">
+                    <p>PASS: <%= $count_checks_passed %></p>
+                </div>
+                <% } %>
+                <% if($count_checks_failed -gt 0) { %>
+                <div class="check-failed" style="flex-grow: <%= $count_checks_failed %>;">
+                    <p>FAIL: <%= $count_checks_failed %></p>
+                </div>
+                <% } %>
+                <% if($count_checks_needed -gt 0) { %>
+                <div class="check-manual" style="flex-grow: <%= $count_checks_needed %>;">
+                    <p>CHECK: <%= $count_checks_needed %></p>
+                </div>
+                <% } %>
             </div>
-            <% } %>
-            <% if($count_checks_failed -gt 0) { %>
-            <div class="check-failed" style="flex-grow: <%= $count_checks_failed %>;">
-                <p>FAIL: <%= $count_checks_failed %></p>
-            </div>
-            <% } %>
-            <% if($count_checks_needed -gt 0) { %>
-            <div class="check-manual" style="flex-grow: <%= $count_checks_needed %>;">
-                <p>CHECK: <%= $count_checks_needed %></p>
-            </div>
-            <% } %>
         </div>
     </div>
-</div>
 
-<% if($aiSummary) { %>
-<div class="summary-card-full">
-    {AI-Zusammenfassung und Handlungsvorschläge}
-</div>
-<% } %>
-
-<details style="margin-top: 2em;">
-    <div class="baseline-references">
-        <h3>Baseline references</h3>
-        <%= $baseline_references %>
+    <% if($aiSummary) { %>
+    <div class="summary-card-full">
+        {AI-Zusammenfassung und Handlungsvorschläge}
     </div>
+    <% } %>
 
-    <h3>Report details</h3>
-    <%= $report_details %>
-</details>
+    <details style="margin-top: 2em;">
+        <div class="baseline-references">
+            <h3>Baseline references</h3>
+            <%= $baseline_references %>
+        </div>
+
+        <h3>Report details</h3>
+        <%= $report_details %>
+    </details>
+</div>
