@@ -83,8 +83,8 @@ Before using, install all dependencies on your local machine:
 ```powershell
 Install-Module -Name powershell-yaml -Scope CurrentUser
 Install-Module -Name PnP.PowerShell -RequiredVersion 2.12.0 -Scope CurrentUser
-Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
-Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Scope CurrentUser
+Install-Module -Name Microsoft.Graph -RequiredVersion 2.26.1 -Scope CurrentUser
+Install-Module -Name Az.Accounts -RequiredVersion 4.0.2 -Scope CurrentUser
 Install-Module -Name Az.Resources -RequiredVersion 6.4.0 -Scope CurrentUser
 Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
 Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
