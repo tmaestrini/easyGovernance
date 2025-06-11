@@ -197,6 +197,12 @@ table.report-details {
         word-break: break-all;
     }
 
+    td:nth-child(2) {
+        width: 360px;
+        min-width: 360px;
+        max-width: 360px;
+    };
+
     td:nth-child(3) {
         width: 70px;
         min-width: 70px;
@@ -230,7 +236,7 @@ tr:hover {
 td {
     border-bottom: 1px solid #ddd;
     vertical-align: top;
-    word-break: break-all;
+    word-break: break-word;
     word-wrap: break-word;
     overflow-wrap: break-word;
     -webkit-hyphens: auto;
@@ -239,6 +245,15 @@ td {
 
 tr:last-child td {
     border-bottom: none;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    color: #000005;
+    background-color: #ddd;
+    margin: 0 0.2rem;
+    padding: 1px 3px;
+    border-radius: 4px;
 }
 
 ul {
@@ -346,7 +361,6 @@ input:checked+.slider:before {
     border-bottom: #cfcfcf 1px solid;
     padding-bottom: 1.5rem;
 }
-
 
 .result-details {
     font-family: 'Courier New', Courier, monospace;
