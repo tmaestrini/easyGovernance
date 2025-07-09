@@ -202,7 +202,14 @@ Function Test-M365.1-3.1 {
             TenantIsolation       = @{
               IsolationControl = $extractedSettings.SecuritySettings.TenantIsolation.isolationSettings?.isolationPolicy ?? "Off"
             }
-            ContentSecurityPolicy = $extractedSettings.SecuritySettings.ContentSecurityPolicy
+            ContentSecurityPolicy = @{
+              CanvasApps                         = $extractedSettings.SecuritySettings.ContentSecurityPolicy.canvasApps ?? $false;
+              ModelDrivenApps                    = $extractedSettings.SecuritySettings.ContentSecurityPolicy.modelDrivenApps ?? $false;
+              EnableReportingViolations          = $extractedSettings.SecuritySettings.ContentSecurityPolicy.enableReportingViolations ?? $false;
+              EnableForDefaultEnvironment        = $extractedSettings.SecuritySettings.ContentSecurityPolicy.enableForDefaultEnvironment ?? $false;
+              EnableForDevelopmentEnvironments   = $extractedSettings.SecuritySettings.ContentSecurityPolicy.enableForDevelopmentEnvironments ?? $false;
+              EnableForProductionEnvironments    = $extractedSettings.SecuritySettings.ContentSecurityPolicy.enableForProductionEnvironments ?? $false;
+            }
           }
                               
           # Power Automate Settings

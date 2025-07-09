@@ -10,6 +10,53 @@
    
 #>
 
+Function Invoke-PPLOrganizationRequestForEnvironment {
+    param (
+        [Parameter(Mandatory = $true)][object]$ApiRequest
+    )
+    
+    if (!$Global:connectionContextName) { throw "Invoke-PPLOrganizationRequest > No connection context provided." }
+    $ctx = Get-AzContext -Name $Global:connectionContextName
+    $tenantId = $ctx.Tenant.Id
+
+    $token = Get-AzAccessToken -ResourceUrl $ApiRequest.scope
+    $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
+
+    $headers = @{ Authorization = "Bearer $($plainTextToken)" }
+
+    $propertiesValues = [PSCustomobject] @{}
+    
+    try {
+        $path = "$($ApiRequest.path)/api/data/v9.0/organizations"
+        $method = $($req.method) ? $req.method : "GET"
+        $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 10
+        
+        # Handle the attr parameter - if it contains dots, it's a nested path
+        if ($ApiRequest.attr) {
+            $requestData = $result
+            # Split the attribute path by dots and traverse the object
+            $ApiRequest.attr.Split('.') | ForEach-Object {
+                if ($null -ne $requestData.$_) {
+                    $requestData = $requestData.$_
+                }
+                else {
+                    $requestData = $null
+                    Write-Log -Level WARNING "Property path '$($ApiRequest.attr)' not found in result"
+                }
+            }
+            $propertiesValues | Add-Member -MemberType NoteProperty -Name $ApiRequest.attr -Value $requestData[0]
+        }
+        else {
+            $propertiesValues | Add-Member -MemberType NoteProperty -Name "value" -Value $requestData
+        }
+    }
+    catch {
+        Write-Log -Level ERROR "PPL Admin Center: $($req.name) / $_"
+    }
+    
+    return $propertiesValues
+}
+
 Function Invoke-PPLAdminCenterRequest {
     param (
         [Parameter(Mandatory = $true)][object[]]$ApiRequests
@@ -138,11 +185,34 @@ Function Request-PPLSecuritySettings {
     
     $apiSelection = switch ($Properties) {
         "TenantIsolation" { @{name = $_; path = "PowerPlatform.Governance/v1/tenants/{{tenantId}}/tenantIsolationPolicy" } }
+        "ContentSecurityPolicy" { @{name = $_; path = "Microsoft.BusinessAppPlatform/scopes/admin/environments/?api-version=2024-05-01&`$select=location,name,properties.createdBy,properties.createdTime,properties.displayName,properties.environmentSku,properties.provisioningState,properties.retentionPeriod,properties.linkedEnvironmentMetadata,properties.clientUris,properties.states,properties.softDeletedTime,properties.lifecycleOperationsEnforcement,properties.connectedGroups,properties.ongoingOperation,properties.expirationTime,properties.maxAllowedExpirationTime,properties.scheduledLifecycleOperations,properties.governanceConfiguration,properties.protectionStatus,properties/lastActivity/lastActivity/lastActivityTime,properties.parentEnvironmentGroup,properties.runtimeEndpoints,properties.cluster.category,properties.finOpsMetadata&`$expand=properties/scheduledLifecycleOperations"; attr = "value" } }
         
         Default {}
     }
     try {
-        return Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+        $request = Invoke-PPLAdminCenterRequest -ApiRequests $apiSelection
+
+        if($Properties -contains "ContentSecurityPolicy") {
+            $csp = @()
+            $request.ContentSecurityPolicy | ForEach-Object {
+                try {
+                    $env = Request-PPLEnvironmentDetails -Environment $_
+                    $csp += @{
+                        environmentName = $env.name;
+                        iscontentsecuritypolicyenabled = $env.value.iscontentsecuritypolicyenabled;
+                        iscontentsecuritypolicyenabledforcanvas = $env.value.iscontentsecuritypolicyenabledforcanvas;
+                    }
+                }
+                catch {
+                    Write-Log -Level ERROR $_
+                } 
+            } 
+
+            # Filter out null values
+            $request.ContentSecurityPolicy = $csp | Where-Object { $_ -ne $null }
+        } 
+        
+        return $request
     }
     catch { 
         throw $_
@@ -167,4 +237,24 @@ Function Request-PPLPowerAutomateSettings {
     catch { 
         throw $_
     }
+}
+
+Function Request-PPLEnvironmentDetails {
+    param (
+        [Parameter(Mandatory = $true)][pscustomobject] $Environment
+    )
+    $url = $Environment.properties.linkedEnvironmentMetadata.instanceApiUrl
+    $Environment.properties.linkedEnvironmentMetadata.resourceId
+
+    $result = Invoke-PPLOrganizationRequestForEnvironment -ApiRequest @(
+        @{
+            path = $Environment.properties.linkedEnvironmentMetadata.instanceApiUrl
+            scope = $Environment.properties.linkedEnvironmentMetadata.instanceUrl
+            method = "GET"
+            attr = "value"
+        }
+    )
+
+    $result | Add-Member -MemberType NoteProperty -Name "name" -Value $Environment.properties.linkedEnvironmentMetadata.friendlyName -Force
+    return $result
 }
