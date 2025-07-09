@@ -23,12 +23,28 @@ Function Invoke-PPLOrganizationRequestForEnvironment {
     $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
 
     $headers = @{ Authorization = "Bearer $($plainTextToken)" }
-
-    $propertiesValues = [PSCustomobject] @{}
-    
     try {
         $path = "$($ApiRequest.path)/api/data/v9.0/organizations"
-        $method = $($req.method) ? $req.method : "GET"
+        $method = $($ApiRequest.method) ? $ApiRequest.method : "GET"
+
+        # Try organization endpoint first
+        try {
+            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 3
+        }
+        catch {
+            if ($_.Exception.Response.StatusCode -eq 403) {
+                Write-Log -Level WARNING "Organization endpoint access denied, no sufficient permissions with the provided credentials; we need to have 'System Administrator' rights on the environment '$($ApiRequest.name)'."
+                
+                return
+            }
+            else {
+                throw $_
+            }
+        }
+
+        $propertiesValues = [PSCustomobject] @{}
+    
+        # Call the API endpoint to get the environment details
         $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -RetryIntervalSec 1 -MaximumRetryCount 10 -ConnectionTimeoutSeconds 10
         
         # Handle the attr parameter - if it contains dots, it's a nested path
@@ -248,6 +264,7 @@ Function Request-PPLEnvironmentDetails {
 
     $result = Invoke-PPLOrganizationRequestForEnvironment -ApiRequest @(
         @{
+            name = $Environment.properties.linkedEnvironmentMetadata.friendlyName
             path = $Environment.properties.linkedEnvironmentMetadata.instanceApiUrl
             scope = $Environment.properties.linkedEnvironmentMetadata.instanceUrl
             method = "GET"
