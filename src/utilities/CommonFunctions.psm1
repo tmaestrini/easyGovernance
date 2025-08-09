@@ -171,6 +171,7 @@ Function Connect-TenantAzure {
 
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
+    Clear-AzContext -Force
     $ctx = Get-AzContext -Name $Global:connectionContextName
 
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
@@ -214,7 +215,7 @@ Function Connect-TenantPnPOnline {
     if ($Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
       try {
-        Connect-PnPOnline -Url "https://tmaestrini-admin.sharepoint.com" @Global:UnattendedScriptParameters -ClientId $AppId
+        Connect-PnPOnline -Url $AdminSiteUrl @Global:UnattendedScriptParameters -ClientId $AppId
       }
       catch {
         Write-Log -Level ERROR $_
