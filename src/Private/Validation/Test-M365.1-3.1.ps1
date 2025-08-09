@@ -202,6 +202,8 @@ Function Test-M365.1-3.1 {
             TenantIsolation       = @{
               IsolationControl = $extractedSettings.SecuritySettings.TenantIsolation.isolationSettings?.isolationPolicy ?? "Off"
             }
+
+            # TODO: Read Content Security Policy settings and aggregate the results
             ContentSecurityPolicy = @{
               CanvasApps                         = $extractedSettings.SecuritySettings.ContentSecurityPolicy.canvasApps ?? $false;
               ModelDrivenApps                    = $extractedSettings.SecuritySettings.ContentSecurityPolicy.modelDrivenApps ?? $false;
