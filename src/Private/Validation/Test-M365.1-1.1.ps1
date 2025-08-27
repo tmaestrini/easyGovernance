@@ -40,7 +40,7 @@ Function Test-M365.1-1.1 {
         # Office365Services
         $settings.Services = Get-M365TenantSettingsServices -Properties AdoptionScore, AzureSpeechServices, Bookings, CalendarSharing, Cortana, Copilot4Sales, M365AppsInstallationOpt, `
           M365Lighthouse, MSGraphDataConnect, MSLoop, MSPlanner, M365Groups, M365OTW, ModernAuth, MSForms, MSTeams, MSTeamsAllowGuestAccess, MSToDo, MSUserCommunication, `
-          MSSearchBing, MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
+          MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
           UserOwnedAppsandServices, VivaLearning, Whiteboard
         
         # SecurityAndPrivacy
@@ -79,7 +79,6 @@ Function Test-M365.1-1.1 {
         $settings.MSPlanner = @{
           allowCalendarSharing = $extractedSettings.Services.MSPlanner
         }
-        $settings.MSSearchBing = $null -eq $extractedSettings.Services.MSSearchBing ? $false : $true
         $settings.MSTeams = $extractedSettings.Services.MSTeams
         $settings.MSTeamsAllowGuestAccess = $extractedSettings.Services.MSTeamsAllowGuestAccess
         $settings.MSToDo = $extractedSettings.Services.MSToDo
