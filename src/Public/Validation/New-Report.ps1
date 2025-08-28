@@ -97,7 +97,7 @@ Function New-Report {
          $table = $table -replace "&lt;(/?(?:br|small|strong|em|pre|code|span))&gt;", "<`$1>"
          $table = $table -replace "&#39;", "'"
          $table = $table -replace "&apos;", "'"
-         $table = $table -replace "'([^']+)'", '<code>$1</code>'
+         $table = $table -replace "'(?![s\s])([^']+)'", '<code>$1</code>'
          $table = $table -replace "<table>", "<table class=""report-details"">"
          $table = $table -replace "(✔︎|✘|---)\s", ""
 
