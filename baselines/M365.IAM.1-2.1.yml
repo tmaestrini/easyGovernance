@@ -4,7 +4,7 @@ Id: M365.1-2.1
 Version: 1.0
 
 References:
-  - https://blueprint.oobe.com.au/blueprint/platform/#microsoft-entra-id
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/platform/#microsoft-entra-id
   - https://www.cisa.gov/sites/default/files/2024-05/CISA%20SCuBA%20Microsoft%20Azure%20Active%20Directory%20SCB.pdf
 
 Configuration:

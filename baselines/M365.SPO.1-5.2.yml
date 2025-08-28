@@ -5,9 +5,9 @@ Version: 1.0
 
 References:
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings
 
 Configuration:
   - enforces: ExternalSharing

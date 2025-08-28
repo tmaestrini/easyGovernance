@@ -4,9 +4,9 @@ Id: M365.1-1.1
 Version: 1.0
 
 References:
-  - https://blueprint.oobe.com.au/blueprint/office-365/
-  - https://blueprint.oobe.com.au/blueprint/office-365/#residency
-  - https://blueprint.oobe.com.au/blueprint/office-365/#themes
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/#residency
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/#themes
 
 Configuration:
   - enforces: Office365Services
