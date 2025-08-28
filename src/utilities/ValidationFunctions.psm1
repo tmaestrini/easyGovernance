@@ -80,6 +80,20 @@ function Test-Settings {
       
       return $test
     }
+
+    function Set-ReferenceHint {
+      param(
+        [string]$Key,
+        [PSCustomObject]$BaselineSettingsGroup,
+        [PSCustomObject]$OutputObject
+      )
+
+      # Look for the key in the baseline references
+      if ($BaselineSettingsGroup.references -and $BaselineSettingsGroup.references.$Key) {
+        $OutputObject | Add-Member -MemberType NoteProperty -Name "ReferenceHint" -Value $BaselineSettingsGroup.references.$Key
+      }
+      # No return needed - object is modified by reference
+    }
   }
 
   Process {
@@ -115,24 +129,24 @@ function Test-Settings {
             $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
             $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
 
-            $testResult.Add("$groupName-$key", [PSCustomObject] @{
-                Group   = $groupName
-                Setting = $key
-                Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
-                Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
-              })
+            $outputObject = [PSCustomObject] @{
+              Group   = $groupName
+              Setting = $key
+              Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
+              Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
+            }
+            if ($test.SideIndicator -ne "==") { Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject }
+            $testResult.Add("$groupName-$key", $outputObject)
           }
           # If the test result is null, we have to report an issue
-
           else { 
-            $referenceHint = $baselineSettingsGroup.references.$key ? $baselineSettingsGroup.references.$key : $null
             $outputObject = [PSCustomObject] @{
               Group   = $groupName
               Setting = $key
               Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
-            if ($null -ne $referenceHint) { $outputObject | Add-Member -NotePropertyName Reference -NotePropertyValue $referenceHint }
+            Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
             $testResult.Add("$groupName-$key", $outputObject);
             Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
           }

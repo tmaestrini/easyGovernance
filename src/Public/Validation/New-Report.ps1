@@ -57,7 +57,7 @@ Function New-Report {
 
          $content += "### Report Details"
          $table = $resultSet.Result | Select-Object @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
-         @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br>👉 $($_.Reference)" : $_.Setting } }, Result
+         @{Name = "Setting"; Expression = { $_.ReferenceHint ? "$($_.Setting)<br>👉 $($_.ReferenceHint)" : $_.Setting } }, Result
 
          $table = $table | ConvertTo-Html -Fragment
          $table = $table -replace "&lt;br&gt;", "<br>"
@@ -88,7 +88,7 @@ Function New-Report {
          
          $tableData = $resultSet.Result | Select-Object `
          @{Name = "Topic (Group)"; Expression = { $_.Group } }, `
-         @{Name = "Setting"; Expression = { $_.Reference ? "$($_.Setting)<br><small>👉 $($_.Reference)</small>" : $_.Setting } }, `
+         @{Name = "Setting"; Expression = { $_.ReferenceHint ? "$($_.Setting)<br><small>👉 $($_.ReferenceHint)</small>" : $_.Setting } }, `
          @{Name = "Status"; Expression = { Get-Status $_.Result } }, `
             Result
 
