@@ -18,16 +18,35 @@ Function Invoke-M365AdminCenterRequest {
     if (!$Global:connectionContextName) { throw "Invoke-M365AdminCenterRequest > No connection context provided." }
     $ctx = Get-AzContext -Name $Global:connectionContextName
     $tenantId = $ctx.Tenant.Id
+    $token = $null
+    
+    try {
+        # Write-Log -Level DEBUG "Trying authentication with resource: https://admin.microsoft.com"
+        $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
+        # Write-Log -Level DEBUG "Successfully obtained token for: https://admin.microsoft.com"
+    }
+    catch {
+        Write-Log -Level DEBUG "Failed to get token for $resourceUrl : $_"
+        continue
+    }
 
-    $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
-    $headers = @{ Authorization = "Bearer $($token.Token)" }
+    if (!$token) {
+        return
+    }
+    
+    # Convert SecureString token to plaintext for Authorization header
+    $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
+    
+    $headers = @{ Authorization = "Bearer $plainTextToken" }
 
     $propertiesValues = [PSCustomobject] @{}
     $requests = $ApiRequests | Foreach-Object {
         $req = $_
         try {
-            $path = ($req.path) -replace "{{tenantId}}", $tenantId
-            $result = Invoke-RestMethod -Uri "https://admin.microsoft.com/$path" -Headers $headers -Method ($($req.method) ? $req.method : "GET")
+            # $path = ($req.path) -replace "{{tenantId}}", $tenantId
+            $path = "https://admin.microsoft.com/$($req.path -replace "{{tenantId}}", $tenantId)"
+            $method = $($req.method) ? $req.method : "GET"
+            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {
@@ -50,13 +69,13 @@ Function Get-M365TenantSettingsServices {
     param (
         [Parameter(Mandatory = $true)][ValidateSet("AccountLinking", "AdoptionScore", "AzureSpeechServices", "Bookings", "MSVivaBriefing", "CalendarSharing", "Copilot4Sales",
             "Cortana", "M365Groups", "M365AppsInstallationOpt", "M365Lighthouse", "M365OTW", "MSUserCommunication", "MSForms", "MSGraphDataConnect", "MSLoop", "MSPlanner",
-            "MSSearchBing", "MSTeams", "MSTeamsAllowGuestAccess", "MSToDo", "MSVivaInsights", "ModernAuth", "News", "OfficeScripts", "Reports", "SearchIntelligenceAnalytics",
+            "MSTeams", "MSTeamsAllowGuestAccess", "MSToDo", "MSVivaInsights", "ModernAuth", "News", "OfficeScripts", "Reports", "SearchIntelligenceAnalytics",
             "SharePoint", "Sway", "SwayShareWithExternalUsers", "UserOwnedAppsandServices", "VivaLearning", "Whiteboard")][string[]]$Properties
     )
 
     $apiSelection = switch ($Properties) {
         "AccountLinking" {  }  
-        "AdoptionScore" {  }  
+        "AdoptionScore" { @{name = $_; path = "admin/api/reports/productivityScoreCustomerOption"; attr = "Output" } }  
         "AzureSpeechServices" { @{name = $_; path = "admin/api/services/apps/azurespeechservices"; attr = "isTenantEnabled" } }
         "Bookings" { @{name = $_; path = "admin/api/settings/apps/bookings"; attr = "Enabled" } }
         "MSVivaBriefing" {  }
@@ -71,8 +90,7 @@ Function Get-M365TenantSettingsServices {
         "MSForms" { @{name = $_; path = "admin/api/settings/apps/officeforms" } }
         "MSGraphDataConnect" { @{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
         "MSLoop" { @{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
-        "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "isPlannerAllowed" } }
-        "MSSearchBing" { @{name = $_; path = "fd/bfb/api/v3/office/switch/feature"; attr = "BingDefault" } }
+        "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "allowCalendarSharing" } }
         "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
         "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
         # "MSToDo" { @{name = $_; path = "n/a" } }

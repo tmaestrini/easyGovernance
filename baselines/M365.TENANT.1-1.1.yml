@@ -4,9 +4,9 @@ Id: M365.1-1.1
 Version: 1.0
 
 References:
-  - https://blueprint.oobe.com.au/blueprint/office-365/
-  - https://blueprint.oobe.com.au/blueprint/office-365/#residency
-  - https://blueprint.oobe.com.au/blueprint/office-365/#themes
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/#residency
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/blueprint/office-365/#themes
 
 Configuration:
   - enforces: Office365Services
@@ -47,7 +47,6 @@ Configuration:
       MSLoop: true # ToDo: resolve enum value LoopPolicy: 1
       MSPlanner:  # To enable task management and collaboration.
         allowCalendarSharing: false
-      MSSearchBing: false # Microsoft Search integrates with bing.com for Search. Office 365 data is indexed to provide bing.com search functionality and is therefore not desirable for this design.
       MSTeams: true # To enable internal collaboration.
       MSTeamsAllowGuestAccess: true # To enable external collaboration.
       MSToDo: false # To reduce the risk of user entering sensitive data into external lists.
@@ -82,7 +81,7 @@ Configuration:
         dropdownTimeoutValue: 360
       PasswordExpirationPolicyNeverExpire: true # User Passwords never expire
       PrivacyProfile: # Specifies whether the organization's privacy profile is configured.
-        PrivacyContact: PrivacyContact@yourdomain.com
+        PrivacyContact: "PrivacyContact@yourdomain.com"
         PrivacyStatement: "https://www.yourorg.com/privacy"
       Pronouns: # Specifies the pronouns of the organization.
         isEnabledInOrganization: true

@@ -38,9 +38,9 @@ Function Test-M365.1-1.1 {
         $settings = @{}
 
         # Office365Services
-        $settings.Services = Get-M365TenantSettingsServices -Properties AzureSpeechServices, Bookings, CalendarSharing, Cortana, Copilot4Sales, M365AppsInstallationOpt, `
+        $settings.Services = Get-M365TenantSettingsServices -Properties AdoptionScore, AzureSpeechServices, Bookings, CalendarSharing, Cortana, Copilot4Sales, M365AppsInstallationOpt, `
           M365Lighthouse, MSGraphDataConnect, MSLoop, MSPlanner, M365Groups, M365OTW, ModernAuth, MSForms, MSTeams, MSTeamsAllowGuestAccess, MSToDo, MSUserCommunication, `
-          MSSearchBing, MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
+          MSVivaBriefing, MSVivaInsights, OfficeScripts, Reports, SearchIntelligenceAnalytics, SharePoint, Sway, SwayShareWithExternalUsers, `
           UserOwnedAppsandServices, VivaLearning, Whiteboard
         
         # SecurityAndPrivacy
@@ -57,7 +57,12 @@ Function Test-M365.1-1.1 {
       
         # Office365Services
         $settings.AccountLinking = "n/a"
-        $settings.AdoptionScore = "n/a"
+        $adoptionScoreSettings = $extractedSettings.Services.AdoptionScore | ConvertFrom-Json
+        $settings.AdoptionScore = @{
+          ActionFlowOptedIn    = $adoptionScoreSettings[0].ActionFlowOptedInValue;
+          CohortInsightOptedIn = $adoptionScoreSettings[0].CohortInsightOptedInValue;
+          PSGroupsOptedOut     = $adoptionScoreSettings[0].PSGroupsOptedOutValue;
+        }
         $settings.AzureSpeechServices = $extractedSettings.Services.AzureSpeechServices
         $settings.Bookings = $extractedSettings.Services.Bookings
         $settings.CalendarSharing = $extractedSettings.Services.CalendarSharing
@@ -71,8 +76,9 @@ Function Test-M365.1-1.1 {
         $settings.MSForms = "needs to be specified"
         $settings.MSGraphDataConnect = $extractedSettings.Services.MSGraphDataConnect
         $settings.MSLoop = $extractedSettings.Services.MSLoop
-        $settings.MSPlanner = $extractedSettings.Services.MSPlanner
-        $settings.MSSearchBing = "n/a"
+        $settings.MSPlanner = @{
+          allowCalendarSharing = $extractedSettings.Services.MSPlanner
+        }
         $settings.MSTeams = $extractedSettings.Services.MSTeams
         $settings.MSTeamsAllowGuestAccess = $extractedSettings.Services.MSTeamsAllowGuestAccess
         $settings.MSToDo = $extractedSettings.Services.MSToDo

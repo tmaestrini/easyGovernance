@@ -16,14 +16,16 @@ Under the hood, the baseline validation engine is powered by the [PnP.Powershell
 
 The implementation is based on the following PowerShell modules:
 
-![PowerShell](https://img.shields.io/badge/Powershell-7.4.1-blue.svg)
-![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.4.0-blue.svg)
-![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.15.0-blue.svg)
-![Az.Accounts](https://img.shields.io/badge/Az.Accounts-2.19.0-blue.svg)
+![PowerShell](https://img.shields.io/badge/Powershell-7.4.2-blue.svg)
+![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.12.0-blue.svg)
+![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.26.1-blue.svg)
+![Az.Accounts](https://img.shields.io/badge/Az.Accounts-4.0.2-blue.svg)
+![Az.Resources](https://img.shields.io/badge/Az.Resources-6.4.0-blue.svg)
 ![PSLogs](https://img.shields.io/badge/PSLogs-5.2.1-blue.svg)
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
 ![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
+![EPS](https://img.shields.io/badge/EPS-1.0.0-blue.svg)
 
 ## Applies to
 
@@ -42,9 +44,11 @@ Any contribution is welcome. Please read our [contribution guidelines](./Contrib
 
 ## Version history
 
-| Version | Date           | Comments        |
-| ------- | :------------- | :-------------- |
-| 1.0     | February, 2024 | Initial release |
+| Version | Date           | Comments                                              |
+| ------- | :------------- | :---------------------------------------------------- |
+| 1.2     | June, 2025     | enhanced baseline definitions and validation routines |
+| 1.1     | March, 2025    | Report Generator updated                              |
+| 1.0     | February, 2024 | Initial release                                       |
 
 ## Disclaimer
 
@@ -79,12 +83,14 @@ Before using, install all dependencies on your local machine:
 
 ```powershell
 Install-Module -Name powershell-yaml -Scope CurrentUser
-Install-Module -Name PnP.PowerShell -RequiredVersion 2.4.0 -Scope CurrentUser
-Install-Module -Name Microsoft.Graph -RequiredVersion 2.15.0 -Scope CurrentUser
-Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Scope CurrentUser
+Install-Module -Name PnP.PowerShell -RequiredVersion 2.12.0 -Scope CurrentUser
+Install-Module -Name Microsoft.Graph -RequiredVersion 2.26.1 -Scope CurrentUser
+Install-Module -Name Az.Accounts -RequiredVersion 4.0.2 -Scope CurrentUser
+Install-Module -Name Az.Resources -RequiredVersion 6.4.0 -Scope CurrentUser
 Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
-Install-Module -Name MarkdownPS	-RequiredVersion 1.9 -Scope CurrentUser
+Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
+Install-Module -Name EPS -RequiredVersion 1.0.0 -Scope CurrentUser
 ```
 
 ## Usage
@@ -102,12 +108,12 @@ Currently, we recommend the following sequence to get up and running:
 
 ### Tenant settings file
 
-In order to configure a dedicated baseline configuration for a specific tenant, an according **tenant settings file** must be created (`yml`). The _file name_ can be chosen according to your needs (ending with `.yml`); consider using the tenant's name as the file descriptor, e.g. `[tenantname.yml]`.
+In order to configure a dedicated baseline configuration for a specific tenant, an according **tenant settings file** must be created (`yml`). The _file name_ can be chosen according to your needs (ending with `.yml`); consider using the tenant's name as the file descriptor, e.g. `[contoso.yml]`.
 
 The tenant settings file must follow this structure:
 
 ```yaml
-Tenant: MyTenantName
+Tenant: MyTenantName # 👈 the name of the tenant, without TLD, or onmicrosoft.com e.g. contoso
 
 BaselinesPath: <relative path to the folder that contains your baselines> # optional attribute
 Baselines:
@@ -133,13 +139,23 @@ Import-Module .\src\Validation.psm1 -Force
 Start-Validation -TemplateName "[tenantname].yml" # 👈 references the specific tenant template in the 'tenants' folder
 ```
 
-If you would like to store the validation results in a variable – for example to process the results further, simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+#### Parameters
 
-```powershell
-# Validate a given tenant from settings file and store the result in a variable
-Import-Module .\src\Validation.psm1 -Force
-$validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
-```
+Following parameters extend the functionality of the `Start-Validation`cmdlet and can be combined according to your needs:
+
+- `ReturnAsObject`: If you would like to store the validation results in a variable – for example to process the results further, simply add the `ReturnAsObject` parameter, which will print out the validation statistics but suppress the validation results:
+
+  ```powershell
+  # Validate a given tenant from settings file and store the result in a variable
+  Import-Module .\src\Validation.psm1 -Force
+  $validationResults = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject
+  ```
+
+- `KeepConnectionsAlive`: If you would like to keep the connections to the M365 services used in all validations alive after the validation routine has finished, just add the `KeepConnectionsAlive` parameter. The use of this parameter will not affect any output.
+
+- `ReloadBaselines`: After the first validation run, all baselines that are referenced in a tenant template (in the [`tenants` folder](./tenants/)) will be stored in memory (due to performance). If you intend to reload all referenced baselines (for example when a baseline changed), simply add the `ReloadBaselines` parameter. The use of this parameter will not affect any output.
+
+#### Return values
 
 The returned object contains following attributes:
 
@@ -189,6 +205,16 @@ New-Report -ValidationResults $result #-AsHTML
 > [!NOTE]
 > Optionally, you can also generate a HTML report in addition to the report in Markdown.
 > This offers a well-designed option which is suitable to put the validation results into a presentation or to share with management.
+
+In addition to the standard Markdown and HTML reports, the validation results can also be exported to a CSV or JSON file:
+
+```powershell
+# Generate a report in directory ./output, either as .csv or .json file
+New-Report -ValidationResults $result -AsCSV -AsJSON
+```
+
+> [!NOTE]
+> Due to the CSV data structure, the CSV report only contains a reduced set of validation results (hints and statistics are missing).
 
 ### Configuration baselines
 

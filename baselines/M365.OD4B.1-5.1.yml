@@ -5,11 +5,12 @@ Version: 1.0
 
 References:
   - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
-  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#onedrive-settings
+  - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/as-built-as-configured/office-365/#onedrive-settings
 
 Configuration:
   - enforces: Sharing
     with:
+      OneDriveSharingCapability: Disabled # governs the ability to share content from OneDrive with external users.
       SharingWithExternalUsersDisabled: true # Sharing capabilities to external users
       DisplayNamesOfFileViewers: true # Let site owners choose to display the names of people who viewed files or pages
       OneDriveRequestFilesLinkEnabled: false # Let site owners choose to display the names of people who viewed files or pages

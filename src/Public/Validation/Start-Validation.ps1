@@ -5,6 +5,10 @@ Function Start-Validation {
       HelpMessage = "Full name of the template, including .yml (aka <name>.yml)"
     )][string]$TemplateName,
     [Parameter(
+      Mandatory = $false,
+      HelpMessage = "Force reload of baselines (overwrites already loaded baselines in memory by reading from file system)"
+    )][Switch]$ReloadBaselines,
+    [Parameter(
       Mandatory = $false
     )][switch]$KeepConnectionsAlive,
     [Parameter(
@@ -33,10 +37,10 @@ Function Start-Validation {
       try {
         if ($tenantConfig.BaselinesPath) { 
           Write-Log "Trying to load baselines from path: '$($tenantConfig.BaselinesPath)'"
-          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline -BaselinesPath $tenantConfig.BaselinesPath 
+          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline -BaselinesPath $tenantConfig.BaselinesPath -Force:$ReloadBaselines.IsPresent
         }
         else { 
-          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline 
+          $baseline = Get-BaselineTemplate -BaselineId $selectedBaseline -Force:$ReloadBaselines.IsPresent
         }
       
         Write-Log "-----------------------------------------"

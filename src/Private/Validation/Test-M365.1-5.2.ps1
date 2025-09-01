@@ -40,9 +40,18 @@ Function Test-M365.1-5.2 {
 
       [PSCustomObject] Extract() {
         $tenantSettings = Get-PnPTenant
+        $tenantInternalSettings = Get-PnPTenantInternalSetting
+
+        # combine all values from $tenantSettings and $tenantInternalSettings
+        $combinedSettings = @{}
+        $tenantSettings.PSObject.Properties | ForEach-Object { $combinedSettings[$_.Name] = $_.Value }
+        $tenantInternalSettings.PSObject.Properties | ForEach-Object { $combinedSettings[$_.Name] = $_.Value }
+        $tenantSettingsToReturn = [PSCustomObject] $combinedSettings
+
+        # Get browser idle sign-out settings
         $browserIdleSignout = Get-PnPBrowserIdleSignout
 
-        return @{ tenant = $tenantSettings; browserIdleSignout = $browserIdleSignout }
+        return @{ tenant = $tenantSettingsToReturn; browserIdleSignout = $browserIdleSignout }
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
@@ -50,7 +59,15 @@ Function Test-M365.1-5.2 {
         $settings | Add-Member -NotePropertyName BrowserIdleSignout -NotePropertyValue $extractedSettings.browserIdleSignout.Enabled
         $settings | Add-Member -NotePropertyName BrowserIdleSignoutMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.SignOutAfter.TotalMinutes
         $settings | Add-Member -NotePropertyName BrowserIdleSignoutWarningMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.WarnAfter.TotalMinutes
-  
+
+        $settings | Add-Member -NotePropertyName DenyPagesCreationByUsers -NotePropertyValue (-not [bool]$settings.SitePagesEnabled)
+        $settings | Add-Member -NotePropertyName DenySiteCreationByUsers -NotePropertyValue ([bool]$settings.DisableSelfServiceSiteCreation)
+
+        if ([string]::IsNullOrEmpty($settings.DisabledWebPartIds)) {
+          # Property has a value
+          $settings.DisabledWebPartIds = ""
+        }
+
         return $settings
       }
     }
