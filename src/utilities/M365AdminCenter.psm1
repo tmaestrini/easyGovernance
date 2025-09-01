@@ -154,32 +154,3 @@ Function Get-M365TenantSettingsOrgProfile {
     }
     catch { }
 }
-
-function Get-M365LicInfos {
-    param (
-        [Parameter(Mandatory = $true)][ValidateSet("GroupBasedLicensing", "Errors")][string[]]$Properties
-    )
-    
-    # Get all users 
-    $users = Get-MgUser -All -Property AssignedLicenses, LicenseAssignmentStates, DisplayName | Select-Object DisplayName, AssignedLicenses -ExpandProperty LicenseAssignmentStates
-
-    $output = switch ($Properties) {
-        "Errors" { if($users.Error -eq "None"){$false} else {$true} }
-        "GroupBasedLicensing" { if($users.AssignedByGroup -ne $null) {$true} else {$false} }     
-    }
-    try {
-        return $output
-    }
-    catch { }
-}
-
-function Get-SelfServiceLicensing {
-    $policy = Get-MSCommerceProductPolicies -PolicyId "allowSelfServicePurchase" | Where-Object {$_.PolicyValue -eq "Enabled"}
-    if($null -eq $policy){
-        $false
-    }
-    else{
-        $true
-    }
-    
-}
