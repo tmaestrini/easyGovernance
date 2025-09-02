@@ -22,7 +22,7 @@ Function Invoke-M365AdminCenterRequest {
     
     try {
         # Write-Log -Level DEBUG "Trying authentication with resource: https://admin.microsoft.com"
-        $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com"
+        $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com" -TenantId $ctx.Tenant.Id
         # Write-Log -Level DEBUG "Successfully obtained token for: https://admin.microsoft.com"
     }
     catch {
@@ -149,6 +149,28 @@ Function Get-M365TenantSettingsOrgProfile {
         
         Default {}
     }
+    try {
+        return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { }
+}
+
+Function Get-M365TenantLicensing {
+    param (
+        [Parameter(Mandatory = $true)][ValidateSet("LicensedProducts", "OnlyGroupBasedLicenseAssignment", "SelfServicePurchase", "AssignmentErrors", "DirectLicenseAssignments", "GroupLicenseAssignments")][string[]]$Properties
+    )
+
+    $apiSelection = switch ($Properties) {
+        "LicensedProducts" { @{ name = $_; path = "fd/m365licensing/v3/licensedProducts?allotmentSourceOwnerType=User&allotmentSourceType=LowFrictionTrial&allotmentSourceState=Active%2CDeleted%2CSuspended%2CLockout%2CWarning&displayNameLanguage=en-US"; attr = "value" } }
+        "OnlyGroupBasedLicenseAssignmentOld" { @{name = $_; path = "fd/CommerceAPI/my-org/subscriptions?`$expand=subscribedSku&`$filter=parentId%20eq%20null%20and%20isBoxUi%20eq%20true%20and%20status%20ne%204"; attr = "value" } }
+        "OnlyGroupBasedLicenseAssignment" { @{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
+        "DirectLicenseAssignments" { @{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
+        "GroupLicenseAssignments" { @{ name = $_; path = "fd/MSGraph/v1.0/groups?`$select=displayName,assignedLicenses"; attr = "value" } }
+        "SelfServicePurchase" { @{name = $_; path = "admin/api/selfServicePurchasePolicy/products"; attr = "items" } }
+        "AssignmentErrors" { @{ name = $_; path = "fd/MSGraph/beta/admin/cloudLicensing/assignmentErrors?%24top=100&%24expand=assignedTo"; attr = "value" } }
+        Default {}
+    }
+
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
