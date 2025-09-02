@@ -8,6 +8,9 @@ References:
 Configuration:
   - enforces: Licensing
     with:
-      LicenseError: false # No License Error in tenant
+      LicenseErrors: false # false: No License Error in tenant allowed
       OnlyGroupBasedLicenseAssignment: true # Only Group Based License Assignment
       SelfServicePurchase: Disabled # Self Service Purchase should be set to 'Disabled'
+    references:
+    - OnlyGroupBasedLicenseAssignment: There mustn't be any user-based license assignments. Check the license assignments in the M365 Admin Center on https://admin.microsoft.com/#/licenses.
+    - SelfServicePurchase: Self Service Purchase must be disabled. Check the Self Service Purchase settings in the M365 Admin Center on https://admin.cloud.microsoft/?#/manageselfservicepurchase.
