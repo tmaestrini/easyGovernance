@@ -4,6 +4,7 @@ Id: M365.1-1.2
 Version: 1.0
 
 References:
+  - https://web.archive.org/web/20250311072459/https://blueprint.oobe.com.au/blueprint/office-365/#licence
 
 Configuration:
   - enforces: Licensing
