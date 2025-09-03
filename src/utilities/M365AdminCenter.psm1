@@ -4,40 +4,49 @@
 
 <#
 .Synopsis 
-    Handle M365 Admin Center (MAC) Settings
+    Handle M365 Admin Center (MAC) Settings.
+    Don't forget to call Connect-M365AdminCenter before using any other functions.
 .DESCRIPTION
 .EXAMPLE
+   Connect-M365AdminCenter
    Get-M365TenantSettingsServices
 #>
+
+$Script:M365AdminCenterToken = $null
+
+Function Connect-M365AdminCenter {
+
+    $resource = "https://admin.microsoft.com"
+
+    try {
+        if (!$Global:connectionContextName) { throw "No valid access provided." }
+        $ctx = Get-AzContext -Name $Global:connectionContextName
+        
+        $Script:M365AdminCenterToken = Get-AzAccessToken -ResourceUrl $resource -TenantId $ctx.Tenant.Id
+        Write-Log -Level DEBUG "Connection established to M365 Admin Center"
+    }
+    catch {
+        Write-Log -Level ERROR $_.Exception
+    }
+}
 
 Function Invoke-M365AdminCenterRequest {
     param (
         [Parameter(Mandatory = $true)][object[]]$ApiRequests
     )
     
-    if (!$Global:connectionContextName) { throw "Invoke-M365AdminCenterRequest > No connection context provided." }
-    $ctx = Get-AzContext -Name $Global:connectionContextName
-    $tenantId = $ctx.Tenant.Id
-    $token = $null
-    
     try {
-        # Write-Log -Level DEBUG "Trying authentication with resource: https://admin.microsoft.com"
-        $token = Get-AzAccessToken -ResourceUrl "https://admin.microsoft.com" -TenantId $ctx.Tenant.Id
-        # Write-Log -Level DEBUG "Successfully obtained token for: https://admin.microsoft.com"
+        if (!$Global:connectionContextName) { throw "No connection context provided." }
+        if ($null -eq $Script:M365AdminCenterToken) { throw "No token available, please connect first." }
+    
+        $token = ConvertFrom-SecureString $Script:M365AdminCenterToken.Token -AsPlainText
     }
     catch {
-        Write-Log -Level DEBUG "Failed to get token for $resourceUrl : $_"
-        continue
+        Write-Log -Level WARNING "Failed to invoke request(s): $_"
+        throw $_
     }
 
-    if (!$token) {
-        return
-    }
-    
-    # Convert SecureString token to plaintext for Authorization header
-    $plainTextToken = ConvertFrom-SecureString $token.Token -AsPlainText
-    
-    $headers = @{ Authorization = "Bearer $plainTextToken" }
+    $headers = @{ Authorization = "Bearer $token" }
 
     $propertiesValues = [PSCustomobject] @{}
     $requests = $ApiRequests | Foreach-Object {
@@ -112,7 +121,9 @@ Function Get-M365TenantSettingsServices {
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
-    catch { }
+    catch { 
+        throw $_
+    }
 }
 
 Function Get-M365TenantSettingsSecurityAndPrivacy {
@@ -132,7 +143,9 @@ Function Get-M365TenantSettingsSecurityAndPrivacy {
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
-    catch { }
+    catch {
+        throw $_
+     }
 }
 
 Function Get-M365TenantSettingsOrgProfile {
@@ -152,7 +165,9 @@ Function Get-M365TenantSettingsOrgProfile {
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
-    catch { }
+    catch {
+        throw $_     
+    }
 }
 
 Function Get-M365TenantLicensing {
@@ -174,5 +189,7 @@ Function Get-M365TenantLicensing {
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
-    catch { }
+    catch { 
+        throw $_
+    }
 }

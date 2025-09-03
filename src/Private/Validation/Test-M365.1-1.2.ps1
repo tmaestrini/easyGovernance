@@ -32,7 +32,7 @@ Function Test-M365.1-1.2 {
       M365LicValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
       Connect() {
-        
+        Connect-M365AdminCenter
       }
 
       [PSCustomObject] Extract() {
