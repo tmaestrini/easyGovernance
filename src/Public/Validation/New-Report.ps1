@@ -22,6 +22,12 @@ Function New-Report {
    )
    
    Begin {
+      # TODO: Guard clause for empty results
+      if (-not $ValidationResults -or -not $ValidationResults.Validation -or $ValidationResults.Validation.Count -eq 0) {
+         Write-Log -Level WARNING "No validation results found; terminating report generation"
+         continue
+      }
+
       $currentTimeStamp = Get-Date
       $reportPath = (Join-Path $PSScriptRoot -ChildPath '../../../output')
       $reportAtts = [PSCustomObject]@{

@@ -54,21 +54,21 @@ class BaselineValidator {
             $extracted = $this.Extract()
         }
         catch {
-            Write-Log -Level CRITICAL "Baseline extraction failed: $_" 
+            Write-Log -Level CRITICAL "Baseline extraction failed" 
             throw $_
         } 
         try {
             $transformed = $this.Transform($extracted)
         }
         catch {
-            Write-Log -Level CRITICAL "Baseline transformation failed: $_" 
+            Write-Log -Level CRITICAL "Baseline transformation failed"
             throw $_
         } 
         try {
             $this.Validate($transformed)
         }
         catch {
-            Write-Log -Level CRITICAL "Baseline validation failed: $_" 
+            Write-Log -Level CRITICAL "Baseline validation failed" 
             throw $_
         }
     }
