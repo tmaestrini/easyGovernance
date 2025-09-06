@@ -59,7 +59,7 @@ Function Invoke-M365AdminCenterRequest {
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {
-            Write-Log -Level ERROR "M365 Admin Center: $($req.name) / $_"
+            Write-Log -Level ERROR "$($req.name) / Error: $_"
         }
     }
     
