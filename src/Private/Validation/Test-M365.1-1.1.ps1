@@ -31,7 +31,7 @@ Function Test-M365.1-1.1 {
       M365TenantValidator([PSCustomObject] $Baseline, [string] $TenantId, [switch] $ReturnAsObject = $false) : base($Baseline, $TenantId, $ReturnAsObject) {}
   
       Connect() {
-        # Connection is handled system-wide
+        Connect-M365AdminCenter
       }
 
       [PSCustomObject] Extract() {
