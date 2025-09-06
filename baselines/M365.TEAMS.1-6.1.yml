@@ -12,22 +12,23 @@ Configuration:
     with:
       FeedSuggestionsInUsersActivityFeed: true
       WhoCanManageTags: TeamOwners
-      LetTeamOwnersChangeHowCanTag: true
+      LetTeamOwnersChangeWhoCanManageTags: true
       CustomTags: true
       ShiftsAppCanApplyTags: true
-      AllowEmailIntoChannel: true
+      AllowUsersCanSendEmailsToAChannel: true
       AllowCitrix: false
       AllowDropBox: false
       AllowBox: false
       AllowGoogleDrive: false
       AllowEgnyte: false
-      AllowOrganizationTab: true
+      AllowOrganizationTabForUsers: true
       Require2ndAuthforMeeting: NoAccess
       SetContentPin: RequiredOutsideScheduleMeeting
       SurfaceHubCanSendMails: true
       ScopeDirectorySearch: true
+      ExtendedWorkInfoInPeopleSearch: false
       RoleBasedChatPermissions: false
-      ProvideLinkToSupportRequestPage: false
+      # ProvideLinkToSupportRequestPage: false
 
   - enforces: Org-wide default Teams policy
     with:
