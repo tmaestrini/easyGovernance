@@ -53,7 +53,8 @@ Function Start-Validation {
         Write-Log -Message "Baseline validation terminated"
       }
       catch {
-        Write-Log -Level ERROR -Message "$($_)"
+        Write-Log -Level ERROR -Message "Baseline validation failed, see log for details"
+        # Write-Log -Level ERROR -Message "$($_)"
       }
     }
 

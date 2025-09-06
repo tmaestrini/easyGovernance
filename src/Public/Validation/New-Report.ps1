@@ -22,6 +22,11 @@ Function New-Report {
    )
    
    Begin {
+      if (-not $ValidationResults -or -not $ValidationResults.Validation -or $ValidationResults.Validation.Count -eq 0) {
+         Write-Log -Level WARNING "No validation results found; terminating report generation"
+         continue
+      }
+
       $currentTimeStamp = Get-Date
       $reportPath = (Join-Path $PSScriptRoot -ChildPath '../../../output')
       $reportAtts = [PSCustomObject]@{
@@ -97,7 +102,7 @@ Function New-Report {
          $table = $table -replace "&lt;(/?(?:br|small|strong|em|pre|code|span))&gt;", "<`$1>"
          $table = $table -replace "&#39;", "'"
          $table = $table -replace "&apos;", "'"
-         $table = $table -replace "'(?![s\s])([^']+)'", '<code>$1</code>'
+         $table = $table -replace "'(?![s\s])([^']*[^t'])'", '<code>$1</code>'
          $table = $table -replace "<table>", "<table class=""report-details"">"
          $table = $table -replace "(✔︎|✘|---)\s", ""
 
