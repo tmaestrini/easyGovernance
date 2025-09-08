@@ -75,47 +75,36 @@ Function Invoke-TeamsAdminCenterRequest {
 
 Function Get-TeamsSettings {
     param (
-        [Parameter(Mandatory = $true)][ValidateSet("FeedSuggestionsInUsersActivityFeed", "WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", "CustomTags", "ShiftsAppCanApplyTags",
-        "AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", "AllowBox", "AllowGoogleDrive", "AllowEgnyte", "AllowOrganizationTabForUsers", "Require2ndAuthforMeeting", "SetContentPin", 
-        "SurfaceHubCanSendMails", "ScopeDirectorySearch", "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions")][string[]]$Properties
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("FeedSuggestionsInUsersActivityFeed", "WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", 
+                     "CustomTags", "ShiftsAppCanApplyTags", "AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", 
+                     "AllowBox", "AllowGoogleDrive", "AllowEgnyte", "AllowOrganizationTabForUsers", 
+                     "Require2ndAuthforMeeting", "SetContentPin", "SurfaceHubCanSendMails", "ScopeDirectorySearch", 
+                     "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")]
+        [string[]]$Properties
     )
+
+    $feedSuggestionsInUsersActivityFeedProperties = @("FeedSuggestionsInUsersActivityFeed")
+    $teamsTargetingProperties = @("WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", "CustomTags", "ShiftsAppCanApplyTags")
+    $teamsClientProperties = @("AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", "AllowBox", "AllowGoogleDrive", 
+        "AllowEgnyte", "AllowOrganizationTabForUsers", "Require2ndAuthforMeeting", "SetContentPin", 
+        "SurfaceHubCanSendMails", "ScopeDirectorySearch", "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")
 
     $apiSelection = @()
     
-    foreach ($property in $Properties) {
-        switch ($property) {
-            "FeedSuggestionsInUsersActivityFeed" { 
-                $apiSelection += @{name = $property; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "SuggestedFeedsEnabledType" }
-            }
-        }
-    }
-
     # TeamsTargetingPolicy in API call
-    if ($Properties -contains "WhoCanManageTags" `
-            -or $Properties -contains "LetTeamOwnersChangeWhoCanManageTags" `
-            -or $Properties -contains "CustomTags" `
-            -or $Properties -contains "ShiftsAppCanApplyTags"
-    ) {
+    if ($Properties | Where-Object { $_ -in $feedSuggestionsInUsersActivityFeedProperties }) {
+        $apiSelection += @{name = "FeedSuggestionsInUsersActivityFeed"; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "SuggestedFeedsEnabledType" }
+    }
+    # TeamsTargetingPolicy in API call
+    if ($Properties | Where-Object { $_ -in $teamsTargetingProperties }) {
         $apiSelection += @{
             name = "TeamsTargetingPolicy"; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global"
         }
     }
     
     # TeamsClientConfiguration in API call
-    if ($Properties -contains "AllowEmailIntoChannel" `
-            -or $Properties -contains "AllowCitrix" `
-            -or $Properties -contains "AllowDropBox" `
-            -or $Properties -contains "AllowBox" `
-            -or $Properties -contains "AllowGoogleDrive" `
-            -or $Properties -contains "AllowEgnyte" `
-            -or $Properties -contains "AllowOrganizationTabForUsers" `
-            -or $Properties -contains "Require2ndAuthforMeeting" `
-            -or $Properties -contains "SetContentPin" `
-            -or $Properties -contains "SurfaceHubCanSendMails" `
-            -or $Properties -contains "ScopeDirectorySearch" `
-            -or $Properties -contains "ExtendedWorkInfoInPeopleSearch" `
-            -or $Properties -contains "RoleBasedChatPermissions"
-    ) {
+    if ($Properties | Where-Object { $_ -in $teamsClientProperties }) {
         $apiSelection += @{
             name = "TeamsClientConfiguration"; path = "Skype.Policy/configurations/TeamsClientConfiguration/configuration/Global"
         }
