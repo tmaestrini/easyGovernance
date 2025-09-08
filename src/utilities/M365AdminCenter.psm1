@@ -115,7 +115,7 @@ Function Get-M365TenantSettingsServices {
         "VivaLearning" { @{name = $_; path = "admin/api/settings/apps/learning" } }
         "Whiteboard" { @{name = $_; path = "admin/api/settings/apps/whiteboard"; attr = "IsEnabled" } }
         
-        Default {}
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
 
     try {
@@ -138,14 +138,14 @@ Function Get-M365TenantSettingsSecurityAndPrivacy {
         "Pronouns" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/pronouns"; attr = "isEnabledInOrganization" } }
         "SharingAllowUsersToAddGuests" { @{name = $_; path = "admin/api/settings/security/guestUserPolicy"; attr = "AllowGuestInvitations" } }
         
-        Default {}
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
     }
     catch {
         throw $_
-     }
+    }
 }
 
 Function Get-M365TenantSettingsOrgProfile {
@@ -159,8 +159,8 @@ Function Get-M365TenantSettingsOrgProfile {
         "HelpDeskInfo" { @{name = $_; path = "admin/api/Settings/company/helpdesk" } }
         "ReleasePreferences" { @{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
         "EmailNotFromOwnDomain" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
-        
-        Default {}
+
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
     try {
         return Invoke-M365AdminCenterRequest -ApiRequests $apiSelection
@@ -183,7 +183,8 @@ Function Get-M365TenantLicensing {
         "GroupLicenseAssignments" { @{ name = $_; path = "fd/MSGraph/v1.0/groups?`$select=displayName,assignedLicenses"; attr = "value" } }
         "SelfServicePurchase" { @{name = $_; path = "admin/api/selfServicePurchasePolicy/products"; attr = "items" } }
         "AssignmentErrors" { @{ name = $_; path = "fd/MSGraph/beta/admin/cloudLicensing/assignmentErrors?%24top=100&%24expand=assignedTo"; attr = "value" } }
-        Default {}
+        
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
 
     try {
