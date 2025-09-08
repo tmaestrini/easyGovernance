@@ -4,7 +4,7 @@ using module .\Class\BaselineValidator.psm1
 .Synopsis
 .DESCRIPTION
 .EXAMPLE
-   Test-M365.1-1.2
+   Test-M365.1-6.1
 #>
 
 Function Test-M365.1-6.1 {
