@@ -39,6 +39,10 @@ Function Test-M365.1-6.1 {
         $settings = @{}
 
         $settings.Settings = Get-TeamsSettings -Properties FeedSuggestionsInUsersActivityFeed, WhoCanManageTags, LetTeamOwnersChangeWhoCanManageTags, CustomTags, ShiftsAppCanApplyTags, AllowEmailIntoChannel
+        $settings.TeamsPolicies = Get-TeamsPolicies -Properties OrgWideTeamsPolicy
+        $settings.AppPolicies = Get-AppsPolicies -Properties OrgWideAppPolicy
+        $settings.CallingPolicies = Get-CallingPolicies -Properties OrgWideCallingPolicy
+        
         return $settings
       }
 
@@ -46,30 +50,65 @@ Function Test-M365.1-6.1 {
         $settings = @{}
 
         # FeedSuggestionsInUsersActivityFeed
-        $settings.FeedSuggestionsInUsersActivityFeed = ($extractedSettings.Settings.FeedSuggestionsInUsersActivityFeed -eq "EnabledUserOverride")
+        $settings.TeamsSettings = @{
+          FeedSuggestionsInUsersActivityFeed  = ($extractedSettings.Settings.FeedSuggestionsInUsersActivityFeed -eq "EnabledUserOverride")
+          
+          # TeamsTargetingPolicy contain string values that need to be transformed to boolean or other string values
+          WhoCanManageTags                    = ($extractedSettings.Settings.TeamsTargetingPolicy.ManageTagsPermissionMode -eq "EnabledTeamOwner") ? "TeamOwners" : $extractedSettings.Settings.WhoCanManageTags
+          LetTeamOwnersChangeWhoCanManageTags = ($extractedSettings.Settings.TeamsTargetingPolicy.TeamOwnersEditWhoCanManageTagsMode -eq "TeamOwnersEditWhoCanManageTagsMode")
+          CustomTags                          = ($extractedSettings.Settings.TeamsTargetingPolicy.CustomTagsMode -eq "Enabled")
+          ShiftsAppCanApplyTags               = ($extractedSettings.Settings.TeamsTargetingPolicy.ShiftBackedTagsMode -eq "ShiftBackedTagsMode")
+          
+          # TeamsClientConfiguration contain boolean values
+          AllowUsersCanSendEmailsToAChannel   = $extractedSettings.Settings.TeamsClientConfiguration.AllowEmailIntoChannel ?? 'n/a'
+          AllowCitrix                         = $extractedSettings.Settings.TeamsClientConfiguration.AllowShareFile ?? 'n/a'
+          AllowDropBox                        = $extractedSettings.Settings.TeamsClientConfiguration.AllowDropBox ?? 'n/a'
+          AllowBox                            = $extractedSettings.Settings.TeamsClientConfiguration.AllowBox ?? 'n/a'
+          AllowGoogleDrive                    = $extractedSettings.Settings.TeamsClientConfiguration.AllowGoogleDrive ?? 'n/a'
+          AllowEgnyte                         = $extractedSettings.Settings.TeamsClientConfiguration.AllowEgnyte ?? 'n/a'
+          AllowOrganizationTabForUsers        = $extractedSettings.Settings.TeamsClientConfiguration.AllowOrganizationTab ?? 'n/a'
+          Require2ndAuthforMeeting            = $extractedSettings.Settings.TeamsClientConfiguration.ResourceAccountContentAccess ?? 'n/a'
+          SetContentPin                       = $extractedSettings.Settings.TeamsClientConfiguration.ContentPin ?? 'n/a'
+          SurfaceHubCanSendMails              = $extractedSettings.Settings.TeamsClientConfiguration.SurfaceHubCanSendMails ?? 'n/a'
+          ScopeDirectorySearch                = $extractedSettings.Settings.TeamsClientConfiguration.AllowScopedPeopleSearchandAccess ?? 'n/a'
+          ExtendedWorkInfoInPeopleSearch      = $extractedSettings.Settings.TeamsClientConfiguration.ExtendedWorkInfoInPeopleSearch ?? 'n/a'
+          RoleBasedChatPermissions            = $extractedSettings.Settings.TeamsClientConfiguration.AllowRoleBasedChatPermissions ?? 'n/a'
+          ProvideLinkToSupportRequestPage     = $extractedSettings.Settings.TeamsClientConfiguration.ProvideLinkToSupportRequestPage ?? 'n/a'
+        }
+          
+        # Teams Policies
+        $settings.TeamsPolicies = @{
+          CreatePrivateChannels = ($extractedSettings.TeamsPolicies.OrgWideTeamsPolicy.AllowPrivateChannelCreation) -eq $true ? "Allow" : "Block"
+        }
 
-        # TeamsTargetingPolicy contain string values that need to be transformed to boolean or other string values
-        $settings.WhoCanManageTags = ($extractedSettings.Settings.TeamsTargetingPolicy.ManageTagsPermissionMode -eq "EnabledTeamOwner") ? "TeamOwners" : $extractedSettings.Settings.WhoCanManageTags
-        $settings.LetTeamOwnersChangeWhoCanManageTags = ($extractedSettings.Settings.TeamsTargetingPolicy.TeamOwnersEditWhoCanManageTagsMode -eq "TeamOwnersEditWhoCanManageTagsMode")
-        $settings.CustomTags = ($extractedSettings.Settings.TeamsTargetingPolicy.CustomTagsMode -eq "Enabled")
-        $settings.ShiftsAppCanApplyTags = ($extractedSettings.Settings.TeamsTargetingPolicy.ShiftBackedTagsMode -eq "ShiftBackedTagsMode")
-
-        # TeamsClientConfiguration contain boolean values
-        $settings.AllowUsersCanSendEmailsToAChannel = $extractedSettings.Settings.TeamsClientConfiguration.AllowEmailIntoChannel ?? 'n/a'
-        $settings.AllowCitrix = $extractedSettings.Settings.TeamsClientConfiguration.AllowShareFile ?? 'n/a'
-        $settings.AllowDropBox = $extractedSettings.Settings.TeamsClientConfiguration.AllowDropBox ?? 'n/a'
-        $settings.AllowBox = $extractedSettings.Settings.TeamsClientConfiguration.AllowBox ?? 'n/a'
-        $settings.AllowGoogleDrive = $extractedSettings.Settings.TeamsClientConfiguration.AllowGoogleDrive ?? 'n/a'
-        $settings.AllowEgnyte = $extractedSettings.Settings.TeamsClientConfiguration.AllowEgnyte ?? 'n/a'
-        $settings.AllowOrganizationTabForUsers = $extractedSettings.Settings.TeamsClientConfiguration.AllowOrganizationTab ?? 'n/a'
-        $settings.Require2ndAuthforMeeting = $extractedSettings.Settings.TeamsClientConfiguration.ResourceAccountContentAccess ?? 'n/a'
-        $settings.SetContentPin = $extractedSettings.Settings.TeamsClientConfiguration.ContentPin ?? 'n/a'
-        $settings.SurfaceHubCanSendMails = $extractedSettings.Settings.TeamsClientConfiguration.SurfaceHubCanSendMails ?? 'n/a'
-        $settings.ScopeDirectorySearch = $extractedSettings.Settings.TeamsClientConfiguration.AllowScopedPeopleSearchandAccess ?? 'n/a'
-        $settings.ExtendedWorkInfoInPeopleSearch = $extractedSettings.Settings.TeamsClientConfiguration.ExtendedWorkInfoInPeopleSearch ?? 'n/a'
-        $settings.RoleBasedChatPermissions = $extractedSettings.Settings.TeamsClientConfiguration.AllowRoleBasedChatPermissions ?? 'n/a'
-        $settings.ProvideLinkToSupportRequestPage = $extractedSettings.Settings.TeamsClientConfiguration.ProvideLinkToSupportRequestPage ?? 'n/a'
+        # Apps Policies
+        $orgWideDefaultAppPolicy = $extractedSettings.AppPolicies.OrgWideAppPolicy | Where-Object { $_.ConfigId -eq "Global" }
+        $settings.AppPolicies = @{
+          Name             = $orgWideDefaultAppPolicy.Identity ?? "n/a"
+          UploadCustomApps = ($orgWideDefaultAppPolicy.AllowSideLoading) -eq $true ? "Allow" : "Block" ?? "n/a"
+          UserPinning      = ($orgWideDefaultAppPolicy.AllowUserPinning) -eq $true ? "Allow" : "Block" ?? "n/a"
+        }
         
+        # Calling policy
+        $orgWideDefaultCallingPolicy = $extractedSettings.CallingPolicies.OrgWideCallingPolicy
+        $settings.CallingPolicies = @{
+          Name                                   = $orgWideDefaultCallingPolicy.Identity ?? "n/a"
+          MakePrivateCalls                       = ($orgWideDefaultCallingPolicy.AllowPrivateCalling) -eq $true ? "Allow" : "Block" ?? "n/a"
+          CloudRecordingForCalling               = ($orgWideDefaultCallingPolicy.AllowCloudRecordingForCalls) -eq $true ? "Allow" : "Block" ?? "n/a"
+          # InternalCallForwardingAndRinging = ($orgWideDefaultCallingPolicy.AllowInternalCallForwardingAndRinging) -eq $true ? "Allow" : "Block" ?? "n/a"
+          # ExternalCallForwardingAndRinging = ($orgWideDefaultCallingPolicy.AllowExternalCallForwardingAndRinging) -eq $true ? "Allow" : "Block" ?? "n/a"
+          VoicemailEnabledForRoutingInboundCalls = ($orgWideDefaultCallingPolicy.AllowVoicemail) ?? "n/a"
+          # DelegationInboundOutbound = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.AllowDelegationInboundOutbound) -eq $true ? "Allow" : "Block" ?? "n/a"
+          PreventTollBypass                      = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.PreventTollBypass) -eq $true ? "Allow" : "Block" ?? "n/a"
+          MusicOnHoldPSTN                        = $extractedSettings.CallingPolicies.OrgWideCallingPolicy.MusicOnHoldEnabledType ?? "n/a"
+          BusyOnBusy                             = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.BusyOnBusyEnabledType) -eq "Enabled" ? "Allow" : "Block" ?? "n/a"
+          WebPSTNCalling                         = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.AllowWebPSTNCalling) -eq $true ? "Allow" : "Block" ?? "n/a"
+          RealTimeCaptions                       = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.LiveCaptionsEnabledTypeForCalling) -eq "Disabled" ? "Block" : "Allow" ?? "n/a"
+          AutoAnswerMeetingInvites               = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.AutoAnswerEnabledType) -eq "Enabled" ? "Allow" : "Block" ?? "n/a"
+          SIPDevicesPerformCalling               = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.AllowSIPDevicesCalling) -eq $true ? "Allow" : "Block" ?? "n/a"
+          CopilotEnabled                         = ($extractedSettings.CallingPolicies.OrgWideCallingPolicy.Copilot) -eq "Enabled" ? "Allow" : "Block" ?? "n/a"
+        }
+
         return $settings
       }
     }

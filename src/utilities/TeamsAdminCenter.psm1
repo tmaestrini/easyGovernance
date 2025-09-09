@@ -12,18 +12,35 @@
 #>
 
 $Script:TeamsAdminCenterToken = $null
-$Script:BaseUri = "https://api.interfaces.records.teams.microsoft.com"
+$Script:ScopeConfig = @{}
 
 Function Connect-TeamsAdminCenter {
+    param(
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("Standard", "Scope1")] [string]$Scope = "Standard"
+    )
 
-    $resource = "48ac35b8-9aa8-4d74-927d-1f4a14a0b239" # Microsoft Teams Admin Portal Service
-
+    $Script:ScopeConfig = switch ($Scope) {
+        "Scope1" { 
+            @{
+                Resource = "https://api.spaces.skype.com"  # Microsoft Teams Policy Center
+                BaseUrl  = "https://admin.microsoft.com/api"
+            }
+        }
+        Default { 
+            @{
+                Resource = "48ac35b8-9aa8-4d74-927d-1f4a14a0b239"  # Microsoft Teams Admin Portal Service
+                BaseUrl  = "https://api.interfaces.records.teams.microsoft.com"
+            }
+        }
+    }    
+    
     try {
         if (!$Global:connectionContextName) { throw "No valid access provided." }
         $ctx = Get-AzContext -Name $Global:connectionContextName
 
-        $Script:TeamsAdminCenterToken = Get-AzAccessToken -ResourceUrl $resource -TenantId $ctx.Tenant.Id
-        Write-Log -Level DEBUG "Connection established to Teams Admin Center"
+        $Script:TeamsAdminCenterToken = Get-AzAccessToken -ResourceUrl $Script:ScopeConfig.Resource -TenantId $ctx.Tenant.Id
+        Write-Log -Level DEBUG "Connection established to Teams Admin Center ($Scope)"
     }
     catch {
         Write-Log -Level ERROR $_.Exception
@@ -32,9 +49,15 @@ Function Connect-TeamsAdminCenter {
 
 Function Invoke-TeamsAdminCenterRequest {
     param (
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("Standard", "Scope1")] [string]$Scope = "Standard",
         [Parameter(Mandatory = $true)][object[]]$ApiRequests
     )
-    
+        
+    if ($Scope -ne "Standard") {
+        Connect-TeamsAdminCenter -Scope $Scope
+    }
+
     try {
         if (!$Global:connectionContextName) { throw "No connection context provided." }
         if ($null -eq $Script:TeamsAdminCenterToken) { throw "No token available, please connect first." }
@@ -52,7 +75,7 @@ Function Invoke-TeamsAdminCenterRequest {
     $requests = $ApiRequests | Foreach-Object {
         $req = $_
         try {
-            $path = "$($Script:BaseUri)/$($req.path -replace "{{tenantId}}", $tenantId)"
+            $path = "$($Script:ScopeConfig.BaseUrl)/$($req.path -replace "{{tenantId}}", $tenantId)"
             $method = $($req.method) ? $req.method : "GET"
             $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
@@ -77,10 +100,10 @@ Function Get-TeamsSettings {
     param (
         [Parameter(Mandatory = $true)]
         [ValidateSet("FeedSuggestionsInUsersActivityFeed", "WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", 
-                     "CustomTags", "ShiftsAppCanApplyTags", "AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", 
-                     "AllowBox", "AllowGoogleDrive", "AllowEgnyte", "AllowOrganizationTabForUsers", 
-                     "Require2ndAuthforMeeting", "SetContentPin", "SurfaceHubCanSendMails", "ScopeDirectorySearch", 
-                     "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")]
+            "CustomTags", "ShiftsAppCanApplyTags", "AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", 
+            "AllowBox", "AllowGoogleDrive", "AllowEgnyte", "AllowOrganizationTabForUsers", 
+            "Require2ndAuthforMeeting", "SetContentPin", "SurfaceHubCanSendMails", "ScopeDirectorySearch", 
+            "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")]
         [string[]]$Properties
     )
 
@@ -92,7 +115,7 @@ Function Get-TeamsSettings {
 
     $apiSelection = @()
     
-    # TeamsTargetingPolicy in API call
+    # FeedSuggestionsInUsersActivityFeed in API call
     if ($Properties | Where-Object { $_ -in $feedSuggestionsInUsersActivityFeedProperties }) {
         $apiSelection += @{name = "FeedSuggestionsInUsersActivityFeed"; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "SuggestedFeedsEnabledType" }
     }
@@ -102,7 +125,6 @@ Function Get-TeamsSettings {
             name = "TeamsTargetingPolicy"; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global"
         }
     }
-    
     # TeamsClientConfiguration in API call
     if ($Properties | Where-Object { $_ -in $teamsClientProperties }) {
         $apiSelection += @{
@@ -122,5 +144,89 @@ Function Get-TeamsSettings {
     else {
         Write-Log -Level WARNING "No matching API requests found for the specified properties"
         return @{}
+    }
+}
+
+Function Get-TeamsPolicies {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("OrgWideTeamsPolicy")]
+        [string[]]$Properties
+    )
+
+    $apiSelection = switch ($Properties) {
+        "OrgWideTeamsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsChannelsPolicy/configuration/Global" } }
+
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
+    }
+
+    try {
+        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { 
+        throw $_
+    }
+}
+
+Function Get-AppsPolicies {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("OrgWideAppPolicy")]
+        [string[]]$Properties
+    )
+
+    $apiSelection = switch ($Properties) {
+        "OrgWideAppPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsAppSetupPolicy" } }
+
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
+    }
+
+    try {
+        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { 
+        throw $_
+    }
+}
+
+Function Get-CallingPolicies {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("OrgWideCallingPolicy")]
+        [string[]]$Properties
+    )
+
+    $apiSelection = switch ($Properties) {
+        "OrgWideCallingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global" } }
+
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
+    }
+
+    try {
+        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { 
+        throw $_
+    }
+}
+
+Function Get-MeetingsPolicies {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("OrgWideMeetingsPolicy")]
+        [string[]]$Properties
+    )
+
+    $apiSelection = switch ($Properties) {
+        "GlobalMeetingsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global" } }
+
+        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
+    }
+
+    try {
+        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+    }
+    catch { 
+        throw $_
     }
 }

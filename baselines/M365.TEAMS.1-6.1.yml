@@ -28,36 +28,38 @@ Configuration:
       ScopeDirectorySearch: true
       ExtendedWorkInfoInPeopleSearch: false
       RoleBasedChatPermissions: false
-      # ProvideLinkToSupportRequestPage: false
+      # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?)
 
   - enforces: Org-wide default Teams policy
     with:
-      Name: Global
-      CreatePrivateChannels: true 
+      # Name: "Global" # not settable anymore (default policy in admin center)
+      CreatePrivateChannels: Allow
 
   - enforces: Org-wide default Teams App policy
     with:
-      Name: Global
-      MicrosoftApps: Allow
-      Third-partyApps: Block
-      CustomApps: Block
+      Name: "Global"
+      # MicrosoftApps: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # ThirdPartyApps: Block # TODO: ⭐️ discuss API call (do you know how to get it?)
+      UploadCustomApps: Block
+      UserPinning: Allow
 
   - enforces: Org-wide default Teams Calling policy
     with:
-      Name: Global
-      MakePrivateCalls: true
-      CloudRecordingForCalling: false
-      InternalCallForwardingAndRinging: true 
-      ExternalCallForwardingAndRinging: false
-      VoicemailEnabledForRoutingInboundCalls: true
-      DelegationInboundOutbound: true
-      PreventTollBypass: false
-      MusicOnHoldPSTN: true
-      BusyOnBusy: true
-      WebPSTNCalling: false
-      RealTimeCaptions: true
-      AutoAnswerMeetingInvites: false
-      SIPDevicesPerformCalling: false
+      Name: "Global"
+      MakePrivateCalls: Allow
+      CloudRecordingForCalling: Block
+      # InternalCallForwardingAndRinging: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # ExternalCallForwardingAndRinging: Block # TODO: ⭐️ discuss API call (do you know how to get it?)
+      VoicemailEnabledForRoutingInboundCalls: AlwaysEnabled || UserOverride
+      # DelegationInboundOutbound: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
+      PreventTollBypass: Block
+      MusicOnHoldPSTN: Enabled
+      BusyOnBusy: Allow
+      WebPSTNCalling: Block
+      RealTimeCaptions: Allow
+      AutoAnswerMeetingInvites: Block
+      SIPDevicesPerformCalling: Block
+      CopilotEnabled: Block # TODO: ⭐️ discuss API call (what value are we going to recommend?)
 
   - enforces: Global Teams meeting policy
     with:
