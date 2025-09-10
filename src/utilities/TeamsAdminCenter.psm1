@@ -147,78 +147,18 @@ Function Get-TeamsSettings {
     }
 }
 
-Function Get-TeamsPolicies {
+Function Get-Policies {
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateSet("OrgWideTeamsPolicy")]
+        [ValidateSet("OrgWideTeamsPolicy", "OrgWideAppPolicy", "OrgWideCallingPolicy", "OrgWideMeetingPolicy")]
         [string[]]$Properties
     )
 
     $apiSelection = switch ($Properties) {
         "OrgWideTeamsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsChannelsPolicy/configuration/Global" } }
-
-        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
-    }
-
-    try {
-        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
-    }
-    catch { 
-        throw $_
-    }
-}
-
-Function Get-AppsPolicies {
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("OrgWideAppPolicy")]
-        [string[]]$Properties
-    )
-
-    $apiSelection = switch ($Properties) {
         "OrgWideAppPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsAppSetupPolicy" } }
-
-        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
-    }
-
-    try {
-        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
-    }
-    catch { 
-        throw $_
-    }
-}
-
-Function Get-CallingPolicies {
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("OrgWideCallingPolicy")]
-        [string[]]$Properties
-    )
-
-    $apiSelection = switch ($Properties) {
         "OrgWideCallingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global" } }
-
-        Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
-    }
-
-    try {
-        return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
-    }
-    catch { 
-        throw $_
-    }
-}
-
-Function Get-MeetingsPolicies {
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("OrgWideMeetingsPolicy")]
-        [string[]]$Properties
-    )
-
-    $apiSelection = switch ($Properties) {
-        "GlobalMeetingsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global" } }
+        "OrgWideMeetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global" } }
 
         Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
