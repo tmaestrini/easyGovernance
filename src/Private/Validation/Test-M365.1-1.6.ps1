@@ -39,10 +39,8 @@ Function Test-M365.1-6.1 {
         $settings = @{}
 
         $settings.Settings = Get-TeamsSettings -Properties FeedSuggestionsInUsersActivityFeed, WhoCanManageTags, LetTeamOwnersChangeWhoCanManageTags, CustomTags, ShiftsAppCanApplyTags, AllowEmailIntoChannel
-        $settings.TeamsPolicies = Get-TeamsPolicies -Properties OrgWideTeamsPolicy
-        $settings.AppPolicies = Get-AppsPolicies -Properties OrgWideAppPolicy
-        $settings.CallingPolicies = Get-CallingPolicies -Properties OrgWideCallingPolicy
-        
+        $settings.Policies = Get-Policies -Properties OrgWideTeamsPolicy, OrgWideAppPolicy, OrgWideCallingPolicy, OrgWideMeetingPolicy
+
         return $settings
       }
 
@@ -78,11 +76,11 @@ Function Test-M365.1-6.1 {
           
         # Teams Policies
         $settings.TeamsPolicies = @{
-          CreatePrivateChannels = ($extractedSettings.TeamsPolicies.OrgWideTeamsPolicy.AllowPrivateChannelCreation) -eq $true ? "Allow" : "Block"
+          CreatePrivateChannels = ($extractedSettings.Policies.OrgWideTeamsPolicy.AllowPrivateChannelCreation) -eq $true ? "Allow" : "Block"
         }
 
         # Apps Policies
-        $orgWideDefaultAppPolicy = $extractedSettings.AppPolicies.OrgWideAppPolicy | Where-Object { $_.ConfigId -eq "Global" }
+        $orgWideDefaultAppPolicy = $extractedSettings.Policies.OrgWideAppPolicy | Where-Object { $_.ConfigId -eq "Global" }
         $settings.AppPolicies = @{
           Name             = $orgWideDefaultAppPolicy.Identity ?? "n/a"
           UploadCustomApps = ($orgWideDefaultAppPolicy.AllowSideLoading) -eq $true ? "Allow" : "Block" ?? "n/a"
@@ -90,7 +88,7 @@ Function Test-M365.1-6.1 {
         }
         
         # Calling policy
-        $orgWideDefaultCallingPolicy = $extractedSettings.CallingPolicies.OrgWideCallingPolicy
+        $orgWideDefaultCallingPolicy = $extractedSettings.Policies.OrgWideCallingPolicy
         $settings.CallingPolicies = @{
           Name                                   = $orgWideDefaultCallingPolicy.Identity ?? "n/a"
           MakePrivateCalls                       = ($orgWideDefaultCallingPolicy.AllowPrivateCalling) -eq $true ? "Allow" : "Block" ?? "n/a"
