@@ -10,24 +10,24 @@ References:
 Configuration:
   - enforces: Teams settings
     with:
-      FeedSuggestionsInUsersActivityFeed: true
+      FeedSuggestionsInUsersActivityFeed: Allow
       WhoCanManageTags: TeamOwners
-      LetTeamOwnersChangeWhoCanManageTags: true
-      CustomTags: true
-      ShiftsAppCanApplyTags: true
-      AllowUsersCanSendEmailsToAChannel: true
-      AllowCitrix: false
-      AllowDropBox: false
-      AllowBox: false
-      AllowGoogleDrive: false
-      AllowEgnyte: false
-      AllowOrganizationTabForUsers: true
+      LetTeamOwnersChangeWhoCanManageTags: Allow
+      CustomTags: Allow
+      ShiftsAppCanApplyTags: Allow
+      AllowUsersCanSendEmailsToAChannel: Allow
+      AllowCitrix: Block
+      AllowDropBox: Block
+      AllowBox: Block
+      AllowGoogleDrive: Block
+      AllowEgnyte: Block
+      AllowOrganizationTabForUsers: Allow
       Require2ndAuthforMeeting: NoAccess
       SetContentPin: RequiredOutsideScheduleMeeting
-      SurfaceHubCanSendMails: true
-      ScopeDirectorySearch: true
-      ExtendedWorkInfoInPeopleSearch: false
-      RoleBasedChatPermissions: false
+      SurfaceHubCanSendMails: Allow
+      ScopeDirectorySearch: Allow
+      ExtendedWorkInfoInPeopleSearch: Block
+      RoleBasedChatPermissions: Block
       # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?)
 
   - enforces: Org-wide default Teams policy
@@ -63,69 +63,75 @@ Configuration:
 
   - enforces: Global Teams meeting policy
     with:
-      Name: Global
-      MeetNowInChannels: true
-      OutlookAddIn: true
-      ChannelMeetingScheduling: true
-      PrivateMeetingScheduling: true
-      EngagementReport: true
-      Meeting registration: true
+      Name: "Global"
+      MeetNowInChannels: Allow
+      OutlookAddIn: Allow
+      ChannelMeetingScheduling: Allow
+      PrivateMeetingScheduling: Allow
+      EngagementReport: Allow
+      MeetingRegistration: Allow
       WhoCanRegister: Everyone
-      ModeForIPAudio: OutgoingAndIncomingAudioEnabled
-      ModeforIPVideo: OutgoingAndIncomingAudioEnabled
-      IPVideo: true
-      LocalBroadcasting: false
-      MediaBitRate: 50000
-      NetworkConfigurationLookup: false
-      Transcription: false
-      CloudRecording: true
-      MeetingsAutomaticallyExpire: true
-      DefaultExpirationTime: 60
-      StoreRecordingsOutsideofYourCountry: false
+      Audio: Allow
+      ModeForIPAudio: EnabledOutgoingIncoming
+      ModeforIPVideo: EnabledOutgoingIncoming
+      IPVideo: Allow
+      LocalBroadcasting: Block
+      MediaBitRateKb: 50000
+      NetworkConfigurationLookup: Block
+      Transcription: Block
+      CloudRecording: Allow
+      MeetingsAutomaticallyExpire: Allow
+      DefaultExpirationTimeDays: 60
+      StoreRecordingsOutsideofYourCountry: Block
       ScreenSharingMode: EntireScreen
-      InternalAllowParticipantGiveRequestControl: true
-      ExternalAllowParticipantGiveRequestControl: false
-      PowerPointSharing: true
-      Whiteboard: true
-      SharedNotes: true
+      AllowInternalParticipantGiveRequestControl: Allow
+      AllowExternalParticipantGiveRequestControl: Block
+      PowerPointSharing: Allow
+      Whiteboard: Allow
+      SharedNotes: Allow
       SelectVideoFilters: AllFilters
-      AnonymousJoinMeeting: false
-      AnonymousStartMeeting: false
-      RolesWithPresenterRights: EveryoneButUserCanOverride
+      AnonymousJoinMeeting: Block
+      AnonymousStartMeeting: Block
+      RolesWithPresenterRights: EveryoneUserOverride # Everyone, but user can override
       AutoAdmitPeople: PeopleInMyOrganization
-      AllowDialInBypassLobby: false
-      MeetNowPrivateMeetings: true
+      AllowDialInBypassLobby: Block
+      MeetNowPrivateMeetings: Allow
       LiveCaptions: NotEnabledButTheUserCanOverride
-      ChatInMeetings: true
+      ChatInMeetings: Allow
+    references:
+      ChannelMeetingScheduling: "see setting 'Channel meeting scheduling'"
+      MeetNowInChannels: "see setting 'Meet now in channel meetings' and 'Meet now in private meetings'"
 
   - enforces: Org-wide default Teams live events policy
     with:
-      Name: Global (Org-wide default)
-      LiveEventScheduling: true
-      TranscriptionForAttendees: false
-      WhoCanJoinLiveEvent: EveryoneInTheOrganization
-      WhoCanRecordLiveEvent: AlwaysRecord
+      Name: "Global"
+      LiveEventScheduling: Allow
+      TranscriptionForAttendees: Block
+      WhoCanJoin: EveryoneInCompany
+      RecordingMode: AlwaysEnabled
 
   - enforces: External access settings
     with:
-      UsersInExternalOrgs: AllowOnlySpecificExternalDomains
-      MyOrgCanCommunicateWithUnmanagedAccounts: false
-      UnmanagedAccountsCanContactMyOrg: false
-      UsersCanCommunicateWithSkypeUsers: true
+      UsersInExternalOrgs: AllowEveryone || AllowOnlySpecificExternalDomains # TODO: ⭐️ discuss setting; what value(s) are we going to recommend?
+      AllowedExternalDomains: "contoso.com" # Set this in a comma separated list; set to blank if all domains allowed
+      ExternalAccessWithTrialTenants: Block
+      MyOrgCanCommunicateWithUnmanagedAccounts: Block
+      UnmanagedAccountsCanContactMyOrg: Block
+      # UsersCanCommunicateWithSkypeUsers: Allow # not settable anymore (default policy in admin center)
 
   - enforces: Guest access settings
     with:
-      AllowGuestsToAccessTeams: true
-      MakePrivateCalls: true
-      VideoConferencing: true
+      AllowGuestsToAccessTeams: Allow
+      MakePrivateCalls: Allow
+      VideoConferencing: Allow
       ScreenSharingMode: EntireScreen
-      MeetNow: true
-      EditSentMessages: true
-      DeleteSentMessages: true
-      DeleteChat: true
-      Chat: true
-      GiphyInConversations: false
+      MeetNow: Allow
+      EditSentMessages: Allow
+      DeleteSentMessages: Allow
+      DeleteChat: Allow
+      Chat: Allow
+      GiphyInConversations: Block
       GiphyContentRating: Strict
-      MemesInConversations: false
-      StickersInConversations: false
-      ImmerseReaderForMessages: true
+      MemesInConversations: Block
+      StickersInConversations: Block
+      ImmerseReaderForMessages: Allow

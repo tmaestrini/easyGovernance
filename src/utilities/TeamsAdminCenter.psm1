@@ -99,43 +99,68 @@ Function Invoke-TeamsAdminCenterRequest {
 Function Get-TeamsSettings {
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateSet("FeedSuggestionsInUsersActivityFeed", "WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", 
-            "CustomTags", "ShiftsAppCanApplyTags", "AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", 
-            "AllowBox", "AllowGoogleDrive", "AllowEgnyte", "AllowOrganizationTabForUsers", 
-            "Require2ndAuthforMeeting", "SetContentPin", "SurfaceHubCanSendMails", "ScopeDirectorySearch", 
-            "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")]
+        [ValidateSet("ActivityFeed", "TeamsTargetingPolicy", "TeamsClientConfiguration", "ExternalAccess", "GuestAccess")]
         [string[]]$Properties
     )
 
-    $feedSuggestionsInUsersActivityFeedProperties = @("FeedSuggestionsInUsersActivityFeed")
-    $teamsTargetingProperties = @("WhoCanManageTags", "LetTeamOwnersChangeWhoCanManageTags", "CustomTags", "ShiftsAppCanApplyTags")
-    $teamsClientProperties = @("AllowEmailIntoChannel", "AllowCitrix", "AllowDropBox", "AllowBox", "AllowGoogleDrive", 
-        "AllowEgnyte", "AllowOrganizationTabForUsers", "Require2ndAuthforMeeting", "SetContentPin", 
-        "SurfaceHubCanSendMails", "ScopeDirectorySearch", "ExtendedWorkInfoInPeopleSearch", "RoleBasedChatPermissions", "ProvideLinkToSupportRequestPage")
-
-    $apiSelection = @()
-    
-    # FeedSuggestionsInUsersActivityFeed in API call
-    if ($Properties | Where-Object { $_ -in $feedSuggestionsInUsersActivityFeedProperties }) {
-        $apiSelection += @{name = "FeedSuggestionsInUsersActivityFeed"; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "SuggestedFeedsEnabledType" }
-    }
-    # TeamsTargetingPolicy in API call
-    if ($Properties | Where-Object { $_ -in $teamsTargetingProperties }) {
-        $apiSelection += @{
-            name = "TeamsTargetingPolicy"; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global"
+    $apiSelection = switch ($Properties) {
+        "ActivityFeed" { @{name = $_; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "" } }
+        "TeamsTargetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global" } }
+        "TeamsClientConfiguration" { @{name = $_; path = "Skype.Policy/configurations/TeamsClientConfiguration/configuration/Global" } }
+        "ExternalAccess" { 
+            @(
+                @{name = "ExternalAccess.TenantFederationSettings"; path = "Skype.Policy/configurations/TenantFederationSettings/configuration/global" }
+                @{name = "ExternalAccess.TeamsExternalAccessConfiguration"; path = "Skype.Policy/configurations/TeamsExternalAccessConfiguration/configuration/global" }
+            )
         }
-    }
-    # TeamsClientConfiguration in API call
-    if ($Properties | Where-Object { $_ -in $teamsClientProperties }) {
-        $apiSelection += @{
-            name = "TeamsClientConfiguration"; path = "Skype.Policy/configurations/TeamsClientConfiguration/configuration/Global"
+        "GuestAccess" {
+            @(
+                @{name = "GuestAccess.TeamsClientConfiguration"; path = "Skype.Policy/configurations/TeamsClientConfiguration" } 
+                @{name = "GuestAccess.TeamsGuestCallingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestCallingConfiguration" } 
+                @{name = "GuestAccess.TeamsGuestMeetingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestMeetingConfiguration" } 
+                @{name = "GuestAccess.TeamsGuestMessagingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestMessagingConfiguration" } 
+            )
         }
     }
 
     # Only make the API call if we have requests to make
     if ($apiSelection.Count -gt 0) {
         try {
-            return Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+            $result = Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+           
+            # Merge ExternalAcces properties into a single object
+            $externalAccessProperties = $result.PSObject.Properties | Where-Object { $_.Name -like "*ExternalAccess*" }
+            if ($externalAccessProperties) {
+                $globalExternalAccessConfigurations = [PSCustomObject]@{}
+                foreach ($prop in $externalAccessProperties) {
+                    if ($prop.Value -and $prop.Value[0].Identity -eq "Global") {
+                        $prop.Value[0].PSObject.Properties | ForEach-Object {
+                            $globalExternalAccessConfigurations | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value -Force
+                        }
+                    }
+                    # Remove individual GuestAccess properties from the result
+                    $result.PSObject.Properties.Remove($prop.Name)
+                }
+            }
+            $result | Add-Member -MemberType NoteProperty -Name "ExternalAccess" -Value $globalExternalAccessConfigurations
+
+            # Merge GuestAccess properties into a single object
+            $guestAccessProperties = $result.PSObject.Properties | Where-Object { $_.Name -like "*GuestAccess*" }
+            if ($guestAccessProperties) {
+                $globalGuestConfigurations = [PSCustomObject]@{}
+                foreach ($prop in $guestAccessProperties) {
+                    if ($prop.Value -and $prop.Value[0].Identity -eq "Global") {
+                        $prop.Value[0].PSObject.Properties | ForEach-Object {
+                            $globalGuestConfigurations | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value -Force
+                        }
+                    }
+                    # Remove individual GuestAccess properties from the result
+                    $result.PSObject.Properties.Remove($prop.Name)
+                }
+            }
+            $result | Add-Member -MemberType NoteProperty -Name "GuestAccess" -Value $globalGuestConfigurations
+            
+            return $result
         }
         catch { 
             throw $_
@@ -150,15 +175,16 @@ Function Get-TeamsSettings {
 Function Get-Policies {
     param (
         [Parameter(Mandatory = $true)]
-        [ValidateSet("OrgWideTeamsPolicy", "OrgWideAppPolicy", "OrgWideCallingPolicy", "OrgWideMeetingPolicy")]
+        [ValidateSet("OrgWideTeamsPolicy", "OrgWideAppPolicy", "OrgWideCallingPolicy", "OrgWideMeetingPolicy", "OrgWideLiveEventsPolicy")]
         [string[]]$Properties
     )
 
     $apiSelection = switch ($Properties) {
         "OrgWideTeamsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsChannelsPolicy/configuration/Global" } }
-        "OrgWideAppPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsAppSetupPolicy" } }
+        "OrgWideAppPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsAppSetupPolicy/configuration/Global" } }
         "OrgWideCallingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global" } }
         "OrgWideMeetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global" } }
+        "OrgWideLiveEventsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingBroadcastPolicy/configuration/Global" } }
 
         Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }
