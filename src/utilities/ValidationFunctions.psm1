@@ -22,6 +22,8 @@ function Test-Settings {
   Begin {
     $testResult = @{};
 
+    # TODO: Compare complex settings along the approach in issue 52 (power platform)
+
     # Helper function to serialize complex objects for comparison
     function ConvertTo-SerializableValue {
       param([object]$Value)
@@ -113,6 +115,7 @@ function Test-Settings {
             $test = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
           }
           # If $settings.$key is an array, we compare it with the tenant settings
+          # TODO: distinguish array comparison from object comparison (by doing a sorted string comparison)
           elseif ($settings.$key -is [array]) {
             $test = Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
           }
