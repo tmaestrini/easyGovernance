@@ -17,11 +17,11 @@ $Script:ScopeConfig = @{}
 Function Connect-TeamsAdminCenter {
     param(
         [Parameter(Mandatory = $false)]
-        [ValidateSet("Standard", "Scope1")] [string]$Scope = "Standard"
+        [ValidateSet("Standard", "SpacesAPI")] [string]$Scope = "Standard"
     )
 
     $Script:ScopeConfig = switch ($Scope) {
-        "Scope1" { 
+        "SpacesAPI" { 
             @{
                 Resource = "https://api.spaces.skype.com"  # Microsoft Teams Policy Center
                 BaseUrl  = "https://admin.microsoft.com/api"
