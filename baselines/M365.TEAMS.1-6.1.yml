@@ -28,7 +28,7 @@ Configuration:
       ScopeDirectorySearch: Allow
       ExtendedWorkInfoInPeopleSearch: Block
       RoleBasedChatPermissions: Block
-      # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: should be "tenantSharedChannelsSettings" https://teams.microsoft.com/api/mt/emea/beta/admin/tenantSharedChannelsSettings
 
   - enforces: Org-wide default Teams policy
     with:
@@ -38,8 +38,9 @@ Configuration:
   - enforces: Org-wide default Teams App policy
     with:
       Name: "Global"
-      # MicrosoftApps: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
-      # ThirdPartyApps: Block # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # TODO: ⭐️ [Dako365]: we need to add "tailored apps" for tenants with F license, value needs to be discussed, API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "DefaultApp", "availableToType": "None" 
+      # MicrosoftApps: Allow # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "GlobalApp", "availableToType": "All"
+      # ThirdPartyApps: Block # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "PrivateApp", "availableToType": "None"
       UploadCustomApps: Block
       UserPinning: Allow
 
@@ -48,10 +49,10 @@ Configuration:
       Name: "Global"
       MakePrivateCalls: Allow
       CloudRecordingForCalling: Block
-      # InternalCallForwardingAndRinging: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
-      # ExternalCallForwardingAndRinging: Block # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # InternalCallForwardingAndRinging: Allow # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://api.interfaces.records.teams.microsoft.com/Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global AllowCallForwardingToUser : false
+      # ExternalCallForwardingAndRinging: Block # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://api.interfaces.records.teams.microsoft.com/Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global AllowCallForwardingToPhone : false
       VoicemailEnabledForRoutingInboundCalls: AlwaysEnabled || UserOverride
-      # DelegationInboundOutbound: Allow # TODO: ⭐️ discuss API call (do you know how to get it?)
+      # DelegationInboundOutbound: Allow # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://api.interfaces.records.teams.microsoft.com/Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global AllowDelegation : false
       PreventTollBypass: Block
       MusicOnHoldPSTN: Enabled
       BusyOnBusy: Allow
@@ -59,7 +60,7 @@ Configuration:
       RealTimeCaptions: Allow
       AutoAnswerMeetingInvites: Block
       SIPDevicesPerformCalling: Block
-      CopilotEnabled: Block # TODO: ⭐️ discuss API call (what value are we going to recommend?)
+      CopilotEnabled: Block # TODO: ⭐️ discuss API call (what value are we going to recommend?) [Dako365]: I would prefer to go with the least permissive approach -> disabled
 
   - enforces: Global Teams meeting policy
     with:
@@ -112,7 +113,7 @@ Configuration:
 
   - enforces: External access settings
     with:
-      UsersInExternalOrgs: AllowEveryone || AllowOnlySpecificExternalDomains # TODO: ⭐️ discuss setting; what value(s) are we going to recommend?
+      UsersInExternalOrgs: AllowEveryone || AllowOnlySpecificExternalDomains # TODO: ⭐️ discuss setting; what value(s) are we going to recommend? [Dako365]: I would prefer to go with the least permissive approach -> AllowOnlySpecificExternalDomains
       AllowedExternalDomains: "contoso.com" # Set this in a comma separated list; set to blank if all domains allowed
       ExternalAccessWithTrialTenants: Block
       MyOrgCanCommunicateWithUnmanagedAccounts: Block
