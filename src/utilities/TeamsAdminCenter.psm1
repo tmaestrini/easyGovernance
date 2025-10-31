@@ -69,15 +69,20 @@ Function Invoke-TeamsAdminCenterRequest {
         throw $_
     }
 
-    $headers = @{ Authorization = "Bearer $token" }
+    $headers = @{ 
+        Authorization  = "Bearer $token" 
+        "Content-Type" = "application/json"
+    }
 
     $propertiesValues = [PSCustomobject] @{}
     $requests = $ApiRequests | Foreach-Object {
         $req = $_
         try {
-            $path = "$($Script:ScopeConfig.BaseUrl)/$($req.path -replace "{{tenantId}}", $tenantId)"
+            $url = [System.UriBuilder]::new($Script:ScopeConfig.BaseUrl)
+            $url.Path = [System.IO.Path]::Combine($url.Path, $req.path -replace "{{tenantId}}", $tenantId)
+
             $method = $($req.method) ? $req.method : "GET"
-            $result = Invoke-RestMethod -Uri $path -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
+            $result = Invoke-RestMethod -Uri $url.Uri -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
             $propertiesValues | Add-Member -MemberType NoteProperty -Name $req.name -Value ($req.attr ? $result.$($req.attr) : $result)
         }
         catch {
