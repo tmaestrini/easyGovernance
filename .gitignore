@@ -16,3 +16,7 @@ tests/*
 
 # Exclude macOS system files
 .DS_Store
+
+# Exclude VSCode settings
+.vscode/
+.demo
