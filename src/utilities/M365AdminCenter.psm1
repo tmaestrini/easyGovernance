@@ -13,6 +13,7 @@
 #>
 
 $Script:M365AdminCenterToken = $null
+$Script:TenantId = $null
 
 Function Connect-M365AdminCenter {
 
@@ -22,7 +23,8 @@ Function Connect-M365AdminCenter {
         if (!$Global:connectionContextName) { throw "No valid access provided." }
         $ctx = Get-AzContext -Name $Global:connectionContextName
         
-        $Script:M365AdminCenterToken = Get-AzAccessToken -ResourceUrl $resource -TenantId $ctx.Tenant.Id
+        $Script:TenantId = $ctx.Tenant.Id
+        $Script:M365AdminCenterToken = Get-AzAccessToken -ResourceUrl $resource -TenantId $Script:TenantId
         Write-Log -Level DEBUG "Connection established to M365 Admin Center"
     }
     catch {
@@ -56,7 +58,7 @@ Function Invoke-M365AdminCenterRequest {
         $req = $_
         try {
             $url = [System.UriBuilder]::new("https://admin.microsoft.com")
-            $url.Path = [System.IO.Path]::Combine($url.Path, ($req.path -replace "{{tenantId}}", $tenantId))
+            $url.Path = [System.IO.Path]::Combine($url.Path, ($req.path -replace "{{tenantId}}", $Script:TenantId))
 
             $method = $($req.method) ? $req.method : "GET"
             $result = Invoke-RestMethod -Uri $url.Uri -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
@@ -139,7 +141,7 @@ Function Get-M365TenantSettingsSecurityAndPrivacy {
         "IdleSessionTimeout" { @{name = $_; path = "admin/api/settings/security/activitybasedtimeout" } }
         "PasswordExpirationPolicyNeverExpire" { @{name = $_; path = "admin/api/Settings/security/passwordpolicy"; attr = "NeverExpire" } }
         "PrivacyProfile" { @{name = $_; path = "admin/api/Settings/security/privacypolicy" } }
-        "Pronouns" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/pronouns"; attr = "isEnabledInOrganization" } }
+        "Pronouns" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/pronouns" } }
         "SharingAllowUsersToAddGuests" { @{name = $_; path = "admin/api/settings/security/guestUserPolicy"; attr = "AllowGuestInvitations" } }
         
         Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
