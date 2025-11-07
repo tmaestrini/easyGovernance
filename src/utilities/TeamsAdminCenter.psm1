@@ -13,6 +13,7 @@
 
 $Script:TeamsAdminCenterToken = $null
 $Script:ScopeConfig = @{}
+$Script:TenantId = $null
 
 Function Connect-TeamsAdminCenter {
     param(
@@ -38,8 +39,9 @@ Function Connect-TeamsAdminCenter {
     try {
         if (!$Global:connectionContextName) { throw "No valid access provided." }
         $ctx = Get-AzContext -Name $Global:connectionContextName
+        $Script:TenantId = $ctx.Tenant.Id
 
-        $Script:TeamsAdminCenterToken = Get-AzAccessToken -ResourceUrl $Script:ScopeConfig.Resource -TenantId $ctx.Tenant.Id
+        $Script:TeamsAdminCenterToken = Get-AzAccessToken -ResourceUrl $Script:ScopeConfig.Resource -TenantId $Script:TenantId
         Write-Log -Level DEBUG "Connection established to Teams Admin Center ($Scope)"
     }
     catch {
@@ -79,7 +81,7 @@ Function Invoke-TeamsAdminCenterRequest {
         $req = $_
         try {
             $url = [System.UriBuilder]::new($Script:ScopeConfig.BaseUrl)
-            $url.Path = [System.IO.Path]::Combine($url.Path, $req.path -replace "{{tenantId}}", $tenantId)
+            $url.Path = [System.IO.Path]::Combine($url.Path, $req.path -replace "{{tenantId}}", $Script:TenantId)
 
             $method = $($req.method) ? $req.method : "GET"
             $result = Invoke-RestMethod -Uri $url.Uri -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
