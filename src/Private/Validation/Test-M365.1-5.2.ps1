@@ -43,7 +43,7 @@ Function Test-M365.1-5.2 {
         $tenantInternalSettings = Get-PnPTenantInternalSetting
 
         # combine all values from $tenantSettings and $tenantInternalSettings
-        $combinedSettings = @{}
+        [hashtable] $combinedSettings = @{}
         $tenantSettings.PSObject.Properties | ForEach-Object { $combinedSettings[$_.Name] = $_.Value }
         $tenantInternalSettings.PSObject.Properties | ForEach-Object { $combinedSettings[$_.Name] = $_.Value }
         $tenantSettingsToReturn = [PSCustomObject] $combinedSettings
