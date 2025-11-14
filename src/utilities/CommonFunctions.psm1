@@ -167,7 +167,7 @@ The function logs the connection attempt and success or failure messages.
 Function Connect-TenantAzure {
   [CmdletBinding()]
   [OutputType([void])]
-
+  
   Param
   (
     [Parameter(Mandatory = $true, 
@@ -175,12 +175,15 @@ Function Connect-TenantAzure {
   )
 
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
+  
   try {
+    # Clear context only if we are not keeping connections alive
     if (!$Script:KeepConnectionsAlive) {
       Clear-AzContext -Force
     }
     $ctx = Get-AzContext -Name $Global:connectionContextName
 
+    # Establish connection
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
       Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `

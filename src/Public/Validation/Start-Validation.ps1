@@ -24,7 +24,14 @@ Function Start-Validation {
     Write-Log "New tenant validation routine started"
   
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
-    Connect-Tenant -Tenant $tenantConfig.Tenant -KeepConnectionsAlive:$KeepConnectionsAlive.IsPresent
+
+    # On first run ($Global:easyGovernanceInitialRunSuccessful not set!), always connect without regard to KeepConnectionsAlive
+    if(!$Global:easyGovernanceInitialRunSuccessful) {
+      $Global:easyGovernanceInitialRunSuccessful = $true
+      Connect-Tenant -Tenant $tenantConfig.Tenant
+    } else {
+      Connect-Tenant -Tenant $tenantConfig.Tenant -KeepConnectionsAlive:$KeepConnectionsAlive.IsPresent
+    }
 
     Write-Log "*****************************************"
     Write-Log "🔥 VALIDATING TENANT: $($tenantConfig.Tenant)"
