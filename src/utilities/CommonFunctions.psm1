@@ -95,7 +95,10 @@ Function Connect-Tenant {
   Param
   (
     [Parameter(Mandatory = $true, 
-      HelpMessage = "The name of the tenant")][string] $Tenant
+      HelpMessage = "The name of the tenant")][string] $Tenant,
+    [Parameter(
+      Mandatory = $false
+    )][switch]$KeepConnectionsAlive
   )
 
   Write-Host "Establishing connection to your Azure tenant '$($Tenant).onmicrosoft.com':"
@@ -103,6 +106,8 @@ Function Connect-Tenant {
     Write-Host "👉 Press any key to login as administrator..."
     $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   }
+
+  if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
   
   try {
     Connect-TenantAzure -Tenant $Tenant
@@ -171,7 +176,9 @@ Function Connect-TenantAzure {
 
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   try {
-    Clear-AzContext -Force
+    if (!$Script:KeepConnectionsAlive) {
+      Clear-AzContext -Force
+    }
     $ctx = Get-AzContext -Name $Global:connectionContextName
 
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
