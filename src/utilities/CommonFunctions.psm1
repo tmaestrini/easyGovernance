@@ -57,6 +57,7 @@ Function Test-RequiredModules {
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
     @{name = "EPS"; version = "1.0.0" }  
+    @{name = "Pester"; version = "5.7.1" }  
   )
   $moduleCheckOk = $true
 

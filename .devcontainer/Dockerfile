@@ -16,6 +16,7 @@ RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name PSLogs -Req
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name MarkdownPS -RequiredVersion 1.9"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name MarkdownToHtml -RequiredVersion 2.7.1"
 RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name EPS -RequiredVersion 1.0.0"
+RUN pwsh -c "Install-Module -Force -Scope CurrentUser -Verbose -Name Pester -RequiredVersion 5.7.1"
 
 # Overwrites Default Shell to PowerShell
 SHELL [ "pwsh", "-c" ]

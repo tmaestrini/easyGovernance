@@ -26,6 +26,7 @@ The implementation is based on the following PowerShell modules:
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
 ![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
 ![EPS](https://img.shields.io/badge/EPS-1.0.0-blue.svg)
+![Pester](https://img.shields.io/badge/Pester-5.7.1-blue.svg)
 
 ## Applies to
 
@@ -91,6 +92,7 @@ Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
 Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 Install-Module -Name EPS -RequiredVersion 1.0.0 -Scope CurrentUser
+Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser
 ```
 
 ## Usage
