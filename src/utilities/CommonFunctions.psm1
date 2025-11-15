@@ -16,8 +16,7 @@ Function Initialize-EasyGovernance {
   }
 
   Clear-Host
-  Write-Host "easyGovernance · Tenant Validation Tool" -ForegroundColor Green
-  Write-Host "👉 https://github.com/tmaestrini/easyGovernance`n" -ForegroundColor Green
+  Get-Preamble
 
   # Set things up
   try {
@@ -27,6 +26,18 @@ Function Initialize-EasyGovernance {
     Write-Host "✘ Initialization failed." -ForegroundColor Red
     throw "Terminating routine"
   }
+}
+
+Function Get-Preamble {
+  $line = "─" * 58
+  Write-Host "`n`n┌$line┐" -ForegroundColor White
+  Write-Host "│  🚀 " -NoNewline -ForegroundColor White
+  Write-Host "easyGovernance" -NoNewline -ForegroundColor Green
+  Write-Host " · M365 Tenant Validation Tool         │" -ForegroundColor White
+  Write-Host "│  👉 " -NoNewline -ForegroundColor White
+  Write-Host "https://github.com/tmaestrini/easyGovernance" -NoNewline -ForegroundColor Blue
+  Write-Host "         │" -ForegroundColor White
+  Write-Host "└$line┘`n`n" -ForegroundColor White
 }
 
 <#
