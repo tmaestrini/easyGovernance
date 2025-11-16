@@ -20,21 +20,7 @@ function Test-Settings {
   )
 
   Begin {
-    $testResult = @{};
-
-    # Helper function to serialize complex objects for comparison
-    function ConvertTo-SerializableValue {
-      param([object]$Value)
-      
-      # Only serialize if it's not a simple type (string, number, boolean)
-      if ($Value -is [System.Enum] -or $Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
-        return $Value
-      }
-      else {
-        return $Value | ConvertTo-Json -Depth 10 -Compress
-      }
-    }
-    
+    $testResults = @{};
     # Function to handle OR operator validation (||)
     function Test-OrOperator {
       param(
@@ -80,20 +66,6 @@ function Test-Settings {
       
       return $test
     }
-
-    function Set-ReferenceHint {
-      param(
-        [string]$Key,
-        [PSCustomObject]$BaselineSettingsGroup,
-        [PSCustomObject]$OutputObject
-      )
-
-      # Look for the key in the baseline references
-      if ($BaselineSettingsGroup.references -and $BaselineSettingsGroup.references.$Key) {
-        $OutputObject | Add-Member -MemberType NoteProperty -Name "ReferenceHint" -Value $BaselineSettingsGroup.references.$Key
-      }
-      # No return needed - object is modified by reference
-    }
   }
 
   Process {
@@ -118,41 +90,24 @@ function Test-Settings {
             $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
           }
           
-          $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-          $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-          # If the test result is not null, we have a result to report
+          # create a test result object
           if ($null -ne $testRun -and $null -ne $settings.$key) { 
+            $testResult = New-TestResult -GroupName $groupName -Key $key -BaselineSettingsGroup $baselineSettingsGroup -BaselineConfigItem $settings.$key `
+                            -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
+            $testResults.Add("$groupName-$key", $testResult)
 
-            $totalFailed = ($testRun | Measure-Object -Property FailedCount -Sum).Sum
-            $errorHint = ($totalFailed -gt 0) ? ($testRun.Tests | Where-Object { $_.Result -eq 'Failed' } | ForEach-Object { "→ [$($_.Data)] $($_.ErrorRecord[0]?.ToString() ?? 'No additional error details')" }) : ""
-
-            $outputObject = [PSCustomObject] @{
-              Group         = $groupName
-              Setting       = $key
-              Result        = ($totalFailed -eq 0) ? "✔︎ [$tenantValue]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$tenantValue']"
-              ResultDetails = $errorHint        
-              Status        = ($totalFailed -eq 0) ? "PASS" : "FAIL"
-              TotalTests    = ($testRun | Measure-Object -Property TotalCount -Sum).Sum
-            }
-            
-            if ($outputObject.Status -eq "FAIL") {
-              Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
-            }
-
-            $testResult.Add("$groupName-$key", $outputObject)
           }
           # If the tenant value or the test result is null, we have to report an issue
           else { 
-            $outputObject = [PSCustomObject] @{
+            $testResult = [PSCustomObject] @{
               Group   = $groupName
               Setting = $key
               Result  = "--- [Should be '$($baselineValue -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
-            Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
+            # Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $testResult
             
-            $testResult.Add("$groupName-$key", $outputObject);
+            $testResults.Add("$groupName-$key", $testResult);
             Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
           }
         }
@@ -165,8 +120,8 @@ function Test-Settings {
   }
   
   End {
-    $testResult = $testResult | Sort-Object -Property Key -Unique
-    return $testResult.Values
+    $testResults = $testResults | Sort-Object -Property Key -Unique
+    return $testResults.Values
   }
 }
 
@@ -179,15 +134,15 @@ function Get-TestStatistics {
     [Parameter(
       Mandatory = $true
     )][PSCustomObject] 
-    $testResult
+    $TestResults
   )
 
   Process {
     $stats = @{
-      Total  = $testResult.Count
-      Passed = $testResult | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
-      Failed = $testResult | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
-      Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
+      Total  = $TestResults.Count
+      Passed = $TestResults | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
+      Failed = $TestResults | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
+      Manual = $TestResults | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
     }
     
     $output = [System.Text.StringBuilder]::new()
