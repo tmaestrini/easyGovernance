@@ -77,8 +77,8 @@ Function Invoke-BaselineItemTests {
     }
 
     return New-PesterContainer -ScriptBlock $testDefinition -Data @{
-      TenantSettings     = $TenantSettings
-      BaselineItems      = $baselineItems
+      TenantSettings = $TenantSettings
+      BaselineItems  = $baselineItems
     }
   }
 
@@ -102,8 +102,21 @@ Function New-TestResult {
     [PSCustomObject]$TestDetails
   )
 
-  $baselineConfigItemValue = ConvertTo-SerializableValue -Value $BaselineConfigItem
-  $TenantSettingsValue = ConvertTo-SerializableValue -Value $TenantSettingsItem
+  # Helper function to serialize objects
+  function ConvertTo-SerializedValue {
+    param([object]$Value)
+      
+    # Only serialize if it's not a simple type (string, number, boolean)
+    if ($Value -is [System.Enum] -or $Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
+      return $Value
+    }
+    else {
+      return $Value | ConvertTo-Json -Depth 10 -Compress
+    }
+  }
+
+  $baselineConfigItemValue = ConvertTo-SerializedValue -Value $BaselineConfigItem
+  $TenantSettingsValue = ConvertTo-SerializedValue -Value $TenantSettingsItem
 
   $outputObject = [PSCustomObject] @{}
 
@@ -136,17 +149,4 @@ Function New-TestResult {
   }
 
   return $outputObject
-}
-
-# Helper function to serialize complex objects for comparison
-function ConvertTo-SerializableValue {
-  param([object]$Value)
-      
-  # Only serialize if it's not a simple type (string, number, boolean)
-  if ($Value -is [System.Enum] -or $Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
-    return $Value
-  }
-  else {
-    return $Value | ConvertTo-Json -Depth 10 -Compress
-  }
 }
