@@ -6,32 +6,33 @@ Function Invoke-BaselineItemTests {
     [PSCustomObject] $BaselineConfigItem
   )
 
-  $BaselineItemKeys = [BaselineItemStrategy]::GetKeys($BaselineConfigItem)
+  Function New-PesterTestForBaselineItem {
+    $BaselineItemKeys = [BaselineItemStrategy]::GetKeys($BaselineConfigItem)
 
-  $testDefinition = {
-    Describe "Test Tenant settings $($TenantSettings) against Baseline item $($BaselineConfigItem)" {
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $BaselineConfigItem, $BaselineItemKeys)
 
-      It "Tenant setting matches expected value in Baseline item '<_>'" -ForEach $BaselineItemKeys {
-        $itemAttribute = $_
-      
-        # Get expected value from baseline
-        $expectedValue = [BaselineItemStrategy]::GetValue($BaselineConfigItem, $itemAttribute)
-      
-        # Get actual value from tenant settings
-        $actualValue = [BaselineItemStrategy]::GetValue($TenantSettings, $itemAttribute)
-      
-        # Compare values
-        $actualValue | Should -Be $expectedValue
+      Describe "Test Tenant settings $($TenantSettings) against Baseline item $($BaselineConfigItem)" {
+
+        It "Tenant setting matches expected value in Baseline item '<_>'" -ForEach $BaselineItemKeys {
+          $itemAttribute = $_
+        
+          $expectedValue = [BaselineItemStrategy]::GetValue($BaselineConfigItem, $itemAttribute)
+          $actualValue = [BaselineItemStrategy]::GetValue($TenantSettings, $itemAttribute)
+        
+          $actualValue | Should -Be $expectedValue
+        }
       }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings     = $TenantSettings
+      BaselineConfigItem = $BaselineConfigItem
+      BaselineItemKeys   = $BaselineItemKeys
     }
   }
 
-  # Execute Pester and return results
-  $container = New-PesterContainer -ScriptBlock $testDefinition -Data @{
-    TenantSettings     = $TenantSettings
-    BaselineConfigItem = $BaselineConfigItem
-  }
-
+  $container = New-PesterTestForBaselineItem
   return Invoke-Pester -Container $container -PassThru -Output None
 }
 
