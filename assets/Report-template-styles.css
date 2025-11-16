@@ -80,13 +80,17 @@ h1 {
         font-weight: 800;
         margin-bottom: 1rem;
     }
+
+    .report-stats {
+        padding: 20px 0px;
+    }
 }
 
 .summary-cards {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-bottom: 40px;
+    margin: 20px 0px;
     gap: 20px;
 }
 
@@ -201,7 +205,9 @@ table.report-details {
         width: 360px;
         min-width: 360px;
         max-width: 360px;
-    };
+    }
+
+    ;
 
     td:nth-child(3) {
         width: 70px;
