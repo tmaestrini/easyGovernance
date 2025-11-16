@@ -41,6 +41,9 @@ function Test-Settings {
               -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
             $testResults.Add("$groupName-$key", $testResult)
           }
+          else {
+            throw "Test run for $key in group $groupName not possible."
+          }
         }
         catch {
           Write-Log -Level ERROR -Message "$($key): $($_)"
