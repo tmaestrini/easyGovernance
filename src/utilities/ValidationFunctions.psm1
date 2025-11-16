@@ -22,50 +22,6 @@ function Test-Settings {
   Begin {
     $testResults = @{};
     # Function to handle OR operator validation (||)
-    function Test-OrOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\|\|"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys matches, we can stop checking
-        if ($test.SideIndicator -eq "==") {
-          break
-        }
-      }
-      
-      return $test
-    }
-    
-    # Function to handle AND operator validation (&&)
-    function Test-AndOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\&\&"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys fails, we can stop checking
-        if ($test.SideIndicator -ne "==") { 
-          break
-        }
-      }
-      
-      return $test
-    }
   }
 
   Process {
@@ -76,39 +32,14 @@ function Test-Settings {
         try {
           $testRun = $null
 
-          # Check if $settings.$key contains an OR operator (||)
-          if ($settings.$key -is [string] -and $settings.$key -like "*||*") {
-            $testRun = Test-OrOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
-          }
-          # Check if $settings.$key contains an AND operator (&&)
-          elseif ($settings.$key -is [string] -and $settings.$key -like "*&&*") {
-            $testRun = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
-          }
-          # Start running PESTER tests for a robust comparison
-          else {
-            Write-Log -Level INFO -Message "Testing group: $groupName with key: $key"
-            $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
-          }
+          Write-Log -Level INFO -Message "Testing group: $groupName with key: $key"
+          $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
           
           # create a test result object
-          if ($null -ne $testRun -and $null -ne $settings.$key) { 
+          if ($null -ne $testRun) { 
             $testResult = New-TestResult -GroupName $groupName -Key $key -BaselineSettingsGroup $baselineSettingsGroup -BaselineConfigItem $settings.$key `
-                            -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
+              -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
             $testResults.Add("$groupName-$key", $testResult)
-
-          }
-          # If the tenant value or the test result is null, we have to report an issue
-          else { 
-            $testResult = [PSCustomObject] @{
-              Group   = $groupName
-              Setting = $key
-              Result  = "--- [Should be '$($baselineValue -join ''' or ''')']"
-              Status  = "CHECK NEEDED"
-            }
-            # Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $testResult
-            
-            $testResults.Add("$groupName-$key", $testResult);
-            Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
           }
         }
         catch {

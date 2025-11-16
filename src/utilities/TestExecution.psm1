@@ -32,7 +32,63 @@ Function Invoke-BaselineItemTests {
     }
   }
 
-  $container = New-PesterTestForBaselineItem
+  Function New-PesterTestOrOperatorInBaselineItem {
+    $baselineItems = $BaselineConfigItem -split "\|\|" | ForEach-Object { $_.Trim() }
+
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $baselineItems)
+      
+
+      Describe "Test baseline item with AND operator" {
+
+        It "Baseline item '<_>' expected to be in tenant setting" {
+          $expectedValues = $baselineItems
+          $actualValue = $TenantSettings
+        
+          # Check if actual value matches ANY of the expected values
+          $actualValue | Should -BeIn $expectedValues
+        }
+      }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings = $TenantSettings
+      BaselineItems  = $baselineItems
+    }
+  }
+
+  Function New-PesterTestAndOperatorInBaselineItem {
+    $baselineItems = $BaselineConfigItem -split "\&\&" | ForEach-Object { $_.Trim() }
+
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $BaselineItems)
+      
+
+      Describe "Test baseline item with AND operator" {
+
+        It "Baseline item '<_>' expected to be in tenant setting" -ForEach $BaselineItems {
+          $expectedValue = $_
+          $actualValue = $TenantSettings
+        
+          # ALL items must match
+          $actualValue | Should -Be $expectedValue
+        }
+      }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings     = $TenantSettings
+      BaselineItems      = $baselineItems
+    }
+  }
+
+  # 
+  $container = Switch ($true) {
+    ($BaselineConfigItem -is [string] -and $BaselineConfigItem -like "*||*") { New-PesterTestOrOperatorInBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem }
+    ($BaselineConfigItem -is [string] -and $BaselineConfigItem -like "*&&*") { New-PesterTestAndOperatorInBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem }
+    Default { New-PesterTestForBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem } 
+  }
+
   return Invoke-Pester -Container $container -PassThru -Output None
 }
 
