@@ -108,7 +108,7 @@ Function New-TestResult {
   $outputObject = [PSCustomObject] @{}
 
   # If the test result is not null, we have a result to report
-  if ($null -ne $TestDetails -and $null -ne $BaselineConfigItem) { 
+  if ($null -ne $TestDetails -and $null -ne $TenantSettingsItem) { 
 
     $totalFailed = ($TestDetails | Measure-Object -Property FailedCount -Sum).Sum
     $errorHint = ($totalFailed -gt 0) ? ($TestDetails.Tests | Where-Object { $_.Result -eq 'Failed' } | ForEach-Object { "→ [$($_.Data)] $($_.ErrorRecord[0]?.ToString() ?? 'No additional error details')" }) : ""
