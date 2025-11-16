@@ -102,51 +102,56 @@ function Test-Settings {
       $settings = $baselineSettingsGroup.with
       foreach ($key in $settings.Keys) {
         try {
-          $test = $null
+          $testRun = $null
 
           # Check if $settings.$key contains an OR operator (||)
           if ($settings.$key -is [string] -and $settings.$key -like "*||*") {
-            $test = Test-OrOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
+            $testRun = Test-OrOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
           }
           # Check if $settings.$key contains an AND operator (&&)
           elseif ($settings.$key -is [string] -and $settings.$key -like "*&&*") {
-            $test = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
+            $testRun = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
           }
-          # If $settings.$key is an array, we compare it with the tenant settings
-          elseif ($settings.$key -is [array]) {
-            $test = Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
-          }
-          # Standard comparison
+          # Start running PESTER tests for a robust comparison
           else {
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-            $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $baselineValue -DifferenceObject $tenantValue -IncludeEqual) : $null
+            Write-Log -Level INFO -Message "Testing group: $groupName with key: $key"
+            $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
           }
-        
+          
+          $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
+          $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
+
           # If the test result is not null, we have a result to report
-          if ($test) { 
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
+          if ($null -ne $testRun -and $null -ne $settings.$key) { 
+
+            $totalFailed = ($testRun | Measure-Object -Property FailedCount -Sum).Sum
+            $errorHint = ($totalFailed -gt 0) ? ($testRun.Tests | Where-Object { $_.Result -eq 'Failed' } | ForEach-Object { "→ [$($_.Data)] $($_.ErrorRecord[0]?.ToString() ?? 'No additional error details')" }) : ""
 
             $outputObject = [PSCustomObject] @{
-              Group   = $groupName
-              Setting = $key
-              Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
-              Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
+              Group         = $groupName
+              Setting       = $key
+              Result        = ($totalFailed -eq 0) ? "✔︎ [$tenantValue]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$tenantValue']"
+              ResultDetails = $errorHint        
+              Status        = ($totalFailed -eq 0) ? "PASS" : "FAIL"
+              TotalTests    = ($testRun | Measure-Object -Property TotalCount -Sum).Sum
             }
-            if ($test.SideIndicator -ne "==") { Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject }
+            
+            if ($outputObject.Status -eq "FAIL") {
+              Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
+            }
+
             $testResult.Add("$groupName-$key", $outputObject)
           }
-          # If the test result is null, we have to report an issue
+          # If the tenant value or the test result is null, we have to report an issue
           else { 
             $outputObject = [PSCustomObject] @{
               Group   = $groupName
               Setting = $key
-              Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
+              Result  = "--- [Should be '$($baselineValue -join ''' or ''')']"
               Status  = "CHECK NEEDED"
             }
             Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
+            
             $testResult.Add("$groupName-$key", $outputObject);
             Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
           }
@@ -194,6 +199,6 @@ function Get-TestStatistics {
     $output.AppendLine($("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual))
     $output.AppendLine("----------------------------")
 
-    return @{stats = $stats; asText = $output.ToString() } 
+    return  @{stats = $stats; asText = $output.ToString() } 
   }
 }
