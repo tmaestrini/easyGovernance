@@ -20,3 +20,4 @@ tests/*
 # Exclude VSCode settings
 .vscode/
 .demo
+.demo/**
