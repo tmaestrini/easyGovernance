@@ -2,12 +2,12 @@
 
 _easyGovernance_ offers a quick and easy way to validate several configurations and resources along predefined configuration baselines for an entire Microsoft 365 tenant or dedicated services.
 
-The purpose of _easyGovernance_ supports consultants and platform administrators in their governance tasks by addressing these use cases:
+The purpose of _easyGovernance_ is to support platform administrators in their governance tasks by addressing these use cases:
 
 - Regularly test service configurations of your tenant(s) based on automated routines
 - Export (or dump) the current service configuration of your tenant's services into a repository (and therefore make the 'state' of the tenant 'readable')
 - Make changes on service configurations traceable
-- Provide proper service reporting without having to create M365 reports manually again and againn
+- Provide proper service reporting without having to create M365 reports manually
 
 By defining a _configuration baseline_ (YAML) that contains all the desired configuration parameters, this tool is a straightforward approach to govern and validate any given environment in M365. It does NOT offer a DSC setup and related mechanisms.
 
