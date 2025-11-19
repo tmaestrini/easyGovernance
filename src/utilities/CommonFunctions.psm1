@@ -16,8 +16,7 @@ Function Initialize-EasyGovernance {
   }
 
   Clear-Host
-  Write-Host "easyGovernance · Tenant Validation Tool" -ForegroundColor Green
-  Write-Host "👉 https://github.com/tmaestrini/easyGovernance`n" -ForegroundColor Green
+  Get-Preamble
 
   # Set things up
   try {
@@ -29,6 +28,18 @@ Function Initialize-EasyGovernance {
   }
 }
 
+Function Get-Preamble {
+  $line = "─" * 58
+  Write-Host "`n`n┌$line┐" -ForegroundColor White
+  Write-Host "│  🚀 " -NoNewline -ForegroundColor White
+  Write-Host "easyGovernance" -NoNewline -ForegroundColor Green
+  Write-Host " · M365 Tenant Validation Tool         │" -ForegroundColor White
+  Write-Host "│  👉 " -NoNewline -ForegroundColor White
+  Write-Host "https://github.com/tmaestrini/easyGovernance" -NoNewline -ForegroundColor Blue
+  Write-Host "         │" -ForegroundColor White
+  Write-Host "└$line┘`n`n" -ForegroundColor White
+}
+
 <#
 .Synopsis
 .DESCRIPTION
@@ -38,14 +49,15 @@ Function Initialize-EasyGovernance {
 Function Test-RequiredModules {
   $requiredModules = @(
     @{name = "powershell-yaml" }
-    @{name = "PnP.PowerShell"; version = "2.12.0" }
-    @{name = "Microsoft.Graph"; version = "2.26.1" }
-    @{name = "Az.Accounts"; version = "4.0.2" }
-    @{name = "Az.Resources"; version = "6.4.0" }
+    @{name = "PnP.PowerShell"; version = "3.1.0" }
+    # @{name = "Microsoft.Graph"; version = "2.26.1" }
+    # @{name = "Az.Accounts"; version = "4.0.2" }
+    # @{name = "Az.Resources"; version = "6.4.0" }
     @{name = "PSLogs"; version = "5.2.1" }
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
     @{name = "EPS"; version = "1.0.0" }  
+    @{name = "Pester"; version = "5.7.1" }  
   )
   $moduleCheckOk = $true
 
@@ -95,7 +107,10 @@ Function Connect-Tenant {
   Param
   (
     [Parameter(Mandatory = $true, 
-      HelpMessage = "The name of the tenant")][string] $Tenant
+      HelpMessage = "The name of the tenant")][string] $Tenant,
+    [Parameter(
+      Mandatory = $false
+    )][switch]$KeepConnectionsAlive
   )
 
   Write-Host "Establishing connection to your Azure tenant '$($Tenant).onmicrosoft.com':"
@@ -103,6 +118,8 @@ Function Connect-Tenant {
     Write-Host "👉 Press any key to login as administrator..."
     $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown") | Out-Null
   }
+
+  if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
   
   try {
     Connect-TenantAzure -Tenant $Tenant
@@ -162,7 +179,7 @@ The function logs the connection attempt and success or failure messages.
 Function Connect-TenantAzure {
   [CmdletBinding()]
   [OutputType([void])]
-
+  
   Param
   (
     [Parameter(Mandatory = $true, 
@@ -170,10 +187,15 @@ Function Connect-TenantAzure {
   )
 
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
+  
   try {
-    Clear-AzContext -Force
+    # Clear context only if we are not keeping connections alive
+    if (!$Script:KeepConnectionsAlive) {
+      Clear-AzContext -Force
+    }
     $ctx = Get-AzContext -Name $Global:connectionContextName
 
+    # Establish connection
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
       Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `

@@ -1,3 +1,5 @@
+using module ..\Private\Validation\Class\BaselineItemStrategy.psm1
+
 <#
 .Synopsis
 .DESCRIPTION
@@ -20,82 +22,8 @@ function Test-Settings {
   )
 
   Begin {
-    $testResult = @{};
-
-    # TODO: Compare complex settings along the approach in issue 52 (power platform)
-
-    # Helper function to serialize complex objects for comparison
-    function ConvertTo-SerializableValue {
-      param([object]$Value)
-      
-      # Only serialize if it's not a simple type (string, number, boolean)
-      if ($Value -is [System.Enum] -or $Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
-        return $Value
-      }
-      else {
-        return $Value | ConvertTo-Json -Depth 10 -Compress
-      }
-    }
-    
+    $testResults = @{};
     # Function to handle OR operator validation (||)
-    function Test-OrOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\|\|"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys matches, we can stop checking
-        if ($test.SideIndicator -eq "==") {
-          break
-        }
-      }
-      
-      return $test
-    }
-    
-    # Function to handle AND operator validation (&&)
-    function Test-AndOperator {
-      param(
-        [string]$SettingValue,
-        [string]$Key,
-        [PSCustomObject]$TenantSettings
-      )
-      
-      $referenceKeys = $SettingValue -split "\&\&"
-      $test = $null
-      
-      foreach ($referenceKey in $referenceKeys) {
-        $referenceKey = $referenceKey.Trim()
-        $test = Compare-Object -ReferenceObject $referenceKey -DifferenceObject $TenantSettings.$Key -IncludeEqual
-        # If one of the reference keys fails, we can stop checking
-        if ($test.SideIndicator -ne "==") { 
-          break
-        }
-      }
-      
-      return $test
-    }
-
-    function Set-ReferenceHint {
-      param(
-        [string]$Key,
-        [PSCustomObject]$BaselineSettingsGroup,
-        [PSCustomObject]$OutputObject
-      )
-
-      # Look for the key in the baseline references
-      if ($BaselineSettingsGroup.references -and $BaselineSettingsGroup.references.$Key) {
-        $OutputObject | Add-Member -MemberType NoteProperty -Name "ReferenceHint" -Value $BaselineSettingsGroup.references.$Key
-      }
-      # No return needed - object is modified by reference
-    }
   }
 
   Process {
@@ -104,54 +32,19 @@ function Test-Settings {
       $settings = $baselineSettingsGroup.with
       foreach ($key in $settings.Keys) {
         try {
-          $test = $null
+          $testRun = $null
 
-          # Check if $settings.$key contains an OR operator (||)
-          if ($settings.$key -is [string] -and $settings.$key -like "*||*") {
-            $test = Test-OrOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
+          Write-Log -Level INFO -Message "Testing group: $groupName with key: $key"
+          $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
+          
+          # create a test result object
+          if ($null -ne $testRun) { 
+            $testResult = New-TestResult -GroupName $groupName -Key $key -BaselineSettingsGroup $baselineSettingsGroup -BaselineConfigItem $settings.$key `
+              -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
+            $testResults.Add("$groupName-$key", $testResult)
           }
-          # Check if $settings.$key contains an AND operator (&&)
-          elseif ($settings.$key -is [string] -and $settings.$key -like "*&&*") {
-            $test = Test-AndOperator -SettingValue $settings.$key -Key $key -TenantSettings $tenantSettings
-          }
-          # If $settings.$key is an array, we compare it with the tenant settings
-          # TODO: distinguish array comparison from object comparison (by doing a sorted string comparison)
-          elseif ($settings.$key -is [array]) {
-            $test = Compare-Object -ReferenceObject $settings.$key -DifferenceObject $tenantSettings.$key -IncludeEqual
-          }
-          # Standard comparison
           else {
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-            $test = $null -ne $tenantSettings.$key ? (Compare-Object -ReferenceObject $baselineValue -DifferenceObject $tenantValue -IncludeEqual) : $null
-          }
-        
-          # If the test result is not null, we have a result to report
-          if ($test) { 
-            $baselineValue = ConvertTo-SerializableValue -Value $settings.$key
-            $tenantValue = ConvertTo-SerializableValue -Value $tenantSettings.$key
-
-            $outputObject = [PSCustomObject] @{
-              Group   = $groupName
-              Setting = $key
-              Result  = $test.SideIndicator -eq "==" ? "✔︎ [$($tenantValue)]" : "✘ [Should be '$($baselineValue -join ''' or ''')' but is '$($tenantValue)']"
-              Status  = $test.SideIndicator -eq "==" ? "PASS" : "FAIL"
-            }
-            if ($test.SideIndicator -ne "==") { Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject }
-            $testResult.Add("$groupName-$key", $outputObject)
-          }
-          # If the test result is null, we have to report an issue
-          else { 
-            $outputObject = [PSCustomObject] @{
-              Group   = $groupName
-              Setting = $key
-              Result  = "--- [Should be '$($settings.$key -join ''' or ''')']"
-              Status  = "CHECK NEEDED"
-            }
-            Set-ReferenceHint -Key $key -BaselineSettingsGroup $baselineSettingsGroup -OutputObject $outputObject
-            $testResult.Add("$groupName-$key", $outputObject);
-            Write-Log -Level ERROR -Message "No test result for $($groupName) > $($key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
+            throw "Test run for $key in group $groupName not possible."
           }
         }
         catch {
@@ -163,8 +56,8 @@ function Test-Settings {
   }
   
   End {
-    $testResult = $testResult | Sort-Object -Property Key -Unique
-    return $testResult.Values
+    $testResults = $testResults | Sort-Object -Property Key -Unique
+    return $testResults.Values
   }
 }
 
@@ -177,15 +70,15 @@ function Get-TestStatistics {
     [Parameter(
       Mandatory = $true
     )][PSCustomObject] 
-    $testResult
+    $TestResults
   )
 
   Process {
     $stats = @{
-      Total  = $testResult.Count
-      Passed = $testResult | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
-      Failed = $testResult | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
-      Manual = $testResult | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
+      Total  = $TestResults.Count
+      Passed = $TestResults | Where-Object { $_.Status -eq "PASS" } | Measure-Object | Select-Object -ExpandProperty Count
+      Failed = $TestResults | Where-Object { $_.Status -eq "FAIL" } | Measure-Object | Select-Object -ExpandProperty Count
+      Manual = $TestResults | Where-Object { $_.Status -eq "CHECK NEEDED" } | Measure-Object | Select-Object -ExpandProperty Count
     }
     
     $output = [System.Text.StringBuilder]::new()
@@ -197,6 +90,158 @@ function Get-TestStatistics {
     $output.AppendLine($("{0,-21} {1,5}" -f "manual check needed:", $stats.Manual))
     $output.AppendLine("----------------------------")
 
-    return @{stats = $stats; asText = $output.ToString() } 
+    return  @{stats = $stats; asText = $output.ToString() } 
   }
+}
+
+
+Function Invoke-BaselineItemTests {
+  param(
+    [PSCustomObject] $TenantSettings,
+    [PSCustomObject] $BaselineConfigItem
+  )
+
+  Function New-PesterTestForBaselineItem {
+    $BaselineItemKeys = [BaselineItemStrategy]::GetKeys($BaselineConfigItem)
+
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $BaselineConfigItem, $BaselineItemKeys)
+
+      Describe "Test Tenant settings $($TenantSettings) against Baseline item $($BaselineConfigItem)" {
+
+        It "Tenant setting matches expected value in Baseline item '<_>'" -ForEach $BaselineItemKeys {
+          $itemAttribute = $_
+        
+          $expectedValue = [BaselineItemStrategy]::GetValue($BaselineConfigItem, $itemAttribute)
+          $actualValue = [BaselineItemStrategy]::GetValue($TenantSettings, $itemAttribute)
+        
+          $actualValue | Should -Be $expectedValue
+        }
+      }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings     = $TenantSettings
+      BaselineConfigItem = $BaselineConfigItem
+      BaselineItemKeys   = $BaselineItemKeys
+    }
+  }
+
+  Function New-PesterTestOrOperatorInBaselineItem {
+    $baselineItems = $BaselineConfigItem -split "\|\|" | ForEach-Object { $_.Trim() }
+
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $baselineItems)
+      
+
+      Describe "Test baseline item with AND operator" {
+
+        It "Baseline item '<_>' expected to be in tenant setting" {
+          $expectedValues = $baselineItems
+          $actualValue = $TenantSettings
+        
+          # Check if actual value matches ANY of the expected values
+          $actualValue | Should -BeIn $expectedValues
+        }
+      }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings = $TenantSettings
+      BaselineItems  = $baselineItems
+    }
+  }
+
+  Function New-PesterTestAndOperatorInBaselineItem {
+    $baselineItems = $BaselineConfigItem -split "\&\&" | ForEach-Object { $_.Trim() }
+
+    $testDefinition = [scriptblock] {
+      param($TenantSettings, $BaselineItems)
+      
+
+      Describe "Test baseline item with AND operator" {
+
+        It "Baseline item '<_>' expected to be in tenant setting" -ForEach $BaselineItems {
+          $expectedValue = $_
+          $actualValue = $TenantSettings
+        
+          # ALL items must match
+          $actualValue | Should -Be $expectedValue
+        }
+      }
+    }
+
+    return New-PesterContainer -ScriptBlock $testDefinition -Data @{
+      TenantSettings = $TenantSettings
+      BaselineItems  = $baselineItems
+    }
+  }
+
+  # 
+  $container = Switch ($true) {
+    ($BaselineConfigItem -is [string] -and $BaselineConfigItem -like "*||*") { New-PesterTestOrOperatorInBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem }
+    ($BaselineConfigItem -is [string] -and $BaselineConfigItem -like "*&&*") { New-PesterTestAndOperatorInBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem }
+    Default { New-PesterTestForBaselineItem -TenantSettings $TenantSettings -BaselineConfigItem $BaselineConfigItem } 
+  }
+
+  return Invoke-Pester -Container $container -PassThru -Output None
+}
+
+Function New-TestResult {
+  param(
+    [string]$GroupName,
+    [string]$Key,
+    [PSCustomObject]$BaselineSettingsGroup,
+    [PSCustomObject]$BaselineConfigItem,
+    [PSCustomObject]$TenantSettingsItem,
+    [PSCustomObject]$TestDetails
+  )
+
+  # Helper function to serialize objects
+  function ConvertTo-SerializedValue {
+    param([object]$Value)
+      
+    # Only serialize if it's not a simple type (string, number, boolean)
+    if ($Value -is [System.Enum] -or $Value -is [string] -or $Value -is [int] -or $Value -is [double] -or $Value -is [float] -or $Value -is [long] -or $Value -is [short] -or $Value -is [byte] -or $Value -is [bool]) {
+      return $Value
+    }
+    else {
+      return $Value | ConvertTo-Json -Depth 10 -Compress
+    }
+  }
+
+  $baselineConfigItemValue = ConvertTo-SerializedValue -Value $BaselineConfigItem
+  $TenantSettingsValue = ConvertTo-SerializedValue -Value $TenantSettingsItem
+
+  $outputObject = [PSCustomObject] @{}
+
+  # If the test result is not null, we have a result to report
+  if ($null -ne $TestDetails -and $null -ne $TenantSettingsItem) { 
+
+    $totalFailed = ($TestDetails | Measure-Object -Property FailedCount -Sum).Sum
+    $errorHint = ($totalFailed -gt 0) ? ($TestDetails.Tests | Where-Object { $_.Result -eq 'Failed' } | ForEach-Object { "→ [$($_.Data)] $($_.ErrorRecord[0]?.ToString() ?? 'No additional error details')" }) : ""
+
+    $outputObject | Add-Member -MemberType NoteProperty -Name Group -Value $GroupName
+    $outputObject | Add-Member -MemberType NoteProperty -Name Setting -Value $Key
+    $outputObject | Add-Member -MemberType NoteProperty -Name Result -Value (($totalFailed -eq 0) ? "✔︎ [$TenantSettingsValue]" : "✘ [Should be '$($baselineConfigItemValue -join ''' or ''')' but is '$TenantSettingsValue']")
+    $outputObject | Add-Member -MemberType NoteProperty -Name ResultDetails -Value $errorHint
+    $outputObject | Add-Member -MemberType NoteProperty -Name Status -Value (($totalFailed -eq 0) ? "PASS" : "FAIL")
+    $outputObject | Add-Member -MemberType NoteProperty -Name TotalTests -Value ($TestDetails | Measure-Object -Property TotalCount -Sum).Sum
+            
+    if ($outputObject.Status -eq "FAIL") {
+      $outputObject | Add-Member -MemberType NoteProperty -Name "ReferenceHint" -Value $BaselineSettingsGroup.references.$Key
+    }
+  }
+  # If the tenant value or the test result is null, we have to report an issue
+  else { 
+    $outputObject | Add-Member -MemberType NoteProperty -Name Group -Value $GroupName
+    $outputObject | Add-Member -MemberType NoteProperty -Name Setting -Value $Key
+    $outputObject | Add-Member -MemberType NoteProperty -Name Result -Value "--- [Should be '$($baselineConfigItemValue -join ''' or ''')']"
+    $outputObject | Add-Member -MemberType NoteProperty -Name Status -Value "CHECK NEEDED"
+    $outputObject | Add-Member -MemberType NoteProperty -Name "ReferenceHint" -Value $BaselineSettingsGroup.references.$Key
+            
+    Write-Log -Level ERROR -Message "No test result for $($GroupName) > $($Key). Normally, this should not happen. Please check the baseline configuration and the tenant setting manually."
+  }
+
+  return $outputObject
 }

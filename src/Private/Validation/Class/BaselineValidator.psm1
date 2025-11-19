@@ -82,7 +82,7 @@ class BaselineValidator {
             $this.validationResultGrouped = ($this.validationResult | Format-Table -GroupBy Group -Wrap -Property Setting, Result) 
             if (!$this.ValidationSettings.ReturnAsObject) { $this.validationResultGrouped | Out-Host }
     
-            $this.validationResultStatistics = Get-TestStatistics $this.validationResult
+            $this.validationResultStatistics = Get-TestStatistics -testResults $this.validationResult
             ($this.validationResultStatistics.asText) | Out-Host
 
             if ($this.ValidationSettings.ReturnAsObject) {

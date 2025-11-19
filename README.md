@@ -1,12 +1,20 @@
 # easyGovernance – governance and validation for configuration baselines in M365 made as easy as possible
 
 _easyGovernance_ offers a quick and easy way to validate several configurations and resources along predefined configuration baselines for an entire Microsoft 365 tenant or dedicated services.
+
+The purpose of _easyGovernance_ is to support platform administrators in their governance tasks by addressing these use cases:
+
+- Regularly test service configurations of your tenant(s) based on automated routines
+- Export (or dump) the current service configuration of your tenant's services into a repository (and therefore make the 'state' of the tenant 'readable')
+- Make changes on service configurations traceable
+- Provide proper service reporting without having to create M365 reports manually
+
 By defining a _configuration baseline_ (YAML) that contains all the desired configuration parameters, this tool is a straightforward approach to govern and validate any given environment in M365. It does NOT offer a DSC setup and related mechanisms.
 
 Any _configuration baseline_ is considered to reference the baseline suggestions from the [Secure Cloud Business Applications (SCuBA) for Microsoft 365](https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project) by CISA and [the blueprint](https://blueprint.oobe.com.au/) by oobe.
 
 > [!NOTE]
-> 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported – but other services will follow asap. Any contributors are welcome! 🙌
+> 👉 For now, configuration baselines for an M365 tenant and SPO service are currently supported – but other services will follow. Any contributors are welcome! 🙌
 
 Give it a try – We're sure you will like it! 💪
 
@@ -17,15 +25,13 @@ Under the hood, the baseline validation engine is powered by the [PnP.Powershell
 The implementation is based on the following PowerShell modules:
 
 ![PowerShell](https://img.shields.io/badge/Powershell-7.4.2-blue.svg)
-![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-2.12.0-blue.svg)
-![Microsoft.Graph](https://img.shields.io/badge/Microsoft.Graph-2.26.1-blue.svg)
-![Az.Accounts](https://img.shields.io/badge/Az.Accounts-4.0.2-blue.svg)
-![Az.Resources](https://img.shields.io/badge/Az.Resources-6.4.0-blue.svg)
+![PnP.PowerShell](https://img.shields.io/badge/PnP.Powershell-3.1.0-blue.svg)
 ![PSLogs](https://img.shields.io/badge/PSLogs-5.2.1-blue.svg)
 ![powershell-yaml](https://img.shields.io/badge/powershell--yaml-0.4.7-blue.svg)
 ![MarkdownPS](https://img.shields.io/badge/MarkdownPS-1.9-blue.svg)
 ![MarkdownToHTML](https://img.shields.io/badge/MarkdownToHTML-2.7.1-blue.svg)
 ![EPS](https://img.shields.io/badge/EPS-1.0.0-blue.svg)
+![Pester](https://img.shields.io/badge/Pester-5.7.1-blue.svg)
 
 ## Applies to
 
@@ -83,14 +89,12 @@ Before using, install all dependencies on your local machine:
 
 ```powershell
 Install-Module -Name powershell-yaml -Scope CurrentUser
-Install-Module -Name PnP.PowerShell -RequiredVersion 2.12.0 -Scope CurrentUser
-Install-Module -Name Microsoft.Graph -RequiredVersion 2.26.1 -Scope CurrentUser
-Install-Module -Name Az.Accounts -RequiredVersion 4.0.2 -Scope CurrentUser
-Install-Module -Name Az.Resources -RequiredVersion 6.4.0 -Scope CurrentUser
+Install-Module -Name PnP.PowerShell -RequiredVersion 3.1.0 -Scope CurrentUser
 Install-Module -Name PSLogs -RequiredVersion 5.2.1 -Scope CurrentUser
 Install-Module -Name MarkdownPS -RequiredVersion 1.9 -Scope CurrentUser
 Install-Module -Name MarkdownToHTML -RequiredVersion 2.7.1 -Scope CurrentUser
 Install-Module -Name EPS -RequiredVersion 1.0.0 -Scope CurrentUser
+Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser
 ```
 
 ## Usage

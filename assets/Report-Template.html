@@ -24,21 +24,28 @@
     </div>
 
     <div class="content-container">
-        <%= $summary_stats %>
-
+        
         <div class="report-summary-container">
             <h2>Report summary 🚀</h2>
-
+            
             <div class="report-summary">
                 easyGovernance validates several configurations and resources along predefined configuration baselines
                 for the Microsoft 365 tenant <code><%= $Tenant %></code> and dedicated services. 
                 Any configuration baseline is considered to reference the baseline suggestions from the <a
-                    href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
-                    target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
-                    365</a> by CISA and <a href="https://blueprint.oobe.com.au/blueprint/" target="_blank"
-                    rel="noopener noreferer">the former blueprint standard</a> by oobe (on behalf of the Australian Government). 
+                href="https://www.cisa.gov/resources-tools/services/secure-cloud-business-applications-scuba-project"
+                target="_blank" rel="noopener noreferer">Secure Cloud Business Applications (SCuBA) for Microsoft
+                365</a> by CISA and <a href="https://blueprint.oobe.com.au/blueprint/" target="_blank"
+                rel="noopener noreferer">the former blueprint standard</a> by oobe (on behalf of the Australian Government). 
                 All configuration parameters that are used in the configuration baselines provide a standard and 
                 proven approach for Microsoft 365 but can be extended according to your needs.
+            </div>
+
+            <div class="report-stats">
+                Following section provide a summary of the overall test results, including the total number of tests executed,
+                the number of passed and failed tests, as well as the percentage of compliance with the defined baselines.
+                This summary gives a quick overview of the tenant's alignment with the established configuration standards.
+            
+                <%= $summary_stats %>
             </div>
         </div>
 
