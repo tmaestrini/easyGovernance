@@ -55,6 +55,7 @@ Function Test-M365.1-5.2 {
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
+        # Transform the extracted settings into the desired format
         $settings = $extractedSettings.tenant
         $settings | Add-Member -NotePropertyName BrowserIdleSignout -NotePropertyValue $extractedSettings.browserIdleSignout.Enabled
         $settings | Add-Member -NotePropertyName BrowserIdleSignoutMinutes -NotePropertyValue $extractedSettings.browserIdleSignout.SignOutAfter.TotalMinutes
@@ -68,7 +69,56 @@ Function Test-M365.1-5.2 {
           $settings.DisabledWebPartIds = ""
         }
 
-        return $settings
+        # Build setting groups according to baseline structure
+        $externalSharingSettings = @{
+          SharingCapability                          = $settings.SharingCapability
+          DefaultSharingLinkType                     = $settings.DefaultSharingLinkType
+          DefaultLinkPermission                      = $settings.DefaultLinkPermission
+          RequireAcceptingAccountMatchInvitedAccount = $settings.RequireAcceptingAccountMatchInvitedAccount
+          RequireAnonymousLinksExpireInDays          = $settings.RequireAnonymousLinksExpireInDays
+          FileAnonymousLinkType                      = $settings.FileAnonymousLinkType
+          FolderAnonymousLinkType                    = $settings.FolderAnonymousLinkType
+          CoreRequestFilesLinkEnabled                = $settings.CoreRequestFilesLinkEnabled
+          ExternalUserExpireInDays                   = $settings.ExternalUserExpireInDays
+          EmailAttestationRequired                   = $settings.EmailAttestationRequired
+          EmailAttestationReAuthDays                 = $settings.EmailAttestationReAuthDays
+          PreventExternalUsersFromResharing          = $settings.PreventExternalUsersFromResharing
+          SharingDomainRestrictionMode               = $settings.SharingDomainRestrictionMode
+          SharingAllowedDomainList                   = $settings.SharingAllowedDomainList
+          ShowEveryoneClaim                          = $settings.ShowEveryoneClaim
+          ShowEveryoneExceptExternalUsersClaim       = $settings.ShowEveryoneExceptExternalUsersClaim
+          DisplayNamesOfFileViewersInSpo             = $settings.DisplayNamesOfFileViewersInSpo
+        }
+
+        $applicationsAndWebpartsSettings = @{
+          DisabledWebPartIds = $settings.DisabledWebPartIds
+        }
+
+        $accessControlSettings = @{
+          ConditionalAccessPolicy          = $settings.ConditionalAccessPolicy
+          BrowserIdleSignout               = $settings.BrowserIdleSignout
+          BrowserIdleSignoutMinutes        = $settings.BrowserIdleSignoutMinutes
+          BrowserIdleSignoutWarningMinutes = $settings.BrowserIdleSignoutWarningMinutes
+          LegacyAuthProtocolsEnabled       = $settings.LegacyAuthProtocolsEnabled
+        }
+
+        $siteCreationAndStorageLimitsSettings = @{
+          NotificationsInSharePointEnabled = $settings.NotificationsInSharePointEnabled
+          DenyPagesCreationByUsers         = $settings.DenyPagesCreationByUsers
+          DenySiteCreationByUsers          = $settings.DenySiteCreationByUsers
+        }
+
+        $filesSettings = @{
+          DisallowInfectedFileDownload = $settings.DisallowInfectedFileDownload
+        }
+
+        return @{
+          ExternalSharing              = $externalSharingSettings
+          ApplicationsAndWebparts      = $applicationsAndWebpartsSettings
+          AccessControl                = $accessControlSettings
+          SiteCreationAndStorageLimits = $siteCreationAndStorageLimitsSettings
+          Files                        = $filesSettings
+        } 
       }
     }
   }

@@ -43,16 +43,16 @@ Function Test-M365.1-1.2 {
       }
 
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
-        $settings = @{}
+        $licensingSettings = @{}
 
         # Licensing errors
-        $settings.LicenseErrors = ($extractedSettings.Licensing.AssignmentErrors.Length -ne 0)
+        $licensingSettings.LicenseErrors = ($extractedSettings.Licensing.AssignmentErrors.Length -ne 0)
         
         # Licensing enabled
         $selfServicePurchaseAllowed = $extractedSettings.Licensing.SelfServicePurchase | Where-Object { $_.policyId -eq "AllowSelfServicePurchase" }
-        $settings.SelfServicePurchase = $selfServicePurchaseAllowed.Length -gt 0 ? "Enabled" : "Disabled"
-        if ($settings.SelfServicePurchase -eq "Enabled") {
-          $settings.SelfServicePurchaseEnabledLicenses = $selfServicePurchaseAllowed
+        $licensingSettings.SelfServicePurchase = $selfServicePurchaseAllowed.Length -gt 0 ? "Enabled" : "Disabled"
+        if ($licensingSettings.SelfServicePurchase -eq "Enabled") {
+          $licensingSettings.SelfServicePurchaseEnabledLicenses = $selfServicePurchaseAllowed
         }
 
         # Group based licensing
@@ -73,7 +73,7 @@ Function Test-M365.1-1.2 {
               if ($directLicenses -and $directLicenses.Count -gt 0) {
                 $directAssignments += [PSCustomObject]@{
                   UserDisplayName = $user.displayName
-                  DirectLicenses = $directLicenses
+                  DirectLicenses  = $directLicenses
                 }
               }
             }
@@ -81,16 +81,16 @@ Function Test-M365.1-1.2 {
         }
         
         $onlyGroupBasedLicensing = ($directAssignments.Count -eq 0) -and ($totalUsersWithLicenses -gt 0)
-        $settings.OnlyGroupBasedLicenseAssignment = $onlyGroupBasedLicensing 
-        $settings.TotalUsersWithLicenses = $totalUsersWithLicenses
-        $settings.UsersWithDirectAssignments = $directAssignments.Count
+        $licensingSettings.OnlyGroupBasedLicenseAssignment = $onlyGroupBasedLicensing 
+        $licensingSettings.TotalUsersWithLicenses = $totalUsersWithLicenses
+        $licensingSettings.UsersWithDirectAssignments = $directAssignments.Count
         
         # Store details for additional information
         if ($directAssignments.Count -gt 0) {
-          $settings.DirectAssignmentDetails = $directAssignments
+          $licensingSettings.DirectAssignmentDetails = $directAssignments
         }
 
-        return $settings
+        return @{Licensing = $licensingSettings }
       }
     }
   }

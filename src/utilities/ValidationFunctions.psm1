@@ -35,12 +35,12 @@ function Test-Settings {
           $testRun = $null
 
           Write-Log -Level INFO -Message "Testing group: $groupName with key: $key"
-          $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$key
+          $testRun = Invoke-BaselineItemTests -BaselineConfigItem $settings.$key -TenantSettings $tenantSettings.$groupName.$key
           
           # create a test result object
           if ($null -ne $testRun) { 
             $testResult = New-TestResult -GroupName $groupName -Key $key -BaselineSettingsGroup $baselineSettingsGroup -BaselineConfigItem $settings.$key `
-              -TenantSettingsItem $tenantSettings.$key -TestDetails $testRun
+              -TenantSettingsItem $tenantSettings.$groupName.$key -TestDetails $testRun
             $testResults.Add("$groupName-$key", $testResult)
           }
           else {

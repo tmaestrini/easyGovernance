@@ -53,6 +53,7 @@ Configuration:
       - BrowserIdleSignout: ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/accessControl/IdleSession
       - LegacyAuthProtocolsEnabled: "Requiring modern authentication for SharePoint applications ensures strong authentication mechanisms are used when establishing sessions and connecting users."
       - EnableAzureADB2BIntegration: "This provides a way to manage guest identities and control access to SharePoint and OneDrive resources. Without this integration, files can only be shared without account registration, making it more challenging to audit and manage who has access to the organization's data."
+
   - enforces: SiteCreationAndStorageLimits
     with:
       NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
