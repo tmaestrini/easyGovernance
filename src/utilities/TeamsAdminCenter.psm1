@@ -81,7 +81,7 @@ Function Invoke-TeamsAdminCenterRequest {
         $req = $_
         try {
             $url = [System.UriBuilder]::new($Script:ScopeConfig.BaseUrl)
-            $url.Path = [System.IO.Path]::Combine($url.Path, $req.path -replace "{{tenantId}}", $Script:TenantId)
+            $url.Path = [System.IO.Path]::Combine($url.Path, ($req.path -replace "{{tenantId}}", $Script:TenantId))
 
             $method = $($req.method) ? $req.method : "GET"
             $result = Invoke-RestMethod -Uri $url.Uri -Headers $headers -Method "$($method)" -OperationTimeoutSeconds 30 -RetryIntervalSec 1 -MaximumRetryCount 3 -ConnectionTimeoutSeconds 10
@@ -113,7 +113,7 @@ Function Get-TeamsSettings {
     $apiSelection = switch ($Properties) {
         "ActivityFeed" { @{name = $_; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "" } }
         "TeamsTargetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global" } }
-        "TeamsClientConfiguration" { @{name = $_; path = "Skype.Policy/configurations/TeamsClientConfiguration/configuration/Global" } }
+        "TeamsClientConfiguration" { @{name = $_; path = "Skype.Policy/configurations/TeamsClientConfiguration" } }
         "ExternalAccess" { 
             @(
                 @{name = "ExternalAccess.TenantFederationSettings"; path = "Skype.Policy/configurations/TenantFederationSettings/configuration/global" }
