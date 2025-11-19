@@ -39,8 +39,8 @@ Function Connect-TeamsAdminCenter {
     try {
         if (!$Global:connectionContextName) { throw "No valid access provided." }
         $ctx = Get-AzContext -Name $Global:connectionContextName
+        
         $Script:TenantId = $ctx.Tenant.Id
-
         $Script:TeamsAdminCenterToken = Get-AzAccessToken -ResourceUrl $Script:ScopeConfig.Resource -TenantId $Script:TenantId
         Write-Log -Level DEBUG "Connection established to Teams Admin Center ($Scope)"
     }
@@ -52,7 +52,7 @@ Function Connect-TeamsAdminCenter {
 Function Invoke-TeamsAdminCenterRequest {
     param (
         [Parameter(Mandatory = $false)]
-        [ValidateSet("Standard", "Scope1")] [string]$Scope = "Standard",
+        [ValidateSet("Standard", "SpacesAPI")] [string]$Scope = "Standard",
         [Parameter(Mandatory = $true)][object[]]$ApiRequests
     )
         
