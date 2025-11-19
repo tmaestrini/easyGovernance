@@ -44,6 +44,7 @@ Function Test-M365.1-5.1 {
       }
       
       [PSCustomObject] Transform([PSCustomObject] $extractedSettings) {
+        # Transform the extracted settings into the desired format
         $settings = $extractedSettings.tenant | Select-Object -ExcludeProperty OneDriveStorageQuota
         $settings | Add-Member -NotePropertyName OneDriveStorageQuota -NotePropertyValue ([int]$extractedSettings.tenant.OneDriveStorageQuota / 1024) # MB --> GB
         
@@ -51,7 +52,31 @@ Function Test-M365.1-5.1 {
         $settings | Add-Member -NotePropertyName AllowedDomainList -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.AllowedDomainList
         $settings | Add-Member -NotePropertyName ExcludedFileExtensions -NotePropertyValue $extractedSettings.tenantSyncClientRestriction.ExcludedFileExtensions
         
-        return $settings
+        # Build setting groups according to baseline structure
+        $sharingSettings = @{
+          OneDriveSharingCapability        = $settings.OneDriveSharingCapability
+          SharingWithExternalUsersDisabled = $settings.SharingWithExternalUsersDisabled
+          DisplayNamesOfFileViewers        = $settings.DisplayNamesOfFileViewers
+          OneDriveRequestFilesLinkEnabled  = $settings.OneDriveRequestFilesLinkEnabled
+        }
+
+        $storageAndSynchronisationSettings = @{
+          OrphanedPersonalSitesRetentionPeriod = $settings.OrphanedPersonalSitesRetentionPeriod
+          OneDriveStorageQuota                 = $settings.OneDriveStorageQuota
+          TenantRestrictionEnabled             = $settings.TenantRestrictionEnabled
+          AllowedDomainList                    = $settings.AllowedDomainList
+          ExcludedFileExtensions               = $settings.ExcludedFileExtensions
+        }
+
+        $notificationsSettings = @{
+          NotificationsInOneDriveForBusinessEnabled = $settings.NotificationsInOneDriveForBusinessEnabled
+        }
+        
+        return @{
+          Sharing                   = $sharingSettings
+          StorageAndSynchronisation = $storageAndSynchronisationSettings
+          Notifications             = $notificationsSettings
+        }
       }
     }
   }
