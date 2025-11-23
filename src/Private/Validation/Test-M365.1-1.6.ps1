@@ -54,74 +54,76 @@ Function Test-M365.1-6.1 {
         $teamsExternalAccessSettings = $extractedSettings.Settings.ExternalAccess | Where-Object { $_.Identity -eq "Global" }
         $teamsGuestAccessSettings = $extractedSettings.Settings.GuestAccess | Where-Object { $_.ConfigId -eq "Global" }
 
+        # Teams Settings
         $settings.TeamsSettings = @{
-          FeedSuggestionsInUsersActivityFeed = ($teamsActivityFeedSettings.SuggestedFeedsEnabledType) -eq "EnabledUserOverride" ? "Allow" : "Block" ?? "n/a"
-          TeamsTargetingPolicy               = @{
-            WhoCanManageTags                    = ($teamsTargetingPolicySettings.ManageTagsPermissionMode) -eq "EnabledTeamOwner" ? "TeamOwners" : $teamsTargetingPolicySettings.ManageTagsPermissionMode
-            LetTeamOwnersChangeWhoCanManageTags = ($teamsTargetingPolicySettings.TeamOwnersEditWhoCanManageTagsMode) -eq "TeamOwnersEditWhoCanManageTagsMode"
-            CustomTags                          = ($teamsTargetingPolicySettings.CustomTagsMode) -eq "Enabled" ? "Allow" : "Block" ?? "n/a"
-            ShiftsAppCanApplyTags               = ($teamsTargetingPolicySettings.ShiftBackedTagsMode) -eq "ShiftBackedTagsMode" ? "Allow" : "Block" ?? "n/a"
+          FeedSuggestionsInUsersActivityFeed  = ($teamsActivityFeedSettings.SuggestedFeedsEnabledType) -eq "EnabledUserOverride" ? "Allow" : "Block" ?? "n/a"
+          WhoCanManageTags                    = ($teamsTargetingPolicySettings.ManageTagsPermissionMode) -eq "EnabledTeamOwner" ? "TeamOwners" : $teamsTargetingPolicySettings.ManageTagsPermissionMode
+          LetTeamOwnersChangeWhoCanManageTags = ($teamsTargetingPolicySettings.TeamOwnersEditWhoCanManageTagsMode) -eq "TeamOwnersEditWhoCanManageTagsMode"
+          CustomTags                          = ($teamsTargetingPolicySettings.CustomTagsMode) -eq "Enabled" ? "Allow" : "Block" ?? "n/a"
+          ShiftsAppCanApplyTags               = ($teamsTargetingPolicySettings.ShiftBackedTagsMode) -eq "ShiftBackedTagsMode" ? "Allow" : "Block" ?? "n/a"
+        
+          AllowUsersCanSendEmailsToAChannel   = ($teamsClientConfiguration.AllowEmailIntoChannel) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowCitrix                         = ($teamsClientConfiguration.AllowShareFile) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowDropBox                        = ($teamsClientConfiguration.AllowDropBox) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowBox                            = ($teamsClientConfiguration.AllowBox) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowGoogleDrive                    = ($teamsClientConfiguration.AllowGoogleDrive) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowEgnyte                         = ($teamsClientConfiguration.AllowEgnyte) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          AllowOrganizationTabForUsers        = ($teamsClientConfiguration.AllowOrganizationTab) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          Require2ndAuthforMeeting            = ($teamsClientConfiguration.ResourceAccountContentAccess) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          SetContentPin                       = ($teamsClientConfiguration.ContentPin) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          SurfaceHubCanSendMails              = ($teamsClientConfiguration.SurfaceHubCanSendMails) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          ScopeDirectorySearch                = ($teamsClientConfiguration.AllowScopedPeopleSearchandAccess) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          ExtendedWorkInfoInPeopleSearch      = ($teamsClientConfiguration.ExtendedWorkInfoInPeopleSearch) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          RoleBasedChatPermissions            = ($teamsClientConfiguration.AllowRoleBasedChatPermissions) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          ProvideLinkToSupportRequestPage     = ($teamsClientConfiguration.ProvideLinkToSupportRequestPage) -eq $true ? "Allow" : "Block" ?? 'n/a'
+        }
+
+        # External Access Settings
+        $settings.ExternalAccess = @{
+          UsersInExternalOrgs                      = if ($teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.AllowedDomains.Count -eq 0) {
+            "AllowEveryone"
           }
-          TeamsClientConfiguration           = @{
-            AllowUsersCanSendEmailsToAChannel = ($teamsClientConfiguration.AllowEmailIntoChannel) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowCitrix                       = ($teamsClientConfiguration.AllowShareFile) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowDropBox                      = ($teamsClientConfiguration.AllowDropBox) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowBox                          = ($teamsClientConfiguration.AllowBox) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowGoogleDrive                  = ($teamsClientConfiguration.AllowGoogleDrive) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowEgnyte                       = ($teamsClientConfiguration.AllowEgnyte) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            AllowOrganizationTabForUsers      = ($teamsClientConfiguration.AllowOrganizationTab) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            Require2ndAuthforMeeting          = ($teamsClientConfiguration.ResourceAccountContentAccess) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            SetContentPin                     = ($teamsClientConfiguration.ContentPin) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            SurfaceHubCanSendMails            = ($teamsClientConfiguration.SurfaceHubCanSendMails) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            ScopeDirectorySearch              = ($teamsClientConfiguration.AllowScopedPeopleSearchandAccess) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            ExtendedWorkInfoInPeopleSearch    = ($teamsClientConfiguration.ExtendedWorkInfoInPeopleSearch) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            RoleBasedChatPermissions          = ($teamsClientConfiguration.AllowRoleBasedChatPermissions) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            ProvideLinkToSupportRequestPage   = ($teamsClientConfiguration.ProvideLinkToSupportRequestPage) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          elseif ($teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.AllowedDomains.Count -gt 0) {
+            "AllowOnlySpecificExternalDomains"
           }
-          ExternalAccess                     = @{
-            UsersInExternalOrgs                      = if ($teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.AllowedDomains.Count -eq 0) {
-              "AllowEveryone"
-            }
-            elseif ($teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.AllowedDomains.Count -gt 0) {
-              "AllowOnlySpecificExternalDomains"
-            }
-            elseif (!$teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.BlockedDomains.Count -gt 0) {
-              "BlockOnlySpecificExternalDomains"
-            }
-            else {
-              "Block"
-            }
-            AllowedExternalDomains                   = (([string[]]$teamsExternalAccessSettings.AllowedDomains.AllowList) | Sort-Object)
-            ExternalAccessWithTrialTenants           = ($teamsExternalAccessSettings.ExternalAccessWithTrialTenants) -eq "Blocked" ? "Block" : "Allow" ?? 'n/a'
-            MyOrgCanCommunicateWithUnmanagedAccounts = ($teamsExternalAccessSettings.AllowTeamsConsumer) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            UnmanagedAccountsCanContactMyOrg         = ($teamsExternalAccessSettings.AllowTeamsConsumerInbound) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          elseif (!$teamsExternalAccessSettings.AllowFederatedUsers -and $teamsExternalAccessSettings.BlockedDomains.Count -gt 0) {
+            "BlockOnlySpecificExternalDomains"
           }
-          TeamsGuestAccess                   = @{
-            AllowGuestsToAccessTeams = ($teamsGuestAccessSettings.AllowGuestUser) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            MakePrivateCalls         = ($teamsGuestAccessSettings.AllowPrivateCalling) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            VideoConferencing        = ($teamsGuestAccessSettings.AllowIPVideo) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            ScreenSharingMode        = $teamsGuestAccessSettings.ScreenSharingMode ?? 'n/a'
-            MeetNow                  = ($teamsGuestAccessSettings.AllowMeetNow) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            EditSentMessages         = ($teamsGuestAccessSettings.AllowUserEditMessage) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            DeleteSentMessages       = ($teamsGuestAccessSettings.AllowUserDeleteMessage) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            DeleteChat               = ($teamsGuestAccessSettings.AllowUserDeleteChat) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            Chat                     = ($teamsGuestAccessSettings.AllowUserChat) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            GiphyInConversations     = ($teamsGuestAccessSettings.AllowGiphy) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            GiphyContentRating       = $teamsGuestAccessSettings.GiphyContentRating ?? 'n/a'
-            MemesInConversations     = ($teamsGuestAccessSettings.AllowMemes) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            StickersInConversations  = ($teamsGuestAccessSettings.AllowStickers) -eq $true ? "Allow" : "Block" ?? 'n/a'
-            ImmerseReaderForMessages = ($teamsGuestAccessSettings.AllowImmersiveReader) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          else {
+            "Block"
           }
+          AllowedExternalDomains                   = (([string[]]$teamsExternalAccessSettings.AllowedDomains.AllowList) | Sort-Object)
+          ExternalAccessWithTrialTenants           = ($teamsExternalAccessSettings.ExternalAccessWithTrialTenants) -eq "Blocked" ? "Block" : "Allow" ?? 'n/a'
+          MyOrgCanCommunicateWithUnmanagedAccounts = ($teamsExternalAccessSettings.AllowTeamsConsumer) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          UnmanagedAccountsCanContactMyOrg         = ($teamsExternalAccessSettings.AllowTeamsConsumerInbound) -eq $true ? "Allow" : "Block" ?? 'n/a'
+        }
+
+        # Guest Access Settings
+        $settings.GuestAccess = @{
+          AllowGuestsToAccessTeams = ($teamsGuestAccessSettings.AllowGuestUser) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          MakePrivateCalls         = ($teamsGuestAccessSettings.AllowPrivateCalling) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          VideoConferencing        = ($teamsGuestAccessSettings.AllowIPVideo) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          ScreenSharingMode        = $teamsGuestAccessSettings.ScreenSharingMode ?? 'n/a'
+          MeetNow                  = ($teamsGuestAccessSettings.AllowMeetNow) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          EditSentMessages         = ($teamsGuestAccessSettings.AllowUserEditMessage) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          DeleteSentMessages       = ($teamsGuestAccessSettings.AllowUserDeleteMessage) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          DeleteChat               = ($teamsGuestAccessSettings.AllowUserDeleteChat) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          Chat                     = ($teamsGuestAccessSettings.AllowUserChat) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          GiphyInConversations     = ($teamsGuestAccessSettings.AllowGiphy) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          GiphyContentRating       = $teamsGuestAccessSettings.GiphyContentRating ?? 'n/a'
+          MemesInConversations     = ($teamsGuestAccessSettings.AllowMemes) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          StickersInConversations  = ($teamsGuestAccessSettings.AllowStickers) -eq $true ? "Allow" : "Block" ?? 'n/a'
+          ImmerseReaderForMessages = ($teamsGuestAccessSettings.AllowImmersiveReader) -eq $true ? "Allow" : "Block" ?? 'n/a'
         }
           
-        # Teams Policies
-        $settings.TeamsPolicies = @{
+        # Teams Policy
+        $settings.TeamsPolicy = @{
           CreatePrivateChannels = ($extractedSettings.Policies.OrgWideTeamsPolicy.AllowPrivateChannelCreation) -eq $true ? "Allow" : "Block"
         }
 
-        # Apps Policies
+        # Teams App Policy
         $orgWideDefaultAppPolicy = $extractedSettings.Policies.OrgWideAppPolicy | Where-Object { $_.ConfigId -eq "Global" }
-        $settings.AppPolicies = @{
+        $settings.AppPolicy = @{
           Name             = $orgWideDefaultAppPolicy.Identity ?? "n/a"
           UploadCustomApps = ($orgWideDefaultAppPolicy.AllowSideLoading) -eq $true ? "Allow" : "Block" ?? "n/a"
           UserPinning      = ($orgWideDefaultAppPolicy.AllowUserPinning) -eq $true ? "Allow" : "Block" ?? "n/a"
@@ -129,7 +131,7 @@ Function Test-M365.1-6.1 {
         
         # Calling policy
         $orgWideDefaultCallingPolicy = $extractedSettings.Policies.OrgWideCallingPolicy
-        $settings.CallingPolicies = @{
+        $settings.CallingPolicy = @{
           Name                                   = $orgWideDefaultCallingPolicy.Identity ?? "n/a"
           MakePrivateCalls                       = ($orgWideDefaultCallingPolicy.AllowPrivateCalling) -eq $true ? "Allow" : "Block" ?? "n/a"
           CloudRecordingForCalling               = ($orgWideDefaultCallingPolicy.AllowCloudRecordingForCalls) -eq $true ? "Allow" : "Block" ?? "n/a"
@@ -149,7 +151,7 @@ Function Test-M365.1-6.1 {
 
         # Meeting policy
         $orgWideDefaultMeetingPolicy = $extractedSettings.Policies.OrgWideMeetingPolicy | Where-Object { $_.Identity -eq "Global" }
-        $settings.MeetingPolicies = @{
+        $settings.MeetingPolicy = @{
           Name                                       = $orgWideDefaultMeetingPolicy.Identity ?? "n/a"
           MeetNowInChannels                          = ($orgWideDefaultMeetingPolicy.AllowMeetNow -eq $true) -and ($orgWideDefaultMeetingPolicy.AllowPrivateMeetNow -eq $true) ? "Allow" : "Block" ?? "n/a"
           OutlookAddIn                               = $orgWideDefaultMeetingPolicy.AllowOutlookAddIn -eq $true ? "Allow" : "Block" ?? "n/a"
@@ -189,7 +191,7 @@ Function Test-M365.1-6.1 {
 
         # Live Events policy
         $orgWideLiveEventsPolicy = $extractedSettings.Policies.OrgWideLiveEventsPolicy | Where-Object { $_.Identity -eq "Global" }
-        $settings.LiveEventsPolicies = @{
+        $settings.LiveEventsPolicy = @{
           Name                      = $orgWideLiveEventsPolicy.Identity ?? "n/a"
           LiveEventScheduling       = $orgWideLiveEventsPolicy.AllowBroadcastScheduling -eq $true ? "Allow" : "Block" ?? "n/a"
           TranscriptionForAttendees = $orgWideLiveEventsPolicy.AllowBroadcastTranscription -eq $true ? "Allow" : "Block" ?? "n/a"

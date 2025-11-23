@@ -8,7 +8,8 @@ References:
   - https://web.archive.org/web/20250311072210/https://blueprint.oobe.com.au/as-built-as-configured/office-365/#microsoft-teams
 
 Configuration:
-  - enforces: Teams settings
+  # Teams setting
+  - enforces: TeamsSettings
     with:
       FeedSuggestionsInUsersActivityFeed: Allow
       WhoCanManageTags: TeamOwners
@@ -30,21 +31,24 @@ Configuration:
       RoleBasedChatPermissions: Block
       # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: should be "tenantSharedChannelsSettings" https://teams.microsoft.com/api/mt/emea/beta/admin/tenantSharedChannelsSettings
 
-  - enforces: Org-wide default Teams policy
+  # Org-wide default Teams policy
+  - enforces: TeamsPolicies
     with:
       # Name: "Global" # not settable anymore (default policy in admin center)
       CreatePrivateChannels: Allow
 
-  - enforces: Org-wide default Teams App policy
+  # Org-wide default Teams App policy
+  - enforces: AppPolicy
     with:
       Name: "Global"
-      # TODO: ⭐️ [Dako365]: we need to add "tailored apps" for tenants with F license, value needs to be discussed, API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "DefaultApp", "availableToType": "None" 
+      # TODO: ⭐️ [Dako365]: we need to add "tailored apps" for tenants with F license, value needs to be discussed, API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "DefaultApp", "availableToType": "None"
       # MicrosoftApps: Allow # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "GlobalApp", "availableToType": "All"
       # ThirdPartyApps: Block # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: API call should be https://substrate.office.com/AdminAppCatalog/v2/admin/unifiedApps/settings, response "appType": "PrivateApp", "availableToType": "None"
       UploadCustomApps: Block
       UserPinning: Allow
 
-  - enforces: Org-wide default Teams Calling policy
+  # Org-wide default Teams Calling policy
+  - enforces: CallingPolicy
     with:
       Name: "Global"
       MakePrivateCalls: Allow
@@ -62,7 +66,8 @@ Configuration:
       SIPDevicesPerformCalling: Block
       CopilotEnabled: Block # TODO: ⭐️ discuss API call (what value are we going to recommend?) [Dako365]: I would prefer to go with the least permissive approach -> disabled
 
-  - enforces: Global Teams meeting policy
+  # Org-wide default Teams meeting policy
+  - enforces: MeetingPolicy
     with:
       Name: "Global"
       MeetNowInChannels: Allow
@@ -103,7 +108,8 @@ Configuration:
       ChannelMeetingScheduling: "see setting 'Channel meeting scheduling'"
       MeetNowInChannels: "see setting 'Meet now in channel meetings' and 'Meet now in private meetings'"
 
-  - enforces: Org-wide default Teams live events policy
+  # Org-wide default Teams live events policy
+  - enforces: LiveEventsPolicy
     with:
       Name: "Global"
       LiveEventScheduling: Allow
@@ -111,7 +117,8 @@ Configuration:
       WhoCanJoin: EveryoneInCompany
       RecordingMode: AlwaysEnabled
 
-  - enforces: External access settings
+  # External access settings
+  - enforces: ExternalAccess
     with:
       UsersInExternalOrgs: AllowEveryone || AllowOnlySpecificExternalDomains # TODO: ⭐️ discuss setting; what value(s) are we going to recommend? [Dako365]: I would prefer to go with the least permissive approach -> AllowOnlySpecificExternalDomains
       AllowedExternalDomains: "contoso.com" # Set this in a comma separated list; set to blank if all domains allowed
@@ -120,7 +127,8 @@ Configuration:
       UnmanagedAccountsCanContactMyOrg: Block
       # UsersCanCommunicateWithSkypeUsers: Allow # not settable anymore (default policy in admin center)
 
-  - enforces: Guest access settings
+  # Guest access settings
+  - enforces: GuestAccess
     with:
       AllowGuestsToAccessTeams: Allow
       MakePrivateCalls: Allow
