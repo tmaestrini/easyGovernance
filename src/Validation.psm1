@@ -3,11 +3,23 @@ $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\Validation\*.ps1 -ErrorA
 $Utilities = @( Get-ChildItem -Path $PSScriptRoot\utilities\*.psm1 -ErrorAction SilentlyContinue )
 $PublicCommon = @( Get-ChildItem -Path $PSScriptRoot\Public\*.psm1 -ErrorAction SilentlyContinue )
 
+$Classes = @( Get-ChildItem -Path $PSScriptRoot\Private\Validation\Class\*.psm1 -ErrorAction SilentlyContinue )
+
+Foreach ($class in $Classes) {
+  Try {
+    Import-Module $class.fullname -Global -Force -ErrorAction Stop
+  }
+  Catch {
+    Write-Error -Message "[Validation] Failed to import class $( $class.fullname ): $_"
+    Exit
+  }
+}
+
 # Import all script resources
 Foreach ($import in @($Public + $Private)) {
   $import
   Try {
-    . $import.fullname
+    Import-Module $import.fullname -Global -Force -ErrorAction Stop
   }
   Catch {
     Write-Error -Message "[Validation] Failed to import function $( $import.fullname ): $_"
