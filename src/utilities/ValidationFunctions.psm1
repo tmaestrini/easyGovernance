@@ -94,6 +94,19 @@ function Get-TestStatistics {
   }
 }
 
+Function Invoke-ValidationExecution {
+  param(
+    [Parameter(Mandatory = $true)]
+    [BaselineValidator] $Validator
+  )
+
+  # Start the validation process and handle results
+  $Validator.StartValidation()
+  
+  if ($Validator.ValidationSettings.ReturnAsObject) {
+    return $Validator.GetValidationResult()
+  }
+}
 
 Function Invoke-BaselineItemTests {
   param(
