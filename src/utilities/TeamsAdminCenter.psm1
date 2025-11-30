@@ -1,3 +1,5 @@
+using module "../Private/Validation/Class/ApiRequestDefinition.psm1"
+
 #############################################
 #### TEAMS Admin Center Settings (Call API)
 #############################################
@@ -18,7 +20,7 @@ $Script:TenantId = $null
 Function Connect-TeamsAdminCenter {
     param(
         [Parameter(Mandatory = $false)]
-        [ValidateSet("Standard", "SpacesAPI")] [string]$Scope = "Standard"
+        [ValidateSet("Standard", "SpacesAPI", "TeamsAPI")] [string]$Scope = "Standard"
     )
 
     $Script:ScopeConfig = switch ($Scope) {
@@ -26,6 +28,12 @@ Function Connect-TeamsAdminCenter {
             @{
                 Resource = "https://api.spaces.skype.com"  # Microsoft Teams Policy Center
                 BaseUrl  = "https://admin.microsoft.com/api"
+            }
+        }
+        "TeamsAPI" { 
+            @{
+                Resource = "https://api.spaces.skype.com"  # Microsoft Teams Policy Center
+                BaseUrl  = "https://teams.microsoft.com/api"
             }
         }
         Default { 
@@ -52,8 +60,8 @@ Function Connect-TeamsAdminCenter {
 Function Invoke-TeamsAdminCenterRequest {
     param (
         [Parameter(Mandatory = $false)]
-        [ValidateSet("Standard", "SpacesAPI")] [string]$Scope = "Standard",
-        [Parameter(Mandatory = $true)][object[]]$ApiRequests
+        [ValidateSet("Standard", "SpacesAPI", "TeamsAPI")] [string]$Scope = "Standard",
+        [Parameter(Mandatory = $true)][ApiRequestDefinition[]]$ApiRequests
     )
         
     if ($Scope -ne "Standard") {
@@ -111,21 +119,26 @@ Function Get-TeamsSettings {
     )
 
     $apiSelection = switch ($Properties) {
-        "ActivityFeed" { @{name = $_; path = "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global"; attr = "" } }
-        "TeamsTargetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global" } }
-        "TeamsClientConfiguration" { @{name = $_; path = "Skype.Policy/configurations/TeamsClientConfiguration" } }
+        "ActivityFeed" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsNotificationAndFeedsPolicy/configuration/Global") }
+        "TeamsTargetingPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsTargetingPolicy/configuration/Global") }
+        "TeamsClientConfiguration" { 
+            @(
+                [ApiRequestDefinition]::new("TeamsClientConfiguration.Common", "Skype.Policy/configurations/TeamsClientConfiguration")
+                [ApiRequestDefinition]::new("TeamsClientConfiguration.TenantSharedChannelsSettings", "mt/emea/beta/admin/tenantSharedChannelsSettings")
+            )
+        }
         "ExternalAccess" { 
             @(
-                @{name = "ExternalAccess.TenantFederationSettings"; path = "Skype.Policy/configurations/TenantFederationSettings/configuration/global" }
-                @{name = "ExternalAccess.TeamsExternalAccessConfiguration"; path = "Skype.Policy/configurations/TeamsExternalAccessConfiguration/configuration/global" }
+                [ApiRequestDefinition]::new("ExternalAccess.TenantFederationSettings", "Skype.Policy/configurations/TenantFederationSettings/configuration/global")
+                [ApiRequestDefinition]::new("ExternalAccess.TeamsExternalAccessConfiguration", "Skype.Policy/configurations/TeamsExternalAccessConfiguration/configuration/global")
             )
         }
         "GuestAccess" {
             @(
-                @{name = "GuestAccess.TeamsClientConfiguration"; path = "Skype.Policy/configurations/TeamsClientConfiguration" } 
-                @{name = "GuestAccess.TeamsGuestCallingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestCallingConfiguration" } 
-                @{name = "GuestAccess.TeamsGuestMeetingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestMeetingConfiguration" } 
-                @{name = "GuestAccess.TeamsGuestMessagingConfiguration"; path = "Skype.Policy/configurations/TeamsGuestMessagingConfiguration" } 
+                [ApiRequestDefinition]::new("GuestAccess.TeamsClientConfiguration", "Skype.Policy/configurations/TeamsClientConfiguration")
+                [ApiRequestDefinition]::new("GuestAccess.TeamsGuestCallingConfiguration", "Skype.Policy/configurations/TeamsGuestCallingConfiguration")
+                [ApiRequestDefinition]::new("GuestAccess.TeamsGuestMeetingConfiguration", "Skype.Policy/configurations/TeamsGuestMeetingConfiguration")
+                [ApiRequestDefinition]::new("GuestAccess.TeamsGuestMessagingConfiguration", "Skype.Policy/configurations/TeamsGuestMessagingConfiguration")
             )
         }
     }
@@ -133,8 +146,15 @@ Function Get-TeamsSettings {
     # Only make the API call if we have requests to make
     if ($apiSelection.Count -gt 0) {
         try {
-            $result = Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection
+            $result = Invoke-TeamsAdminCenterRequest -ApiRequests $apiSelection 
            
+            # Merge TeamsClientConfiguration properties into a single object
+            $teamsClientConfigProperties = $result.PSObject.Properties | Where-Object { $_.Name -like "TeamsClientConfiguration.*" }
+            if ($teamsClientConfigProperties) {
+
+            }
+            $result | Add-Member -MemberType NoteProperty -Name "TeamsClientConfiguration" -Value $globalTeamsClientConfigurations
+
             # Merge ExternalAcces properties into a single object
             $externalAccessProperties = $result.PSObject.Properties | Where-Object { $_.Name -like "*ExternalAccess*" }
             if ($externalAccessProperties) {
@@ -187,11 +207,11 @@ Function Get-Policies {
     )
 
     $apiSelection = switch ($Properties) {
-        "OrgWideTeamsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsChannelsPolicy/configuration/Global" } }
-        "OrgWideAppPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsAppSetupPolicy/configuration/Global" } }
-        "OrgWideCallingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global" } }
-        "OrgWideMeetingPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global" } }
-        "OrgWideLiveEventsPolicy" { @{name = $_; path = "Skype.Policy/configurations/TeamsMeetingBroadcastPolicy/configuration/Global" } }
+        "OrgWideTeamsPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsChannelsPolicy/configuration/Global") }
+        "OrgWideAppPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsAppSetupPolicy/configuration/Global") }
+        "OrgWideCallingPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsCallingPolicy/configuration/Global") }
+        "OrgWideMeetingPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsMeetingPolicy/configuration/Global") }
+        "OrgWideLiveEventsPolicy" { [ApiRequestDefinition]::new($_, "Skype.Policy/configurations/TeamsMeetingBroadcastPolicy/configuration/Global") }
 
         Default { Write-Log -Level WARNING "No matching API requests found for the specified property: $_"; continue }
     }

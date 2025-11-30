@@ -29,7 +29,7 @@ Configuration:
       ScopeDirectorySearch: Allow
       ExtendedWorkInfoInPeopleSearch: Block
       RoleBasedChatPermissions: Block
-      # ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: should be "tenantSharedChannelsSettings" https://teams.microsoft.com/api/mt/emea/beta/admin/tenantSharedChannelsSettings
+      #ProvideLinkToSupportRequestPage: false # TODO: ⭐️ discuss API call (do you know how to get it?) [Dako365]: should be "tenantSharedChannelsSettings" https://teams.microsoft.com/api/mt/emea/beta/admin/tenantSharedChannelsSettings
 
   # Org-wide default Teams policy
   - enforces: TeamsPolicies
