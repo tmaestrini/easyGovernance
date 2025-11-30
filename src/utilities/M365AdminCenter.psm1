@@ -1,3 +1,5 @@
+using module "../Private/Validation/Class/ApiRequestDefinition.psm1"
+
 #############################################
 #### M365 ADMIN CENTER Settings (Call API)
 #############################################
@@ -34,7 +36,7 @@ Function Connect-M365AdminCenter {
 
 Function Invoke-M365AdminCenterRequest {
     param (
-        [Parameter(Mandatory = $true)][object[]]$ApiRequests
+        [Parameter(Mandatory = $true)][ApiRequestDefinition[]]$ApiRequests
     )
     
     try {
@@ -90,36 +92,36 @@ Function Get-M365TenantSettingsServices {
 
     $apiSelection = switch ($Properties) {
         "AccountLinking" {  }  
-        "AdoptionScore" { @{name = $_; path = "admin/api/reports/productivityScoreCustomerOption"; attr = "Output" } }  
-        "AzureSpeechServices" { @{name = $_; path = "admin/api/services/apps/azurespeechservices"; attr = "isTenantEnabled" } }
-        "Bookings" { @{name = $_; path = "admin/api/settings/apps/bookings"; attr = "Enabled" } }
+        "AdoptionScore" { [ApiRequestDefinition]@{name = $_; path = "admin/api/reports/productivityScoreCustomerOption"; attr = "Output" } }  
+        "AzureSpeechServices" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/azurespeechservices"; attr = "isTenantEnabled" } }
+        "Bookings" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/bookings"; attr = "Enabled" } }
         "MSVivaBriefing" {  }
-        "CalendarSharing" { @{name = $_; path = "admin/api/settings/apps/calendarsharing"; attr = "EnableCalendarSharing" } }
-        "Copilot4Sales" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/salesInsights"; attr = "isEnabledInOrganization" } }
-        "Cortana" { @{name = $_; path = "admin/api/services/apps/cortana"; attr = "Enabled" } }
+        "CalendarSharing" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/calendarsharing"; attr = "EnableCalendarSharing" } }
+        "Copilot4Sales" { [ApiRequestDefinition]@{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/salesInsights"; attr = "isEnabledInOrganization" } }
+        "Cortana" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/cortana"; attr = "Enabled" } }
         "M365Groups" {  }
-        "M365AppsInstallationOpt" { @{name = $_; path = "fd/dms/odata/TenantInfo({{tenantId}})"; attr = "EffectiveBranch" } }
-        "M365Lighthouse" { @{name = $_; path = "admin/api/services/apps/m365lighthouse"; attr = "AccountEnabled" } }
-        "M365OTW" { @{name = $_; path = "admin/api/settings/apps/officeonline"; attr = "Enabled" } }
-        "MSUserCommunication" { @{name = $_; path = "admin/api/settings/apps/EndUserCommunications"; attr = "ServiceEnabled" } }
-        "MSForms" { @{name = $_; path = "admin/api/settings/apps/officeforms" } }
-        "MSGraphDataConnect" { @{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
-        "MSLoop" { @{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
-        "MSPlanner" { @{name = $_; path = "admin/api/services/apps/planner"; attr = "allowCalendarSharing" } }
-        "MSTeams" { @{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
-        "MSTeamsAllowGuestAccess" { @{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
+        "M365AppsInstallationOpt" { [ApiRequestDefinition]@{name = $_; path = "fd/dms/odata/TenantInfo({{tenantId}})"; attr = "EffectiveBranch" } }
+        "M365Lighthouse" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/m365lighthouse"; attr = "AccountEnabled" } }
+        "M365OTW" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/officeonline"; attr = "Enabled" } }
+        "MSUserCommunication" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/EndUserCommunications"; attr = "ServiceEnabled" } }
+        "MSForms" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/officeforms" } }
+        "MSGraphDataConnect" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/o365dataplan"; attr = "ServiceEnabled" } }
+        "MSLoop" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/looppolicy"; attr = "LoopPolicy" } }
+        "MSPlanner" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/planner"; attr = "allowCalendarSharing" } }
+        "MSTeams" { [ApiRequestDefinition]@{name = $_; path = "admin/api/users/teamssettingsinfo"; attr = "IsTeamsEnabled" } }
+        "MSTeamsAllowGuestAccess" { [ApiRequestDefinition]@{name = $_; path = "fd/IC3Config/Skype.Policy/configurations/TeamsClientConfiguration"; attr = "0.AllowGuestUser" } }
         # "MSToDo" { @{name = $_; path = "n/a" } }
-        "MSVivaInsights" { @{name = $_; path = "admin/api/services/apps/vivainsights" } }
-        "ModernAuth" { @{name = $_; path = "admin/api/services/apps/modernAuth" ; attr = "EnableModernAuth" } }
-        "News" { @{name = $_; path = "admin/api/searchadminapi/news/options/Bing" ; attr = "NewsOptions.HomepageOptions.IsEnabled" } }
-        "OfficeScripts" { @{name = $_; path = "admin/api/settings/apps/officescripts" ; attr = "EnabledOption" } }
-        "Reports" { @{name = $_; path = "admin/api/reports/config/GetTenantConfiguration" ; attr = "Output.0.PrivacyEnabled" } }
-        "SearchIntelligenceAnalytics" { @{name = $_; path = "admin/api/services/apps/searchintelligenceanalytics" ; attr = "userFiltersOptIn" } }
-        "SharePoint" { @{name = $_; path = "admin/api/settings/apps/sitessharing"; attr = "CollaborationType" } }
-        "SwayShareWithExternalUsers" { @{name = $_; path = "admin/api/settings/apps/Sway"; attr = "ExternalSharingEnabled" } }
-        "UserOwnedAppsandServices" { @{name = $_; path = "admin/api/settings/apps/store" } }
-        "VivaLearning" { @{name = $_; path = "admin/api/settings/apps/learning" } }
-        "Whiteboard" { @{name = $_; path = "admin/api/settings/apps/whiteboard"; attr = "IsEnabled" } }
+        "MSVivaInsights" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/vivainsights" } }
+        "ModernAuth" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/modernAuth" ; attr = "EnableModernAuth" } }
+        "News" { [ApiRequestDefinition]@{name = $_; path = "admin/api/searchadminapi/news/options/Bing" ; attr = "NewsOptions.HomepageOptions.IsEnabled" } }
+        "OfficeScripts" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/officescripts" ; attr = "EnabledOption" } }
+        "Reports" { [ApiRequestDefinition]@{name = $_; path = "admin/api/reports/config/GetTenantConfiguration" ; attr = "Output.0.PrivacyEnabled" } }
+        "SearchIntelligenceAnalytics" { [ApiRequestDefinition]@{name = $_; path = "admin/api/services/apps/searchintelligenceanalytics" ; attr = "userFiltersOptIn" } }
+        "SharePoint" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/sitessharing"; attr = "CollaborationType" } }
+        "SwayShareWithExternalUsers" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/Sway"; attr = "ExternalSharingEnabled" } }
+        "UserOwnedAppsandServices" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/store" } }
+        "VivaLearning" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/learning" } }
+        "Whiteboard" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/apps/whiteboard"; attr = "IsEnabled" } }
         
         Default {}
     }
@@ -138,11 +140,11 @@ Function Get-M365TenantSettingsSecurityAndPrivacy {
     )
     
     $apiSelection = switch ($Properties) {
-        "IdleSessionTimeout" { @{name = $_; path = "admin/api/settings/security/activitybasedtimeout" } }
-        "PasswordExpirationPolicyNeverExpire" { @{name = $_; path = "admin/api/Settings/security/passwordpolicy"; attr = "NeverExpire" } }
-        "PrivacyProfile" { @{name = $_; path = "admin/api/Settings/security/privacypolicy" } }
-        "Pronouns" { @{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/pronouns" } }
-        "SharingAllowUsersToAddGuests" { @{name = $_; path = "admin/api/settings/security/guestUserPolicy"; attr = "AllowGuestInvitations" } }
+        "IdleSessionTimeout" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/security/activitybasedtimeout" } }
+        "PasswordExpirationPolicyNeverExpire" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/security/passwordpolicy"; attr = "NeverExpire" } }
+        "PrivacyProfile" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/security/privacypolicy" } }
+        "Pronouns" { [ApiRequestDefinition]@{name = $_; path = "fd/peopleadminservice/{{tenantId}}/settings/pronouns" } }
+        "SharingAllowUsersToAddGuests" { [ApiRequestDefinition]@{name = $_; path = "admin/api/settings/security/guestUserPolicy"; attr = "AllowGuestInvitations" } }
         
         Default {}
     }
@@ -160,11 +162,11 @@ Function Get-M365TenantSettingsOrgProfile {
     )
     
     $apiSelection = switch ($Properties) {
-        "CustomThemes" { @{name = $_; path = "admin/api/Settings/company/theme/v2" } }
-        "DataLocation" { @{name = $_; path = "admin/api/tenant/datalocation" } }
-        "HelpDeskInfo" { @{name = $_; path = "admin/api/Settings/company/helpdesk" } }
-        "ReleasePreferences" { @{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
-        "EmailNotFromOwnDomain" { @{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
+        "CustomThemes" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/company/theme/v2" } }
+        "DataLocation" { [ApiRequestDefinition]@{name = $_; path = "admin/api/tenant/datalocation" } }
+        "HelpDeskInfo" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/company/helpdesk" } }
+        "ReleasePreferences" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/company/releasetrack"; attr = "ReleaseTrack" } }
+        "EmailNotFromOwnDomain" { [ApiRequestDefinition]@{name = $_; path = "admin/api/Settings/company/sendfromaddress"; attr = "ServiceEnabled" } }
         
         Default {}
     }
@@ -182,13 +184,13 @@ Function Get-M365TenantLicensing {
     )
 
     $apiSelection = switch ($Properties) {
-        "LicensedProducts" { @{ name = $_; path = "fd/m365licensing/v3/licensedProducts?allotmentSourceOwnerType=User&allotmentSourceType=LowFrictionTrial&allotmentSourceState=Active%2CDeleted%2CSuspended%2CLockout%2CWarning&displayNameLanguage=en-US"; attr = "value" } }
-        "OnlyGroupBasedLicenseAssignmentOld" { @{name = $_; path = "fd/CommerceAPI/my-org/subscriptions?`$expand=subscribedSku&`$filter=parentId%20eq%20null%20and%20isBoxUi%20eq%20true%20and%20status%20ne%204"; attr = "value" } }
-        "OnlyGroupBasedLicenseAssignment" { @{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
-        "DirectLicenseAssignments" { @{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
-        "GroupLicenseAssignments" { @{ name = $_; path = "fd/MSGraph/v1.0/groups?`$select=displayName,assignedLicenses"; attr = "value" } }
-        "SelfServicePurchase" { @{name = $_; path = "admin/api/selfServicePurchasePolicy/products"; attr = "items" } }
-        "AssignmentErrors" { @{ name = $_; path = "fd/MSGraph/beta/admin/cloudLicensing/assignmentErrors?%24top=100&%24expand=assignedTo"; attr = "value" } }
+        "LicensedProducts" { [ApiRequestDefinition]@{ name = $_; path = "fd/m365licensing/v3/licensedProducts?allotmentSourceOwnerType=User&allotmentSourceType=LowFrictionTrial&allotmentSourceState=Active%2CDeleted%2CSuspended%2CLockout%2CWarning&displayNameLanguage=en-US"; attr = "value" } }
+        "OnlyGroupBasedLicenseAssignmentOld" { [ApiRequestDefinition]@{name = $_; path = "fd/CommerceAPI/my-org/subscriptions?`$expand=subscribedSku&`$filter=parentId%20eq%20null%20and%20isBoxUi%20eq%20true%20and%20status%20ne%204"; attr = "value" } }
+        "OnlyGroupBasedLicenseAssignment" { [ApiRequestDefinition]@{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
+        "DirectLicenseAssignments" { [ApiRequestDefinition]@{ name = $_; path = "fd/MSGraph/v1.0/users?`$select=displayName,licenseAssignmentStates"; attr = "value" } }
+        "GroupLicenseAssignments" { [ApiRequestDefinition]@{ name = $_; path = "fd/MSGraph/v1.0/groups?`$select=displayName,assignedLicenses"; attr = "value" } }
+        "SelfServicePurchase" { [ApiRequestDefinition]@{name = $_; path = "admin/api/selfServicePurchasePolicy/products"; attr = "items" } }
+        "AssignmentErrors" { [ApiRequestDefinition]@{ name = $_; path = "fd/MSGraph/beta/admin/cloudLicensing/assignmentErrors?%24top=100&%24expand=assignedTo"; attr = "value" } }
         Default {}
     }
 
