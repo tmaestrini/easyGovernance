@@ -5,7 +5,6 @@ $PublicCommon = @( Get-ChildItem -Path $PSScriptRoot\Public\*.psm1 -ErrorAction 
 
 # Import all script resources
 Foreach ($import in @($Public + $Private)) {
-  $import
   Try {
     . $import.fullname
   }

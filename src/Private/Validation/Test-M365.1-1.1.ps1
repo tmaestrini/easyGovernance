@@ -121,12 +121,7 @@ Function Test-M365.1-1.1 {
   Process {
     try {
       $validator = [M365TenantValidator]::new($Baseline, $tenantId, $ReturnAsObject)
-      $validator.StartValidation()
-      $result = $validator.GetValidationResult()
-      
-      if ($returnAsObject) {
-        return $result
-      }
+      Invoke-ValidationExecution -Validator $validator
     }
     catch {
       throw $_
