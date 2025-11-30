@@ -207,12 +207,7 @@ Function Test-M365.1-6.1 {
   Process {
     try {
       $validator = [TeamsSettingsValidator]::new($Baseline, $tenantId, $ReturnAsObject)
-      $validator.StartValidation()
-      $result = $validator.GetValidationResult()
-      
-      if ($returnAsObject) {
-        return $result
-      }
+      Invoke-ValidationExecution -Validator $validator
     }
     catch {
       throw $_
