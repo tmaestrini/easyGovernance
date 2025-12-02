@@ -11,6 +11,8 @@ Function Start-Validation {
     [Parameter(
       Mandatory = $false
     )][switch]$KeepConnectionsAlive,
+    [Parameter(Mandatory = $false, 
+      HelpMessage = "The subscription ID of your Azure account")][string] $AzureSubscriptionId,
     [Parameter(
       Mandatory = $false,
       HelpMessage = "Returns the results as an object"
@@ -24,13 +26,18 @@ Function Start-Validation {
     Write-Log "New tenant validation routine started"
   
     $tenantConfig = Get-TenantTemplate -TemplateName $TemplateName
+    $attributes = @{Tenant = $tenantConfig.Tenant }
+    if ($AzureSubscriptionId) {
+      $attributes.Add("AzureSubscriptionId", $AzureSubscriptionId)
+    }
 
     # On first run ($Global:easyGovernanceInitialRunSuccessful not set!), always connect without regard to KeepConnectionsAlive
-    if(!$Global:easyGovernanceInitialRunSuccessful) {
+    if (!$Global:easyGovernanceInitialRunSuccessful) {
       $Global:easyGovernanceInitialRunSuccessful = $true
-      Connect-Tenant -Tenant $tenantConfig.Tenant
-    } else {
-      Connect-Tenant -Tenant $tenantConfig.Tenant -KeepConnectionsAlive:$KeepConnectionsAlive.IsPresent
+      Connect-Tenant @attributes
+    }
+    else {
+      Connect-Tenant @attributes -KeepConnectionsAlive:$KeepConnectionsAlive.IsPresent
     }
 
     Write-Log "*****************************************"

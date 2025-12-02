@@ -103,14 +103,16 @@ Function Test-RequiredModules {
 Function Connect-Tenant {
   [CmdletBinding()]
   [OutputType([void])]
-
+  
   Param
   (
     [Parameter(Mandatory = $true, 
       HelpMessage = "The name of the tenant")][string] $Tenant,
     [Parameter(
       Mandatory = $false
-    )][switch]$KeepConnectionsAlive
+    )][switch]$KeepConnectionsAlive,
+    [Parameter(Mandatory = $false, 
+      HelpMessage = "The subscription ID of your Azure account")][string] $AzureSubscriptionId
   )
 
   Write-Host "Establishing connection to your Azure tenant '$($Tenant).onmicrosoft.com':"
@@ -122,7 +124,12 @@ Function Connect-Tenant {
   if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
   
   try {
-    Connect-TenantAzure -Tenant $Tenant
+    if ($AzureSubscriptionId) {
+      Connect-TenantAzure -Tenant $Tenant -AzureSubscriptionId $AzureSubscriptionId 
+    }
+    else {
+      Connect-TenantAzure -Tenant $Tenant
+    }
     
     $appId = Get-OrCreateEasyGovernanceAppRegistration -Tenant $Tenant
     Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com" -AppId $appId
@@ -183,12 +190,18 @@ Function Connect-TenantAzure {
   Param
   (
     [Parameter(Mandatory = $true, 
-      HelpMessage = "The name of the tenant")][string] $Tenant
+      HelpMessage = "The name of the tenant")][string] $Tenant,
+    [Parameter(Mandatory = $false, 
+      HelpMessage = "The subscription ID of your Azure account")][string] $SubscriptionId
   )
 
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   
-  try {
+  try {    
+    if ($Global:UnattendedScriptParameters -and $null -eq $Global:UnattendedScriptParameters.AzureSubscriptionId) {
+      throw "In unattended mode, AzureSubscriptionId that points to your selected subscription must be provided."
+    }
+    
     # Clear context only if we are not keeping connections alive
     if (!$Script:KeepConnectionsAlive) {
       Clear-AzContext -Force
@@ -198,16 +211,34 @@ Function Connect-TenantAzure {
     # Establish connection
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
-      Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
-        -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+
+      if ($null -ne $Global:UnattendedScriptParameters.AzureSubscriptionId) {
+        Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
+          -Subscription $Global:UnattendedScriptParameters.AzureSubscriptionId -ContextName $Global:connectionContextName -AuthScope AadGraph `
+          -ErrorAction Stop | Out-Null
+      }
+      else {
+        Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
+          -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+      }
     }
     elseif ($null -eq $ctx -and !$Global:UnattendedScriptParameters) {
-      Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
-    }
+      if ($SubscriptionId) {
+        Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph `
+          -Subscription $SubscriptionId -ErrorAction Stop | Out-Null
+      }
+      else {
+        Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph `
+          -ErrorAction Stop | Out-Null
+      }
 
-    $ctx = Get-AzContext -Name $Global:connectionContextName
-    $Global:AzureContext = $ctx
-    Write-Log -Level INFO -Message "Connection established"
+      $ctx = Get-AzContext -Name $Global:connectionContextName
+      $Global:AzureContext = $ctx
+      Write-Log -Level INFO -Message "Connection established"
+    }
+    else {
+      Write-Log -Level INFO -Message "Connection already established"
+    }
   }
   catch {
     throw "Connect-TenantAzure > $_"
