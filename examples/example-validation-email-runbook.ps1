@@ -1,22 +1,13 @@
-# Azure Automation Runbook: Validate tenant and send report via email using Managed Identity
+# Azure Automation Runbook: Validate tenant and send report via email
 Import-Module easyGovernance -Force
 
-# Connect with Managed Identity
-Connect-MgGraph -Identity -NoWelcome
-
-# Optional: Get Azure Subscription ID from Automation Variable
+# Get credentials and configuration from Automation Account
+$credential = Get-AutomationPSCredential -Name 'M365AdminCredential'
 $subscriptionId = Get-AutomationVariable -Name 'AzureSubscriptionId' -ErrorAction SilentlyContinue
 
-# Run validation with optional subscription parameter
-if ($subscriptionId) {
-    Write-Output "Using Azure Subscription: $subscriptionId"
-    $result = Start-Validation -TemplateName "production.yml" -ReturnAsObject -AzureSubscriptionId $subscriptionId
-} else {
-    $result = Start-Validation -TemplateName "production.yml" -ReturnAsObject
-}
+# Set unattended mode
+Set-UnattendedRun -username $credential.UserName -password $credential.Password -azureSubscriptionId $subscriptionId
 
-# Generate report and send via email (configured in tenant YAML)
+# Run validation and send email
+$result = Start-Validation -TemplateName "production.yml" -ReturnAsObject -AzureSubscriptionId $subscriptionId
 New-Report -ValidationResults $result -AsHTML -SendEmail
-
-# Disconnect
-Disconnect-MgGraph
