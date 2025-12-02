@@ -18,7 +18,15 @@ Function New-Report {
       )][hashtable]$ValidationResults,
       [Parameter()][switch]$AsHTML,
       [Parameter()][switch]$AsCSV,
-      [Parameter()][switch]$AsJSON
+      [Parameter()][switch]$AsJSON,
+      [Parameter(
+         Mandatory = $false,
+         HelpMessage = "Send report via email using Microsoft Graph API"
+      )][switch]$SendEmail,
+      [Parameter(
+         Mandatory = $false,
+         HelpMessage = "Override email recipients from tenant configuration"
+      )][string[]]$EmailTo
    )
    
    Begin {
@@ -267,6 +275,50 @@ Function New-Report {
          $fileOutputPath = "$reportFilePath.json"
          $reportResultsPlain | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
          Write-Log -Level INFO -Message "JSON report created: $($fileOutputPath)"
+      }
+
+      # Send email if requested
+      if ($SendEmail.IsPresent) {
+         try {
+            Write-Log "Attempting to send validation report via email..."
+            
+            # Determine which report file to send (prefer HTML)
+            $reportToSend = if ($AsHTML.IsPresent) {
+               "$reportFilePath.html"
+            } else {
+               Write-Log -Level WARNING "SendEmail requires -AsHTML to attach report. Generating HTML report..."
+               # Generate HTML if not already done
+               if (!$htmlReportOutput) {
+                  $htmlReportOutput = New-HtmlReport
+                  [System.IO.Directory]::CreateDirectory("$reportPath/styles/")
+                  Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-template-styles.css') -Destination "$reportPath/styles/report.css"
+                  $htmlReportOutput > "$reportFilePath.html"
+               }
+               "$reportFilePath.html"
+            }
+            
+            # Get tenant configuration for email settings
+            $tenantConfig = Get-TenantTemplate -TemplateName "$($ValidationResults.Tenant).yml"
+            
+            # Prepare parameters for Send-ValidationReport
+            $emailParams = @{
+               ValidationResults = $ValidationResults
+               ReportPath        = $reportToSend
+               TenantConfig      = $tenantConfig
+            }
+            
+            # Add optional EmailTo override
+            if ($EmailTo -and $EmailTo.Count -gt 0) {
+               $emailParams.EmailTo = $EmailTo
+            }
+            
+            Send-ValidationReport @emailParams
+         }
+         catch {
+            Write-Log -Level ERROR "Failed to send email: $($_.Exception.Message)"
+            Write-Log -Level WARNING "Report generation completed successfully, but email delivery failed"
+            # Don't throw - report was generated successfully
+         }
       }
    }
 }

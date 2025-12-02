@@ -20,7 +20,7 @@ Export-ModuleMember -Function $Public.Basename
 # Import all modules and export the functions
 foreach ($module in ($Utilities + $PublicCommon)) {
   Import-Module $module.FullName
-  Export-ModuleMember -Function (Get-Command -Module $module.FullName -CommandType Function).Name
+  Export-ModuleMember -Function (Get-Command -Module $module.BaseName -CommandType Function).Name
 }
 
 # Check module dependencies before staring the routine

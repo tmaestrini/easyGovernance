@@ -5,3 +5,40 @@ Baselines:
   - M365.LIC.1-1.2
   - M365.OD4B.1-5.1
   - M365.SPO.1-5.2
+
+# Email Configuration (optional)
+# Enables automatic report delivery via Microsoft Graph API
+# Requires Microsoft Graph connection with Mail.Send permission
+Email:
+  # Enable or disable email delivery
+  Enabled: false  # Set to true to enable email notifications
+  
+  # Recipients (required when Enabled: true)
+  # List of email addresses to receive the validation report
+  To:
+    - admin@contoso.onmicrosoft.com
+    - security-team@contoso.com
+  
+  # Optional: Carbon Copy recipients
+  Cc: []
+    # - compliance@contoso.com
+  
+  # Optional: Sender address
+  # If not specified, uses the authenticated user's email
+  From: governance-bot@contoso.com
+  
+  # Email subject with template variables
+  # Available variables: {Tenant}, {Date}, {Time}, {PassedCount}, {FailedCount}
+  Subject: "easyGovernance Report: {Tenant} - {Date}"
+  
+  # Send only when validation failures are detected
+  # true = only send email if Failed > 0
+  # false = always send email after validation
+  SendOnFailedOnly: false
+  
+  # Include validation statistics summary in email body
+  IncludeStatistics: true
+  
+  # Email body style
+  # Options: Fancy (HTML with styled statistics), Plain (simple text)
+  BodyStyle: Fancy
