@@ -12,11 +12,6 @@ New-Report -ValidationResults $result -AsHTML -SendEmail
 # Optional: Override recipients
 # New-Report -ValidationResults $result -AsHTML -SendEmail -EmailTo "custom@contoso.com"
 
-# For Azure Automation Runbook with Managed Identity:
-# Connect-MgGraph -Identity -NoWelcome
-# $result = Start-Validation -TemplateName "[tenantname].yml" -ReturnAsObject -AzureSubscriptionId "[subscription-id]"
-# New-Report -ValidationResults $result -AsHTML -SendEmail
-
 "@ -ForegroundColor Gray
 
 Write-Host ""
