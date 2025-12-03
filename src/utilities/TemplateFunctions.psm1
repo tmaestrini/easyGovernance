@@ -17,7 +17,12 @@ function Get-TenantTemplate {
   )
  
   Begin {
-    $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ../../tenants/$TemplateName
+    # Support Azure Automation via global variable, fallback to relative path
+    if ($Global:easyGovernanceModuleRoot) {
+      $ConfigPath = Join-Path -Path $Global:easyGovernanceModuleRoot -ChildPath "tenants/$TemplateName"
+    } else {
+      $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ../../tenants/$TemplateName
+    }
   }
 
   Process {
@@ -56,7 +61,12 @@ function Get-BaselineTemplate {
  
   Begin {
     # Load all existing baselines
-    $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ..\..\$BaselinesPath
+    # Support Azure Automation via global variable, fallback to relative path
+    if ($Global:easyGovernanceModuleRoot) {
+      $ConfigPath = Join-Path -Path $Global:easyGovernanceModuleRoot -ChildPath $BaselinesPath
+    } else {
+      $ConfigPath = Join-Path -Path $PSScriptRoot -ChildPath ..\..\$BaselinesPath
+    }
     
     $isConfigPathValid = Test-Path -Path $ConfigPath
     if (!$isConfigPathValid) {
