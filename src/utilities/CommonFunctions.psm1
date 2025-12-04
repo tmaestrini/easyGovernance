@@ -124,12 +124,11 @@ Function Connect-Tenant {
   if ($KeepConnectionsAlive.IsPresent) { $Script:KeepConnectionsAlive = $true }
   
   try {
+    $attributes = @{Tenant = $Tenant }
     if ($AzureSubscriptionId) {
-      Connect-TenantAzure -Tenant $Tenant -AzureSubscriptionId $AzureSubscriptionId 
+      $attributes.SubscriptionId = $AzureSubscriptionId
     }
-    else {
-      Connect-TenantAzure -Tenant $Tenant
-    }
+    Connect-TenantAzure @attributes
     
     $appId = Get-OrCreateEasyGovernanceAppRegistration -Tenant $Tenant
     Connect-TenantPnPOnline -AdminSiteUrl "https://$Tenant-admin.sharepoint.com" -AppId $appId
@@ -198,8 +197,8 @@ Function Connect-TenantAzure {
   Write-Log -Level INFO -Message "Trying to establish connection (Azure)"
   
   try {    
-    if ($Global:UnattendedScriptParameters -and $null -eq $Global:UnattendedScriptParameters.AzureSubscriptionId) {
-      throw "In unattended mode, AzureSubscriptionId that points to your selected subscription must be provided."
+    if ($Global:UnattendedScriptParameters -and !$SubscriptionId) {
+      throw "In unattended mode, a dedicated Azure subscription id must be provided."
     }
     
     # Clear context only if we are not keeping connections alive
@@ -212,9 +211,9 @@ Function Connect-TenantAzure {
     if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
       Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
 
-      if ($null -ne $Global:UnattendedScriptParameters.AzureSubscriptionId) {
+      if ($null -ne $SubscriptionId) {
         Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
-          -Subscription $Global:UnattendedScriptParameters.AzureSubscriptionId -ContextName $Global:connectionContextName -AuthScope AadGraph `
+          -Subscription $SubscriptionId -ContextName $Global:connectionContextName -AuthScope AadGraph `
           -ErrorAction Stop | Out-Null
       }
       else {
