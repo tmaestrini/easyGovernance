@@ -28,7 +28,8 @@ Function New-Report {
       }
 
       $currentTimeStamp = Get-Date
-      $reportPath = (Join-Path $PSScriptRoot -ChildPath '../../../output')
+      $reportPath = [System.IO.Path]::Combine($PSScriptRoot, '../../../output')
+      
       $reportAtts = [PSCustomObject]@{
          Title  = "Tenant Validation Report"
          Tenant = $ValidationResults.Tenant
@@ -222,10 +223,13 @@ Function New-Report {
    }
    End {
       # save report as Markdown
-      [System.IO.Directory]::CreateDirectory($reportPath) # ensure directory exists
-      $reportFilePath = "$($reportPath)/$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report"
+      [System.IO.Directory]::CreateDirectory($reportPath) | Out-Null # ensure directory exists
+      $reportFilePath = [System.IO.Path]::Combine($reportPath, "$($ValidationResults.Tenant)-$($currentTimeStamp.toString("yyyyMMddHHmm")) report")
       $mdOutput > "$reportFilePath.md"
-      Write-Log -Level INFO -Message "Markdown report created: $($reportFilePath).md"
+
+      # show relative path in order to clarify where the report is located (see issue #36)
+      $relativePath = [System.IO.Path]::GetRelativePath((Get-Location).Path, "$reportFilePath.md")
+      Write-Log -Level INFO -Message "Markdown report created: $($relativePath).md"
       
       # convert reports
       if ($AsHTML.IsPresent ) {
