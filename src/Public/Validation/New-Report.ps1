@@ -229,17 +229,20 @@ Function New-Report {
 
       # show relative path in order to clarify where the report is located (see issue #36)
       $relativePath = [System.IO.Path]::GetRelativePath((Get-Location).Path, "$reportFilePath.md")
-      Write-Log -Level INFO -Message "Markdown report created: $($relativePath).md"
+      Write-Log -Level INFO -Message "Markdown report created: $($relativePath)"
       
       # convert reports
       if ($AsHTML.IsPresent ) {
-         [System.IO.Directory]::CreateDirectory("$reportPath/styles/") # ensure directory exists
+         [System.IO.Directory]::CreateDirectory("$reportPath/styles/") | Out-Null # ensure directory exists
 
          # Create a stylesheet for the HTML report
-         Copy-Item -Path (Join-Path $PSScriptRoot -ChildPath '../../../assets/Report-template-styles.css') -Destination "$reportPath/styles/report.css"
+         $sourceCssPath = [System.IO.Path]::Combine($PSScriptRoot, '../../../assets/Report-template-styles.css')
+         Copy-Item -Path $sourceCssPath -Destination "$reportPath/styles/report.css"
 
          $htmlReportOutput > "$($reportFilePath).html"
-         Write-Log -Level INFO -Message "HTML report ready: $($reportFilePath).html"
+
+         $relativeHtmlReportPath = [System.IO.Path]::GetRelativePath((Get-Location).Path, "$reportFilePath.html")
+         Write-Log -Level INFO -Message "HTML report ready: $($relativeHtmlReportPath)"
       }
       
       if ($AsCSV.IsPresent) {
@@ -254,7 +257,9 @@ Function New-Report {
       
          $fileOutputPath = "$reportFilePath.csv"
          $reportResultsPlain.Results | Export-Csv -Path $fileOutputPath -Encoding UTF8 -Delimiter ';'
-         Write-Log -Level INFO -Message "CSV report created: $($fileOutputPath)"
+
+         $relativeCsvReportPath = [System.IO.Path]::GetRelativePath((Get-Location).Path, $fileOutputPath)
+         Write-Log -Level INFO -Message "CSV report created: $($relativeCsvReportPath)"
       }
 
       if ($AsJSON.IsPresent) {
@@ -270,7 +275,9 @@ Function New-Report {
       
          $fileOutputPath = "$reportFilePath.json"
          $reportResultsPlain | ConvertTo-Json -Depth 10 | Out-File -FilePath $fileOutputPath
-         Write-Log -Level INFO -Message "JSON report created: $($fileOutputPath)"
+
+         $relativeJsonReportPath = [System.IO.Path]::GetRelativePath((Get-Location).Path, $fileOutputPath)
+         Write-Log -Level INFO -Message "JSON report created: $($relativeJsonReportPath)"
       }
    }
 }
