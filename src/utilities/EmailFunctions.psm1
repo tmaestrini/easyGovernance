@@ -422,6 +422,11 @@ Function Send-GraphMail {
     [int]$MaxRetries = 3
   )
   
+  # Ensure Microsoft.Graph modules are loaded with correct version
+  if (!(Get-Module Microsoft.Graph.Users.Actions)) {
+    Import-Module Microsoft.Graph.Users.Actions -MinimumVersion 2.0 -ErrorAction SilentlyContinue
+  }
+  
   $attempt = 0
   $success = $false
   $lastError = $null
