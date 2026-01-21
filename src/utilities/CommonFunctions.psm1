@@ -192,19 +192,31 @@ Function Connect-TenantAzure {
     if (!$Script:KeepConnectionsAlive) {
       Clear-AzContext -Force
     }
-    $ctx = Get-AzContext -Name $Global:connectionContextName
-
-    # Establish connection
-    if ($null -eq $ctx -and $Global:UnattendedScriptParameters) {
-      Write-Log -Level INFO -Message "Unattended mode: Using provided credentials"
-      Connect-AzAccount -Credential $Global:UnattendedScriptParameters.Credentials -Tenant "$Tenant.onmicrosoft.com" `
-        -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+    
+    $connectAzParams = @{
+      Tenant      = "$Tenant.onmicrosoft.com"
+      ContextName = $Global:connectionContextName
+      AuthScope   = 'AadGraph'
+      ErrorAction = 'Stop'
     }
-    elseif ($null -eq $ctx -and !$Global:UnattendedScriptParameters) {
-      Connect-AzAccount -Tenant "$($Tenant).onmicrosoft.com" -ContextName $Global:connectionContextName -AuthScope AadGraph -ErrorAction Stop | Out-Null
+    
+    $isRemoteAccess = ($Host.Name -eq 'ServerRemoteHost') -or ($null -ne $PSSenderInfo) -or ($env:REMOTE_CONTAINERS -eq 'true')
+    if($isRemoteAccess) {
+      $connectAzParams.Add('UseDeviceAuthentication', $true)
+      Write-Log -Level INFO -Message "Will authenticate using device authentication." 
+    }
+    
+    if ($Global:UnattendedScriptParameters) { $connectAzParams.Add('Credential', $Global:UnattendedScriptParameters.Credentials) | Out-Null } 
+
+    # Check if context already exists and connect if not
+    $ctx = Get-AzContext -Name $Global:connectionContextName
+    if ($null -eq $ctx) {
+      Write-Log -Level INFO -Message "No existing context found. Establishing new connection."
+
+      Connect-AzAccount @connectAzParams | Out-Null
+      $ctx = Get-AzContext -Name $Global:connectionContextName
     }
 
-    $ctx = Get-AzContext -Name $Global:connectionContextName
     $Global:AzureContext = $ctx
     Write-Log -Level INFO -Message "Connection established"
   }

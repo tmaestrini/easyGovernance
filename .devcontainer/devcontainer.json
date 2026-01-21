@@ -1,25 +1,60 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/powershell
 {
-	"name": "easyGovernance",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"dockerFile": "Dockerfile",
-	"postCreateCommand": "",
-
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			// Set *default* container specific settings.json values on container create.
-			"settings": { 
-				"terminal.integrated.defaultProfile.linux": "pwsh"
-			},
-			
-			// Add the IDs of extensions you want installed when the container is created.
-			"extensions": [
-				"ms-vscode.powershell"
-			]
-		}
-	}
-
+  "name": "easyGovernance",
+  "dockerFile": "Dockerfile",
+  
+  // Keeps container running for interactive use
+  "overrideCommand": false,
+  
+  // Run on every container start to keep it alive
+  "postStartCommand": "echo 'easyGovernance container started' > /tmp/container-ready",
+  
+  // Initial setup message
+  "postCreateCommand": "pwsh -Command 'Write-Host \"Welcome to easyGovernance -- you are connected remotely!\" -ForegroundColor Green'",
+  
+  // Mount your workspace with read/write access
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+  
+  // Keep stdin open for interactive sessions
+  "runArgs": [
+    "--network=host",
+    "-i",  // Keep STDIN open
+    "-t"   // Allocate pseudo-TTY
+  ],
+  
+  "customizations": {
+    "vscode": {
+      "settings": { 
+        "terminal.integrated.defaultProfile.linux": "pwsh",
+        // Start terminal automatically
+        "terminal.integrated.automationProfile.linux": {
+          "path": "pwsh"
+        },
+        // Keep remote connection alive longer
+        "remote.autoForwardPorts": false,
+        "remote.restoreForwardedPorts": true
+      },
+      "extensions": [
+        "ms-vscode.powershell"
+      ]
+    }
+  },
+  
+  // Prevent container from stopping due to inactivity
+  "shutdownAction": "none",
+  
+  // Keep connection alive - sends keepalive packets every 60 seconds
+  "remoteEnv": {
+    "REMOTE_CONTAINERS": "true"
+  },
+  
+  // Feature to keep container running
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "installOhMyZsh": false
+    }
+  }
 }
