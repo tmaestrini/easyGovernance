@@ -15,7 +15,7 @@ Function New-Report {
       [Parameter(
          Mandatory = $true,
          HelpMessage = "Full name of the template, including .yml (aka <name>.yml)"
-      )][hashtable]$ValidationResults,
+      )][System.Object]$ValidationResults,
       [Parameter()][switch]$AsHTML,
       [Parameter()][switch]$AsCSV,
       [Parameter()][switch]$AsJSON
