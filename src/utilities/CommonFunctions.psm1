@@ -50,9 +50,8 @@ Function Test-RequiredModules {
   $requiredModules = @(
     @{name = "powershell-yaml" }
     @{name = "PnP.PowerShell"; version = "3.1.0" }
-    # @{name = "Microsoft.Graph"; version = "2.26.1" }
-    # @{name = "Az.Accounts"; version = "4.0.2" }
-    # @{name = "Az.Resources"; version = "6.4.0" }
+    @{name = "Az.Accounts"; version = "5.3.2" }
+    @{name = "Az.Resources"; version = "8.0.1" }
     @{name = "PSLogs"; version = "5.2.1" }
     @{name = "MarkdownPS"; version = "1.9" }
     @{name = "MarkdownToHTML"; version = "2.7.1" }  
@@ -64,7 +63,7 @@ Function Test-RequiredModules {
   # Check for required PowerShell version
   try {
     if ($PSVersionTable.PSVersion.Major -lt 7) {
-      throw "Test-RequiredModules PowerShell version must be 7.0 or higher. You are running $($PSVersionTable.PSVersion.ToString()).`nWe recommend you to upgrade to the latest version."
+      throw "Test-RequiredModules PowerShell version must be 7.4.6 or higher. You are running $($PSVersionTable.PSVersion.ToString()).`nWe recommend you to upgrade to the latest version."
     }
   }
   catch {
