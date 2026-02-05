@@ -1,0 +1,75 @@
+Topic: SharePoint Online
+Type: Baseline
+Id: M365.1-5.2
+Version: 1.0
+
+References:
+  - CIS Microsoft 365 Foundations Benchmark (v3.1.0) ⭐️
+  - https://www.cisa.gov/sites/default/files/2023-12/SharePoint%20and%20OneDrive%20SCB_12.20.2023.pdf
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharing
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#access-control
+  - https://blueprint.oobe.com.au/as-built-as-configured/office-365/#sharepoint-settings
+
+Configuration:
+  - enforces: ExternalSharing
+    with:
+      SharingCapability: ExistingExternalUserSharingOnly # ⭐️ Specifies the sharing capabilities for the site
+      DefaultSharingLinkType: Direct # ⭐️Specifies the default sharing link type ('Direct' means: only the people the user specifies will be able to access the link)
+      DefaultLinkPermission: View
+      RequireAcceptingAccountMatchInvitedAccount: true # Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address.
+      RequireAnonymousLinksExpireInDays: 30 # Specifies all anonymous links that have been created (or will be created) will expire after the set number of days (set to 0 to remove).
+      FileAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
+      FolderAnonymousLinkType: View # Sets whether anonymous access links can allow recipients to only view or view and edit.
+      CoreRequestFilesLinkEnabled: false # Enable or disable the Request files link on the core partition for all SharePoint sites (not including OneDrive sites).
+      ExternalUserExpirationRequired: true # ⭐️Ensure guest access to a site or OneDrive will expire automatically.
+      ExternalUserExpireInDays: 30 # ⭐️When a value is set, it means that the access of the external user will expire in those many number of days.
+      EmailAttestationRequired: true # ⭐️Ensure reauthentication with verification code (per email) is restricted.
+      EmailAttestationReAuthDays: 15 # ⭐️Sets the number of days for email attestation re-authentication. Value can be from 1 to 365 days.
+      PreventExternalUsersFromResharing: true # ⭐️Prevents external users from resharing files, folders, and sites that they do not own.
+      SharingDomainRestrictionMode: AllowList # Specifies the external sharing mode for domains.
+      SharingAllowedDomainList: "<Domain 1>, <Domain 2>" # ⭐️Specifies a list of email domains that is allowed for sharing with the external collaborators (comma separated).
+      ShowEveryoneClaim: false # Enables the administrator to hide the Everyone claim in the People Picker.
+      ShowEveryoneExceptExternalUsersClaim: false # Enables the administrator to hide the "Everyone except external users" claim in the People Picker.
+      DisplayNamesOfFileViewersInSpo: True # Let site owners choose to display the names of people who viewed files or pages
+      GuestSharingGroupAllowListInTenantByPrincipalIdentity: "<Group 1>, <Group 2>" #⭐️ Ensure external sharing is restricted by security group
+    references:
+      - SharingCapability: "Forcing guest authentication on the organization's tenant enables the implementation of controls and oversight over external file sharing. When a guest is registered with the organization, they now have an identity which can be accounted for."
+      - DefaultSharingLinkType: "By defaulting to specific people, the user will first need to consider whether or not the content being shared should be accessible by the entire organization versus select individuals. This aids in reinforcing the concept of least privilege."
+      - ExternalUserExpirationRequired: "This setting ensures that guests who no longer need access to the site or link no longer have access after a set period of time. Allowing guest access for a longer or an indefinite amount of time could lead to loss of data confidentiality and oversight."
+      - EmailAttestationReAuthDays: "This setting configures if guests who use a verification code to access the site or links are required to reauthenticate after a set number of days. It should be set to '15' or les days."
+      - PreventExternalUsersFromResharing: "The organization should have the authority over what external users get shared with to prevent unauthorized disclosures of information."
+      - SharingAllowedDomainList: "Refer to the section 'More external sharing settings' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/sharing. Restricting the domains that users can share documents with will reduce the risk of unauthorized access to company data."
+      - CoreRequestFilesLinkEnabled: "This setting depends on the setting in 'Sharing Capability'. Setting the value to 'true' has no effect as long as 'Sharing Capability' is set to 'ExistingExternalUserSharingOnly'."
+      - GuestSharingGroupAllowListInTenantByPrincipalIdentity: "Create tighter security controls for external sharing which can be set to enforce role-based access control by using security groups already defined in Microsoft Entra."
+
+  - enforces: ApplicationsAndWebparts
+    with:
+      DisabledWebPartIds: ""
+
+  - enforces: AccessControl
+    with:
+      ConditionalAccessPolicy: AllowLimitedAccess # Blocks or limits access to SharePoint and OneDrive content from un-managed devices.
+      BrowserIdleSignout: true
+      BrowserIdleSignoutMinutes: 60
+      BrowserIdleSignoutWarningMinutes: 5
+      LegacyAuthProtocolsEnabled: false # ⭐️ Setting this parameter prevents Office clients using non-modern authentication protocols from accessing SharePoint Online resources
+      EnableAzureADB2BIntegration: true # ⭐️ Enables the integration of the user management capabilities of SharePoint and OneDrive in Entra ID. This allows for more granular control of how guest user accounts are managed companywide.
+    references:
+      - BrowserIdleSignout: ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/accessControl/IdleSession
+      - LegacyAuthProtocolsEnabled: "Requiring modern authentication for SharePoint applications ensures strong authentication mechanisms are used when establishing sessions and connecting users."
+      - EnableAzureADB2BIntegration: "This provides a way to manage guest identities and control access to SharePoint and OneDrive resources. Without this integration, files can only be shared without account registration, making it more challenging to audit and manage who has access to the organization's data."
+
+  - enforces: SiteCreationAndStorageLimits
+    with:
+      NotificationsInSharePointEnabled: true # Enables or disables notifications in SharePoint.
+      DenyPagesCreationByUsers: false
+      DenySiteCreationByUsers: true
+    references:
+      - DenyPagesCreationByUsers: "Make sure the setting 'Allow users to create new modern pages' is checked on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/ModernPages"
+      - DenySiteCreationByUsers: "Uncheck the setting 'Users can create SharePoint sites' on ${{tenantAdminUrl}}/_layouts/15/online/AdminHome.aspx#/settings/SiteCreation"
+  
+  - enforces: VariousSettings
+    with:
+      DisallowInfectedFileDownload: true # ⭐️Ensure Office 365 SharePoint infected files are disallowed for download (allowed by default)
+    references:
+      - DisallowInfectedFileDownload: "When an infected file is detected that file is blocked so that no one can open, copy, move, or share it until further actions are taken by the organization's security team."
