@@ -1,0 +1,39 @@
+Topic: Tenant Basic Configuration
+Type: Baseline
+Id: M365.1-1.1
+Version: 1.0
+
+References:
+  - CIS Microsoft 365 Foundations Benchmark (v5.0.0) 
+
+
+Configuration:
+  - enforces: Users
+    with:
+      EnsureAdministrativeAccountsCloudonly: # Ensures that all administrative accounts are cloud-only accounts and not synchronized from on-premises Active Directory
+        value: true
+        cisRef: "1.1.1"
+        cisLevel: "1"
+        minLicense: "E3"
+      EnsurreTwoEmergencyAccountsDefined: # Ensures that at least two emergency access accounts are defined in the tenant.
+        value: true
+        cisRef: "1.1.2"
+        cisLevel: "1"
+        minLicense: "E3"
+      EnsureBetween2And4GlobalAdmins: # Ensures that there are between 2 and 4 global administrator accounts in the tenant.
+        value: true
+        cisRef: "1.1.3"
+        cisLevel: "1"
+        minLicense: "E3"
+      EnsureAdminAccountsWithReducedAppLicenses: # Ensures that administrative accounts have reduced application licenses assigned to them.
+        value: true
+        cisRef: "1.1.4"
+        cisLevel: "1"
+        minLicense: "E3"
+      
+
+  - enforces: TeamsAndGroups
+    with:
+
+  - enforces: Settings
+    with:
